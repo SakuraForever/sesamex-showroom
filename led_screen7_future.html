@@ -1,0 +1,130 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>LED屏7 · 第五世界弧幕</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000;overflow:hidden;font-family:'Microsoft YaHei',sans-serif}canvas{display:block}</style>
+</head><body><canvas id="c"></canvas><script>
+// Pause when not visible (performance)
+var _raf=requestAnimationFrame;
+var _paused=false;
+document.addEventListener('visibilitychange',function(){_paused=document.hidden});
+window.requestAnimationFrame=function(cb){if(_paused)return setTimeout(function(){requestAnimationFrame(cb)},100);return _raf(cb)};
+
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const W=1920,H=600;cv.width=W;cv.height=H;
+let t=0;const FPS=30,TOTAL=75,FRAMES=TOTAL*FPS;
+let stars=[];
+for(let i=0;i<150;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2,s:Math.random()*0.5+0.1,c:['#FF8844','#FFD700','#CC66FF','#FFFFFF','#66AAFF'][i%5]});
+// 5 chapters: intro(0-15s) -> city(15-30s) -> rescue(30-45s) -> nature(45-60s) -> finale(60-75s)
+function draw(){
+const sec=t/FPS;
+const grad=ctx.createLinearGradient(0,0,0,H);
+// Chapter-based color scheme
+if(sec<15){grad.addColorStop(0,'#0a0510');grad.addColorStop(1,'#150030');}
+else if(sec<30){grad.addColorStop(0,'#1a1000');grad.addColorStop(1,'#2a1500');}
+else if(sec<45){grad.addColorStop(0,'#200808');grad.addColorStop(1,'#301010');} // rescue: dark red-grey
+else if(sec<60){grad.addColorStop(0,'#001020');grad.addColorStop(1,'#002030');}
+else{grad.addColorStop(0,'#100020');grad.addColorStop(1,'#200030');}
+ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+// Stars/particles
+stars.forEach(s=>{
+s.y-=s.s;if(s.y<0)s.y=H;
+ctx.fillStyle=s.c;ctx.globalAlpha=0.2+Math.sin(t*0.05+s.x)*0.2;
+ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,7);ctx.fill();});
+ctx.globalAlpha=1;
+
+if(sec<15){
+// CHAPTER 0: Intro - robot dog leads the way
+ctx.font='bold 48px Microsoft YaHei';ctx.textAlign='center';
+const a=0.5+Math.sin(t*0.1)*0.3;ctx.fillStyle='rgba(0,212,255,'+a+')';
+ctx.fillText('WELCOME TO THE FIFTH WORLD',W/2,H/2);
+ctx.font='14px monospace';ctx.fillStyle='rgba(0,255,153,0.3)';ctx.fillText('POWERED BY SesameX',W/2,H/2+20);
+ctx.font='18px monospace';ctx.fillStyle='rgba(255,255,255,0.2)';
+ctx.fillText('QUADRUPED ROBOT LEADING THE WAY',W/2,H/2+45);
+// Robot dog silhouette moving
+const dogX=W/2+Math.sin(t*0.05)*300;
+ctx.strokeStyle='#00D4FF';ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(dogX-30,H/2-100);ctx.lineTo(dogX+30,H/2-100);
+ctx.moveTo(dogX-20,H/2-100);ctx.lineTo(dogX-25,H/2-75);ctx.moveTo(dogX-10,H/2-100);ctx.lineTo(dogX-5,H/2-75);
+ctx.moveTo(dogX+10,H/2-100);ctx.lineTo(dogX+15,H/2-75);ctx.moveTo(dogX+20,H/2-100);ctx.lineTo(dogX+25,H/2-75);
+ctx.stroke();
+// Speed lines
+ctx.strokeStyle='rgba(0,212,255,0.1)';ctx.lineWidth=1;
+for(let i=0;i<10;i++){const y=H/2-100+i*20;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+}else if(sec<30){
+// CHAPTER 1: Smart City 2040
+ctx.font='bold 36px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='rgba(255,200,100,0.8)';
+ctx.fillText('SMART CITY 2040',W/2,H/2-100);
+// City skyline silhouette
+ctx.fillStyle='rgba(255,200,100,0.15)';
+for(let i=0;i<12;i++){const bx=i*160;const bh=80+Math.sin(i)*40;
+ctx.fillRect(bx,H/2+20-bh,120,bh);}
+// Robot indicators
+const items=[['CLEAN','#00FF99'],['DELIVERY','#4488FF'],['COMPANION','#FF9944'],['PATROL','#6644FF']];
+items.forEach((it,i)=>{
+const x=W/2-360+i*240;const y=H/2+60+Math.sin(t*0.05+i)*8;
+ctx.strokeStyle=it[1];ctx.lineWidth=1;ctx.globalAlpha=0.6;
+ctx.beginPath();ctx.arc(x,y,15,0,7);ctx.stroke();ctx.globalAlpha=1;
+ctx.font='12px monospace';ctx.fillStyle=it[1];ctx.fillText(it[0],x,y+35);});
+ctx.font='16px Microsoft YaHei';ctx.fillStyle='rgba(255,200,100,0.3)';
+ctx.fillText('SesameX POWERING EVERY CORNER',W/2,H-40);
+}else if(sec<45){
+// CHAPTER 2: Rescue (NEW!)
+ctx.font='bold 36px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='rgba(255,100,50,0.8)';
+ctx.fillText('RESCUE OPERATION',W/2,H/2-100);
+// Debris/rubble silhouettes
+ctx.fillStyle='rgba(120,80,60,0.2)';
+for(let i=0;i<8;i++){const bx=i*240;const bh=30+Math.sin(i*2)*20;
+ctx.save();ctx.translate(bx+60,H/2+30);ctx.rotate(Math.sin(i)*0.3);
+ctx.fillRect(-40,-bh,80,bh);ctx.restore();}
+// Rescue robots
+const items=[['SEARCH DOG','#00CCFF'],['HUMANOID','#00FF99'],['DRONE DROP','#FFD700']];
+items.forEach((it,i)=>{
+const x=W/2-300+i*300;const y=H/2+50+Math.sin(t*0.08+i)*12;
+ctx.strokeStyle=it[1];ctx.lineWidth=2;ctx.globalAlpha=0.7;
+if(i===0){ctx.beginPath();ctx.moveTo(x-20,y);ctx.lineTo(x+20,y);
+ctx.moveTo(x-15,y);ctx.lineTo(x-18,y+15);ctx.moveTo(x-5,y);ctx.lineTo(x-2,y+15);
+ctx.moveTo(x+5,y);ctx.lineTo(x+8,y+15);ctx.moveTo(x+15,y);ctx.lineTo(x+18,y+15);ctx.stroke();}
+else if(i===1){ctx.strokeRect(x-12,y-30,24,40);ctx.beginPath();ctx.arc(x,y-40,10,0,7);ctx.stroke();}
+else{ctx.beginPath();ctx.ellipse(x,y,25,8,0,0,7);ctx.stroke();
+ctx.beginPath();ctx.moveTo(x-25,y);ctx.lineTo(x-35,y-15);ctx.moveTo(x+25,y);ctx.lineTo(x+35,y-15);ctx.stroke();}
+ctx.globalAlpha=1;ctx.font='11px monospace';ctx.fillStyle=it[1];ctx.fillText(it[0],x,y+30);});
+// Heat signature effect
+for(let i=0;i<20;i++){const x=Math.random()*W;const y=H/2+30+Math.random()*60;
+ctx.fillStyle='rgba(255,80,30,'+(0.05+Math.random()*0.1)+')';ctx.beginPath();ctx.arc(x,y,3+Math.random()*5,0,7);ctx.fill();}
+ctx.font='16px Microsoft YaHei';ctx.fillStyle='rgba(255,100,50,0.3)';
+ctx.fillText('SesameX WHERE HUMANS CANNOT REACH',W/2,H-40);
+}else if(sec<60){
+// CHAPTER 3: Nature conservation
+ctx.font='bold 36px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='rgba(100,255,150,0.8)';
+ctx.fillText('ECOLOGICAL GUARDIAN',W/2,H/2-100);
+// Tree silhouettes
+ctx.fillStyle='rgba(50,150,80,0.15)';
+for(let i=0;i<10;i++){const tx=i*200;
+ctx.beginPath();ctx.arc(tx+50,H/2,40,0,7);ctx.fill();}
+// Eco robots
+const items=[['FOREST PATROL','#00CCFF'],['WATER SCAN','#4488FF'],['FARM BOT','#00FF99'],['SAT MONITOR','#CC66FF']];
+items.forEach((it,i)=>{
+const x=W/2-360+i*240;const y=H/2+60+Math.sin(t*0.04+i)*8;
+ctx.strokeStyle=it[1];ctx.lineWidth=1;ctx.globalAlpha=0.5;
+ctx.beginPath();ctx.arc(x,y,12,0,7);ctx.stroke();ctx.globalAlpha=1;
+ctx.font='11px monospace';ctx.fillStyle=it[1];ctx.fillText(it[0],x,y+30);});
+ctx.font='16px Microsoft YaHei';ctx.fillStyle='rgba(100,255,150,0.3)';
+ctx.fillText('SesameX GUARDING THE PLANET',W/2,H-40);
+}else{
+// CHAPTER 4: Finale - World Tree
+const pulse=0.5+Math.sin(t*0.1)*0.5;
+ctx.globalAlpha=pulse;
+// Particle convergence to tree
+for(let i=0;i<40;i++){const ang=i/40*6.28+t*0.02;const r=200-t%30*5;
+if(r>0){const px=W/2+Math.cos(ang)*r;const py=H/2+Math.sin(ang)*r*0.5;
+ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(px,py,2,0,7);ctx.fill();}}
+// Light tree
+ctx.strokeStyle='#FFD700';ctx.lineWidth=3;ctx.globalAlpha=pulse*0.6;
+ctx.beginPath();ctx.moveTo(W/2,H/2+80);ctx.lineTo(W/2,H/2-80);ctx.stroke();
+for(let i=0;i<6;i++){const by=H/2-20+i*15;const bw=60-i*8;
+ctx.beginPath();ctx.moveTo(W/2,by);ctx.lineTo(W/2-bw,by-20);
+ctx.moveTo(W/2,by);ctx.lineTo(W/2+bw,by-20);ctx.stroke();}
+ctx.globalAlpha=1;
+ctx.font='bold 56px Microsoft YaHei';ctx.textAlign='center';
+const g2=ctx.createLinearGradient(0,0,W,0);g2.addColorStop(0,'#FFD700');g2.addColorStop(1,'#FF8844');ctx.fillStyle=g2;
+ctx.fillText('BEST TECH',W/2,H/2-130);ctx.fillText('BEST LIFE',W/2,H/2-70);}
+t++;if(t>=FRAMES)t=0;requestAnimationFrame(draw);}draw();
+</script></body></html>

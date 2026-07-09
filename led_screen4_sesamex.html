@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>LED屏4 · SesameX平台</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000;overflow:hidden;font-family:'Microsoft YaHei',sans-serif}canvas{display:block}</style>
+</head><body><canvas id="c"></canvas><script>
+// Pause when not visible (performance)
+var _raf=requestAnimationFrame;
+var _paused=false;
+document.addEventListener('visibilitychange',function(){_paused=document.hidden});
+window.requestAnimationFrame=function(cb){if(_paused)return setTimeout(function(){requestAnimationFrame(cb)},100);return _raf(cb)};
+
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const W=1920,H=600;cv.width=W;cv.height=H;
+let t=0;const FPS=30,TOTAL=90,FRAMES=TOTAL*FPS;
+const platforms=[
+{n:'Kalos',c:'#00FF99',desc:'高性能机器人计算平台',chip:'SesameX Liora',feat:'VLA/世界模型推理',icon:'QUADRUPED'},
+{n:'Aura',c:'#00CCFF',desc:'多模态感知计算平台',chip:'多模态融合',feat:'视觉-触觉-语言-动作',icon:'ARM'},
+{n:'Liora',c:'#FF9944',desc:'边缘AI终端平台',chip:'低功耗高能效',feat:'IoT/传感器/智能家居',icon:'COFFEE'}
+];
+function draw(){
+ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+const sec=t/FPS;const pi=Math.floor(sec/30)%3;const lt=(sec%30)/30;
+const p=platforms[pi];
+// BG glow
+ctx.fillStyle=p.c+'10';ctx.fillRect(0,0,W,H);
+// Logo
+if(lt<0.15){const a=lt/0.15;ctx.globalAlpha=a;ctx.font='bold 80px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle=p.c;ctx.fillText(p.n,W/2,H/2-50);
+ctx.font='12px monospace';ctx.fillStyle='rgba(0,255,153,0.4)';ctx.fillText('SesameX Inside',W/2,H/2-80);ctx.globalAlpha=1;}
+else{
+ctx.font='bold 80px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle=p.c;ctx.fillText(p.n,W/2,H/2-50);
+ctx.font='12px monospace';ctx.fillStyle='rgba(0,255,153,0.4)';ctx.fillText('SesameX Inside',W/2,H/2-80);
+ctx.font='28px Microsoft YaHei';ctx.fillStyle='rgba(255,255,255,0.7)';ctx.fillText(p.desc,W/2,H/2+10);
+ctx.font='20px Microsoft YaHei';ctx.fillStyle=p.c+'AA';ctx.fillText('基于 '+p.chip,W/2,H/2+50);
+ctx.font='18px Microsoft YaHei';ctx.fillStyle='rgba(255,255,255,0.4)';ctx.fillText(p.feat,W/2,H/2+85);
+ctx.font='60px sans-serif';ctx.fillText(p.icon,W/2,H/2-130);}
+// Certification
+if(lt>0.7){const a=Math.min((lt-0.7)*4,1);ctx.globalAlpha=a;
+ctx.font='bold 20px Microsoft YaHei';ctx.fillStyle='#FFD700';ctx.textAlign='center';
+ctx.fillText(' 最佳机器人商业落地合作伙伴 ',W/2,H-50);ctx.globalAlpha=1;}
+// Particle
+for(let i=0;i<20;i++){const x=(i*97+t*2)%W;const y=(i*53+t)%H;
+ctx.fillStyle=p.c+'20';ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill();}
+t++;if(t>=FRAMES)t=0;requestAnimationFrame(draw);}draw();
+</script></body></html>

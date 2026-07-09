@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>LED屏6 · 咖啡取餐屏</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#FFF5E8;overflow:hidden;font-family:'Microsoft YaHei',sans-serif}canvas{display:block}</style>
+</head><body><canvas id="c"></canvas><script>
+// Pause when not visible (performance)
+var _raf=requestAnimationFrame;
+var _paused=false;
+document.addEventListener('visibilitychange',function(){_paused=document.hidden});
+window.requestAnimationFrame=function(cb){if(_paused)return setTimeout(function(){requestAnimationFrame(cb)},100);return _raf(cb)};
+
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const W=1280,H=400;cv.width=W;cv.height=H;
+let t=0;const FPS=30;
+const states=['空闲','拍照中','制作中','取餐'];
+let st=2;
+function draw(){
+ctx.fillStyle='#FFF5E8';ctx.fillRect(0,0,W,H);
+ctx.fillStyle='#FF9944';ctx.fillRect(0,0,W,50);
+ctx.font='bold 22px Microsoft YaHei';ctx.textAlign='left';ctx.fillStyle='#fff';ctx.fillText(' SesameX 智能咖啡站',20,35);
+const sec=t/FPS;if(sec>10)st=3;if(sec>15)st=0;if(sec>20){st=2;t=0;}
+if(st===0){ctx.font='bold 28px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='#FF9944';ctx.fillText('请面向摄像头拍照 ',W/2,H/2);}
+else if(st===2){
+ctx.font='bold 20px Microsoft YaHei';ctx.textAlign='left';ctx.fillStyle='#333';ctx.fillText('正在制作 ',40,90);
+ctx.fillStyle='#FF994420';ctx.fillRect(40,100,W-80,80);
+ctx.fillStyle='#FF9944';ctx.beginPath();ctx.arc(80,140,25,0,7);ctx.fill();
+ctx.fillStyle='#333';ctx.font='16px Microsoft YaHei';ctx.fillText('订单 #023',120,130);
+const prog=0.3+Math.sin(t*0.1)*0.3+0.3;ctx.fillStyle='#FF994440';ctx.fillRect(120,145,400,12);ctx.fillStyle='#FF9944';ctx.fillRect(120,145,400*prog,12);
+ctx.fillStyle='#666';ctx.font='12px Microsoft YaHei';ctx.fillText('剩余 '+Math.ceil(45-prog*45)+'秒',540,156);
+ctx.font='bold 16px Microsoft YaHei';ctx.fillStyle='#333';ctx.fillText('排队等候 ',40,230);
+['#024 预计3分钟','#025 预计6分钟'].forEach((o,i)=>{ctx.fillStyle='#999';ctx.font='14px Microsoft YaHei';ctx.fillText(o,40,260+i*25);});
+ctx.fillStyle='#999';ctx.font='13px Microsoft YaHei';ctx.fillText('今日已制作：15杯 ',40,H-20);}
+else if(st===3){
+const pulse=0.5+Math.sin(t*0.2)*0.5;ctx.globalAlpha=pulse;
+ctx.font='bold 36px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='#FF6600';ctx.fillText('咖啡已就绪！',W/2,H/2-20);
+ctx.font='20px Microsoft YaHei';ctx.fillStyle='#FF9944';ctx.fillText('请凭脸取餐',W/2,H/2+30);ctx.globalAlpha=1;}
+t++;requestAnimationFrame(draw);}draw();
+</script></body></html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>采摘互动</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#060610;overflow:hidden;font-family:'Microsoft YaHei',sans-serif}canvas{display:block}.h{position:fixed;top:8px;left:8px;background:rgba(0,0,0,.7);padding:8px 14px;border-radius:6px;border:1px solid rgba(0,212,255,.2);z-index:9}.h b{color:#00D4FF;font-size:13px}.h p{color:#888;font-size:9px;margin-top:2px}.h i{color:#00FF88;font-size:8px}.pb{position:fixed;bottom:46px;left:50%;transform:translateX(-50%);display:flex;gap:3px;z-index:9}.pb div{width:48px;height:5px;background:#222;border-radius:3px;transition:.3s}.pb div.a{background:#00D4FF;box-shadow:0 0 6px #00D4FF}.pb div.d{background:#00D4FF60}.si{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);text-align:center;z-index:9}.si .n{color:#00D4FF;font-size:14px;font-weight:bold}.si .d{color:#fff;font-size:11px;margin-top:1px}.si .t{color:#00FF88;font-size:9px;margin-top:1px}</style></head><body>
+<div class="h"><b>芯片世界树 · 采摘互动</b><p>SesameX Aura · 随机位置视觉寻找 · 真空吸盘</p><i>SesameX Inside</i></div>
+<div class="pb" id="pb"></div><div class="si" id="si"></div>
+<canvas id="c"></canvas><script>
+// Pause when not visible (performance)
+var _raf=requestAnimationFrame;
+var _paused=false;
+document.addEventListener('visibilitychange',function(){_paused=document.hidden});
+window.requestAnimationFrame=function(cb){if(_paused)return setTimeout(function(){requestAnimationFrame(cb)},100);return _raf(cb)};
+
+var cv=document.getElementById('c'),ctx=cv.getContext('2d'),t=0,F=30;
+function rs(){cv.width=innerWidth;cv.height=innerHeight}rs();onresize=rs;
+function L(){return{tx:innerWidth*.17,tw:72,bx:innerWidth*.44,trx:innerWidth*.61,gy:innerHeight*.87,lx:innerWidth*.7,ly:42,lw:innerWidth*.27,lh:innerHeight*.27}}
+var SL=[{dx:-10,dy:-75,l:'A'},{dx:20,dy:-50,l:'B'},{dx:-6,dy:-20,l:'C'},{dx:16,dy:8,l:'D'},{dx:-12,dy:36,l:'E'},{dx:10,dy:62,l:'F'}];
+var SD=[2.5,3,2,1.5,1.5,3,2],SN=['供果','视觉扫描','运动规划','接近吸附','提起','递送','复位'],ST=['随机偏转片·纯物理随机','D435i+Aura HSV→6DoF','OMPL/RRT·碰撞检测','12V真空泵·硅胶吸盘','负压确认·重力脱离','释放真空·斜面滑落','管道重力供果·自动补位'];
+var cs=2,ae={x:0,y:0},ah=false;
+for(var i=0;i<7;i++){var e=document.createElement('div');e.id='p'+i;document.getElementById('pb').appendChild(e)}
+function TD(){var s=0;for(var d of SD)s+=d;return s}
+function GS(){var to=TD(),c=(t/F)%to,a=0;for(var i=0;i<7;i++){if(c<a+SD[i])return{s:i,l:(c-a)/SD[i]};a+=SD[i]}return{s:0,l:0}}
+function drawB(s,loc){
+var l=L();ctx.fillStyle='#060610';ctx.fillRect(0,0,cv.width,cv.height);
+var bg=ctx.createRadialGradient(innerWidth*.4,innerHeight*.5,80,innerWidth*.4,innerHeight*.5,innerWidth*.5);bg.addColorStop(0,'#0a0a1a');bg.addColorStop(1,'#060610');ctx.fillStyle=bg;ctx.fillRect(0,0,cv.width,cv.height);
+ctx.strokeStyle='#333';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,l.gy);ctx.lineTo(innerWidth,l.gy);ctx.stroke();
+// Shade hood
+ctx.fillStyle='rgba(10,10,20,.5)';ctx.beginPath();ctx.moveTo(l.tx-50,70);ctx.quadraticCurveTo(l.tx+l.tw*.5,32,l.tx+l.tw+110,70);ctx.lineTo(l.tx+l.tw+110,80);ctx.lineTo(l.tx-50,80);ctx.closePath();ctx.fill();ctx.strokeStyle='#333';ctx.stroke();
+ctx.font='6px monospace';ctx.fillStyle='#555';ctx.textAlign='center';ctx.fillText('遮光罩',l.tx+l.tw+30,68);
+// LED fill
+ctx.fillStyle='rgba(255,215,0,.12)';ctx.fillRect(l.tx-30,80,l.tw+90,3);
+if(s===1){for(var i=0;i<5;i++){ctx.strokeStyle='rgba(255,215,0,.025)';ctx.beginPath();ctx.moveTo(l.tx-12+i*16,83);ctx.lineTo(l.tx-5+i*16,160);ctx.stroke()}}
+// Tree
+var tg=ctx.createLinearGradient(l.tx,0,l.tx+l.tw,0);tg.addColorStop(0,'rgba(170,102,255,.04)');tg.addColorStop(.5,'rgba(170,102,255,.16)');tg.addColorStop(1,'rgba(170,102,255,.04)');
+ctx.fillStyle=tg;ctx.fillRect(l.tx,42,l.tw,l.gy-42);ctx.strokeStyle='rgba(170,102,255,.25)';ctx.lineWidth=1;ctx.strokeRect(l.tx,42,l.tw,l.gy-42);
+ctx.fillStyle='rgba(170,102,255,.05)';ctx.beginPath();ctx.ellipse(l.tx+l.tw/2,52,l.tw*1.3,30,0,0,7);ctx.fill();
+ctx.strokeStyle='rgba(170,102,255,.1)';for(var i=0;i<5;i++){var by=105+i*65;ctx.beginPath();ctx.moveTo(l.tx,by);ctx.quadraticCurveTo(l.tx-22,by-7,l.tx-40,by-15);ctx.stroke();ctx.beginPath();ctx.moveTo(l.tx+l.tw,by);ctx.quadraticCurveTo(l.tx+l.tw+22,by-7,l.tx+l.tw+40,by-15);ctx.stroke()}
+ctx.font='bold 10px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='rgba(170,102,255,.6)';ctx.fillText('芯片世界树',l.tx+l.tw/2,36);
+ctx.font='6px monospace';ctx.fillStyle='rgba(170,102,255,.25)';ctx.fillText('3m',l.tx+l.tw/2,l.gy-4);
+// Tube+chain
+ctx.strokeStyle='rgba(100,100,100,.2)';ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(l.tx+l.tw/2,42);ctx.lineTo(l.tx+l.tw/2,l.gy-16);ctx.stroke();ctx.setLineDash([]);
+ctx.strokeStyle='rgba(100,100,100,.12)';for(var i=0;i<10;i++){var cy=52+i*45+(t*.7)%45;if(cy<l.gy-22){ctx.beginPath();ctx.arc(l.tx+l.tw/2-4,cy,1.5,0,7);ctx.stroke()}}
+// Door
+ctx.fillStyle='#1a1a2a';ctx.fillRect(l.tx-3,l.gy-36,l.tw+6,16);ctx.strokeStyle='#333';ctx.strokeRect(l.tx-3,l.gy-36,l.tw+6,16);
+ctx.font='5px monospace';ctx.fillStyle='#555';ctx.textAlign='center';ctx.fillText('底部加料口',l.tx+l.tw/2,l.gy-25);
+// Slots
+SL.forEach(function(sl,i){var sx=l.tx+l.tw+sl.dx,sy=l.gy*.47+sl.dy;sl.ax=sx;sl.ay=sy;ctx.strokeStyle='rgba(139,69,19,.3)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx-12,sy-6);ctx.lineTo(sx,sy+3);ctx.lineTo(sx+12,sy-6);ctx.stroke();ctx.font='5px monospace';ctx.fillStyle='#444';ctx.textAlign='center';ctx.fillText(sl.l,sx,sy-9)});
+// Safety
+var lx2=l.tx+l.tw+70;ctx.strokeStyle='rgba(255,51,51,.06)';for(var y=180;y<l.gy;y+=7){ctx.beginPath();ctx.moveTo(lx2,y);ctx.lineTo(lx2,y+3);ctx.stroke()}
+// Tray
+var tx=l.trx;ctx.fillStyle='rgba(0,212,255,.06)';ctx.strokeStyle='rgba(0,212,255,.2)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(tx-40,l.gy-50);ctx.lineTo(tx+40,l.gy-25);ctx.lineTo(tx+40,l.gy-8);ctx.lineTo(tx-40,l.gy-35);ctx.closePath();ctx.fill();ctx.stroke();
+ctx.font='7px monospace';ctx.fillStyle='rgba(0,212,255,.4)';ctx.textAlign='center';ctx.fillText('取物台',tx,l.gy-14)}
+function drawA(tx,ty,s,loc){
+var l=L(),bx=l.bx,by=l.gy-15;
+ctx.fillStyle='rgba(255,204,0,.12)';ctx.strokeStyle='rgba(255,204,0,.3)';ctx.fillRect(bx-26,by-6,52,22);ctx.strokeRect(bx-26,by-6,52,22);
+ctx.font='7px monospace';ctx.fillStyle='rgba(255,204,0,.6)';ctx.textAlign='center';ctx.fillText('Aubo i5',bx,by+3);
+var L1=82,L2=68,L3=48;var dx=tx-bx,dy=ty-(by-10),dist=Math.min(Math.sqrt(dx*dx+dy*dy),L1+L2+L3-8);var ba=Math.atan2(dy,dx);
+var j1x=bx,j1y=by-10;var td2=Math.min(dist,L1+L2-5),hf=(L1+L2)/2;var of=Math.sqrt(Math.max(hf*hf-(td2/2)*(td2/2),10));
+var mx=bx+Math.cos(ba)*td2/2-Math.sin(ba)*of,my=j1y+Math.sin(ba)*td2/2+Math.cos(ba)*of;
+var a1=Math.atan2(my-j1y,mx-j1x),j2x=j1x+Math.cos(a1)*L1,j2y=j1y+Math.sin(a1)*L1;
+var a2=Math.atan2(ty-j2y,tx-j2x),j3x=j2x+Math.cos(a2)*L2,j3y=j2y+Math.sin(a2)*L2;
+var a3=Math.atan2(ty-j3y,tx-j3x),ex=j3x+Math.cos(a3)*L3,ey=j3y+Math.sin(a3)*L3;ae={x:ex,y:ey};
+ctx.strokeStyle='rgba(255,204,0,.1)';ctx.lineWidth=7;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(j1x,j1y);ctx.lineTo(j2x,j2y);ctx.lineTo(j3x,j3y);ctx.lineTo(ex,ey);ctx.stroke();
+ctx.strokeStyle='#FFCC00';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(j1x,j1y);ctx.lineTo(j2x,j2y);ctx.stroke();ctx.beginPath();ctx.moveTo(j2x,j2y);ctx.lineTo(j3x,j3y);ctx.stroke();ctx.beginPath();ctx.moveTo(j3x,j3y);ctx.lineTo(ex,ey);ctx.stroke();
+ctx.fillStyle='#FFCC00';[[j1x,j1y],[j2x,j2y],[j3x,j3y]].forEach(function(p){ctx.beginPath();ctx.arc(p[0],p[1],4,0,7);ctx.fill()});
+ctx.fillStyle='rgba(0,212,255,.15)';ctx.strokeStyle='#00D4FF';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(ex,ey,9,0,7);ctx.fill();ctx.stroke();
+ctx.strokeStyle='rgba(0,212,255,.3)';ctx.beginPath();ctx.arc(ex,ey,5,0,7);ctx.stroke();
+ctx.fillStyle='rgba(0,255,136,.4)';ctx.fillRect(ex-4,ey-12,9,5);ctx.font='4px monospace';ctx.fillStyle='#00FF88';ctx.textAlign='center';ctx.fillText('D435i',ex,ey-14);
+ctx.font='4px monospace';ctx.fillStyle='rgba(0,255,136,.3)';ctx.fillText('SesameX',j2x,j2y-7);
+if(ah||(s===3&&loc>.4)){var p=.5+Math.sin(t*.3)*.3;ctx.strokeStyle='rgba(0,212,255,'+p*.3+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(ex,ey,13,0,7);ctx.stroke();
+for(var i=0;i<4;i++){var pa=t*.05+i*1.57;ctx.fillStyle='rgba(0,212,255,.15)';ctx.beginPath();ctx.arc(ex+Math.cos(pa)*11,ey+Math.sin(pa)*11,1.5,0,7);ctx.fill()}}}
+function drawAp(x,y,r){ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(x+1,y+r*.7,r*.7,r*.25,0,0,7);ctx.fill();
+var g=ctx.createRadialGradient(x-r*.3,y-r*.3,2,x,y,r);g.addColorStop(0,'#FF7755');g.addColorStop(.7,'#DD3322');g.addColorStop(1,'#AA1100');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.arc(x-r*.3,y-r*.3,r*.22,0,7);ctx.fill();
+ctx.strokeStyle='#553322';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+2,y-r-3);ctx.stroke();ctx.fillStyle='#44AA44';ctx.beginPath();ctx.ellipse(x+3,y-r-2,3,1.5,-.5,0,7);ctx.fill()}
+function drawLED(s,loc){
+var l=L(),px=l.lx,py=l.ly,pw=l.lw,ph=l.lh;ctx.fillStyle='rgba(0,5,12,.85)';ctx.fillRect(px,py,pw,ph);ctx.strokeStyle='rgba(0,212,255,.25)';ctx.strokeRect(px,py,pw,ph);
+ctx.fillStyle='rgba(0,212,255,.08)';ctx.fillRect(px,py,pw,16);ctx.font='7px monospace';ctx.fillStyle='#00D4FF';ctx.textAlign='left';ctx.fillText('SesameX Aura D435i',px+5,py+11);ctx.textAlign='right';ctx.fillStyle='#00FF88';ctx.fillText('Inside',px+pw-5,py+11);
+if(s===1){ctx.fillStyle='rgba(0,20,5,.6)';ctx.fillRect(px+2,py+18,pw-4,ph-20);
+SL.forEach(function(sl,i){var sx=px+18+i*(pw-36)/6,sy=py+ph*.35+Math.sin(t*.1+i)*3;if(i===cs){ctx.fillStyle='#FF3333';ctx.beginPath();ctx.arc(sx,sy,8,0,7);ctx.fill();ctx.strokeStyle='#00FF88';ctx.lineWidth=1;ctx.strokeRect(sx-10,sy-10,20,20)}else{ctx.fillStyle='#333';ctx.beginPath();ctx.arc(sx,sy,3,0,7);ctx.fill()}});
+if(loc>.5){ctx.font='6px monospace';ctx.fillStyle='#00FF88';ctx.textAlign='left';ctx.fillText('HSV: RED DETECTED 97%',px+5,py+ph-12);ctx.fillText('6DoF: OK',px+5,py+ph-4)}else{ctx.font='6px monospace';ctx.fillStyle='#888';ctx.fillText('SCANNING...',px+5,py+ph-6)}}
+else if(s===2){ctx.fillStyle='rgba(0,8,20,.6)';ctx.fillRect(px+2,py+18,pw-4,ph-20);ctx.strokeStyle='rgba(0,212,255,.2)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(px+30,py+ph*.6);for(var i=0;i<8;i++)ctx.lineTo(px+30+i*(pw-60)/8,py+ph*.6+Math.sin(i)*15);ctx.stroke();ctx.font='6px monospace';ctx.fillStyle='#00D4FF';ctx.fillText('PLANNING...',px+5,py+ph-6)}
+else{ctx.fillStyle='rgba(0,0,8,.5)';ctx.fillRect(px+2,py+18,pw-4,ph-20);ctx.font='6px monospace';ctx.fillStyle='#555';ctx.fillText('STANDBY',px+5,py+ph-6)}}
+function drawScan(s,loc){if(s!==1)return;var l=L();var sy=SL[0].ay-20+loc*(SL[5].ay-SL[0].ay+40);ctx.strokeStyle='rgba(0,255,136,.2)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(l.tx-20,sy);ctx.lineTo(l.tx+l.tw+40,sy);ctx.stroke();if(loc>.5){var sl=SL[cs],a=Math.min((loc-.5)*4,1);ctx.strokeStyle='rgba(0,255,136,'+a+')';ctx.lineWidth=2;ctx.strokeRect(sl.ax-16,sl.ay-16,32,32);ctx.font='6px monospace';ctx.fillStyle='rgba(0,255,136,'+a+')';ctx.textAlign='left';ctx.fillText('APPLE '+Math.round(loc*100)+'%',sl.ax+19,sl.ay-8);ctx.fillText('['+Math.round(sl.ax)+','+Math.round(sl.ay)+']',sl.ax+19,sl.ay+2)}}
+function drawSupply(s,loc){if(s!==0)return;var l=L();var fy=50+loc*180;if(fy<SL[0].ay){ctx.fillStyle='rgba(255,51,51,.25)';ctx.beginPath();ctx.arc(l.tx+l.tw/2,fy,6,0,7);ctx.fill()}ctx.strokeStyle='#666';ctx.lineWidth=1;var da=Math.sin(t*.3)*.4;ctx.save();ctx.translate(l.tx+l.tw/2,SL[0].ay-15);ctx.rotate(da);ctx.beginPath();ctx.moveTo(-7,0);ctx.lineTo(7,0);ctx.lineTo(0,-5);ctx.closePath();ctx.stroke();ctx.restore()}
+function draw(){
+var st=GS(),s=st.s,loc=st.l;
+if(s===0&&loc<.05){cs=Math.floor(Math.random()*6);ah=false}
+for(var i=0;i<7;i++){var el=document.getElementById('p'+i);el.className=i<s?'d':(i===s?'a':'')}
+var si=document.getElementById('si');si.innerHTML='<div class="n">STEP '+(s+1)+'/7</div><div class="d">'+SN[s]+'</div><div class="t">'+ST[s]+'</div>';
+drawB(s,loc);drawSupply(s,loc);drawScan(s,loc);
+var sl=SL[cs],l=L();var hx=l.bx,hy=l.gy*.55;var apx=sl.ax,apy=sl.ay;
+if(s===0){hx=l.bx;hy=l.gy*.55;if(loc>.3){apx=sl.ax;apy=sl.ay}}
+else if(s===1){hx=l.bx;hy=l.gy*.55;apx=sl.ax;apy=sl.ay}
+else if(s===2){hx=l.bx;hy=l.gy*.55;apx=sl.ax;apy=sl.ay;ctx.strokeStyle='rgba(255,204,0,.15)';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(l.bx,l.gy*.55);ctx.lineTo(sl.ax+10,sl.ay-15);ctx.stroke();ctx.setLineDash([])}
+else if(s===3){hx=sl.ax+8;hy=sl.ay-12;apx=sl.ax;apy=sl.ay}
+else if(s===4){var lf=loc*35;hx=sl.ax+8;hy=sl.ay-12-lf;apx=ae.x;apy=ae.y+7;ah=true}
+else if(s===5){var dx2=l.bx+(l.trx-l.bx)*loc,dy2=l.gy*.55+(l.gy*.75-l.gy*.55)*loc;hx=dx2;hy=dy2;apx=ae.x;apy=ae.y+7;ah=true;if(loc>.8){apx=l.trx+Math.sin(t*.3)*4;apy=l.gy-38+(loc-.8)*30;ah=false}}
+else if(s===6){hx=l.bx-Math.cos(loc*Math.PI)*40;hy=l.gy*.55;apx=l.trx;apy=l.gy-30;ah=false}
+drawA(hx,hy,s,loc);
+if(s>0||loc>.3)drawAp(apx,apy,11);
+if(ah){ctx.strokeStyle='rgba(0,212,255,.25)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ae.x,ae.y);ctx.lineTo(apx,apy);ctx.stroke()}
+drawLED(s,loc);
+ctx.font='bold 9px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='rgba(0,212,255,.4)';ctx.fillText('SesameX Aura · 真空吸盘 · 随机位置视觉寻找',innerWidth*.4,innerHeight-60);
+t++;requestAnimationFrame(draw)}draw()
+</script></body></html>

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>黑芝麻智能 · 展厅3D效果呈现</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #000;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    color: #fff;
+}
+#stage {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
+}
+.scene3d {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    overflow: hidden;
+}
+.scene3d.active { opacity: 1; }
+
+/* === Scene 1: Entrance Tunnel === */
+#s1 { background: #050510; }
+#s1 .tunnel-arc {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border: 3px solid;
+    border-radius: 50%;
+}
+#s1 .arc1 { width: 200px; height: 200px; border-color: rgba(0,212,255,0.8); box-shadow: 0 0 40px rgba(0,212,255,0.6); }
+#s1 .arc2 { width: 400px; height: 400px; border-color: rgba(0,150,255,0.5); box-shadow: 0 0 60px rgba(0,150,255,0.4); }
+#s1 .arc3 { width: 600px; height: 600px; border-color: rgba(0,100,255,0.3); }
+#s1 .arc4 { width: 800px; height: 800px; border-color: rgba(0,80,200,0.2); }
+#s1 .arc5 { width: 1000px; height: 1000px; border-color: rgba(0,60,150,0.1); }
+#s1 .tunnel-text {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center; z-index: 10;
+}
+#s1 .tunnel-text h1 {
+    font-size: 56px; font-weight: 900;
+    background: linear-gradient(135deg, #00d4ff, #6644ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 4px;
+    text-shadow: 0 0 60px rgba(0,212,255,0.5);
+}
+#s1 .tunnel-text .sub {
+    font-size: 22px; color: rgba(255,255,255,0.5);
+    letter-spacing: 10px; margin-top: 15px;
+}
+#s1 .floor-reflection {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 300px;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,80,150,0.2) 100%);
+}
+#s1 .light-beam {
+    position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 100%;
+    background: linear-gradient(180deg, rgba(0,212,255,0.1) 0%, transparent 80%);
+    clip-path: polygon(40% 0%, 60% 0%, 90% 100%, 10% 100%);
+}
+#s1 .scene-label {
+    position: absolute; top: 40px; left: 50px;
+    z-index: 20;
+}
+#s1 .scene-label .tag { font-size: 13px; color: #00d4ff; letter-spacing: 4px; }
+#s1 .scene-label h2 { font-size: 32px; font-weight: 900; margin-top: 5px; }
+
+/* === Scene 2: Tower (千万形态塔) === */
+#s2 { background: radial-gradient(ellipse at center, #0a0520 0%, #000 100%); }
+#s2 .tower-base {
+    position: absolute; bottom: 30%; left: 50%;
+    transform: translateX(-50%);
+    width: 300px; height: 20px;
+    background: linear-gradient(180deg, #333 0%, #111 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 40px rgba(0,212,255,0.3);
+}
+#s2 .tower-body {
+    position: absolute; bottom: calc(30% + 15px); left: 50%;
+    transform: translateX(-50%);
+    width: 160px; height: 400px;
+    background: linear-gradient(180deg, rgba(0,212,255,0.05), rgba(0,150,255,0.15), rgba(100,50,255,0.05));
+    border: 2px solid rgba(0,212,255,0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 60px rgba(0,212,255,0.3), inset 0 0 60px rgba(0,212,255,0.1);
+}
+#s2 .tower-screen {
+    position: absolute; top: 20px; left: 10px; right: 10px;
+    height: 350px;
+    background: linear-gradient(180deg, rgba(0,212,255,0.2), rgba(0,100,200,0.1), rgba(100,50,255,0.2));
+    border-radius: 8px; overflow: hidden;
+}
+#s2 .tower-chip {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, #00d4ff, #6644ff);
+    border-radius: 8px;
+    box-shadow: 0 0 40px rgba(0,212,255,0.8);
+    animation: chipRotate 4s linear infinite;
+}
+@keyframes chipRotate {
+    0% { transform: translate(-50%, -50%) rotateY(0deg); }
+    50% { transform: translate(-50%, -50%) rotateY(180deg); }
+    100% { transform: translate(-50%, -50%) rotateY(360deg); }
+}
+#s2 .particle-ring {
+    position: absolute; top: 45%; left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(0,212,255,0.2);
+    border-radius: 50%;
+}
+#s2 .ring1 { width: 300px; height: 300px; animation: ringRotate 8s linear infinite; }
+#s2 .ring2 { width: 450px; height: 450px; animation: ringRotate 12s linear infinite reverse; }
+#s2 .ring3 { width: 600px; height: 600px; animation: ringRotate 16s linear infinite; }
+@keyframes ringRotate {
+    from { transform: translate(-50%,-50%) rotate(0deg); }
+    to { transform: translate(-50%,-50%) rotate(360deg); }
+}
+#s2 .glow-floor {
+    position: absolute; bottom: 20%; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 150px;
+    background: radial-gradient(ellipse at center, rgba(0,212,255,0.15) 0%, transparent 70%);
+}
+#s2 .scene-label {
+    position: absolute; top: 40px; left: 50px; z-index: 20;
+}
+#s2 .scene-label .tag { font-size: 13px; color: #00d4ff; letter-spacing: 4px; }
+#s2 .scene-label h2 { font-size: 32px; font-weight: 900; margin-top: 5px; }
+#s2 .scene-label .desc { font-size: 16px; color: rgba(255,255,255,0.4); margin-top: 8px; }
+
+/* === Scene 3: Floor 1 Robot Panorama === */
+#s3 { background: linear-gradient(180deg, #0a0a15 0%, #050510 100%); }
+#s3 .room-floor {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 40%;
+    background: linear-gradient(180deg, transparent 0%, #080812 30%, #0c0c18 100%);
+    transform: perspective(600px) rotateX(45deg);
+    transform-origin: center bottom;
+}
+#s3 .room-floor::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(0,255,150,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,150,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+}
+#s3 .exhibit-row {
+    position: absolute; bottom: 18%; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 60px; align-items: flex-end;
+}
+#s3 .exhibit { text-align: center; position: relative; }
+#s3 .robot-platform {
+    width: 120px; height: 8px;
+    background: linear-gradient(180deg, #2a2a3a, #111);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(0,255,150,0.2);
+    margin: 0 auto;
+}
+#s3 .robot-body { margin: 0 auto -5px; position: relative; }
+#s3 .r-humanoid {
+    width: 70px; height: 140px;
+    background: linear-gradient(180deg, #ddd, #999);
+    border-radius: 20px 20px 5px 5px;
+    box-shadow: 0 0 30px rgba(0,255,150,0.3);
+    position: relative;
+}
+#s3 .r-humanoid::before {
+    content: ''; position: absolute; top: -30px; left: 50%;
+    transform: translateX(-50%);
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #ddd, #999);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0,212,255,0.3);
+}
+#s3 .r-dog {
+    width: 100px; height: 70px;
+    background: linear-gradient(135deg, #333, #111);
+    border-radius: 15px;
+    box-shadow: 0 0 25px rgba(0,255,150,0.3);
+    position: relative;
+}
+#s3 .r-dog::after {
+    content: ''; position: absolute; top: -5px; left: 10px; right: 10px;
+    height: 20px; background: #1a1a1a; border-radius: 10px;
+}
+#s3 .r-coffee {
+    width: 70px; height: 120px;
+    background: linear-gradient(180deg, #888, #444);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255,150,50,0.3);
+}
+#s3 .r-delivery {
+    width: 90px; height: 100px;
+    background: linear-gradient(180deg, #aaa, #666);
+    border-radius: 45px 45px 5px 5px;
+    box-shadow: 0 0 20px rgba(0,212,255,0.2);
+}
+#s3 .r-arm {
+    width: 50px; height: 120px;
+    background: linear-gradient(180deg, #999, #555);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,255,150,0.2);
+}
+#s3 .exhibit-label {
+    margin-top: 12px; font-size: 13px;
+    color: rgba(0,255,150,0.7); letter-spacing: 1px;
+}
+#s3 .big-screen {
+    position: absolute; top: 8%; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 180px;
+    background: linear-gradient(135deg, #001530, #002050, #001530);
+    border: 2px solid rgba(0,212,255,0.3);
+    border-radius: 8px;
+    box-shadow: 0 0 40px rgba(0,212,255,0.2);
+}
+#s3 .big-screen::after {
+    content: '多机协同中枢调度系统';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 22px; color: rgba(0,212,255,0.6);
+}
+#s3 .ceiling-lights {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 50px; display: flex;
+    justify-content: space-around; align-items: center;
+}
+#s3 .ceiling-lights .light {
+    width: 120px; height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(0,200,255,0.4), transparent);
+    border-radius: 2px;
+}
+#s3 .scene-label {
+    position: absolute; top: 40px; left: 50px; z-index: 20;
+}
+#s3 .scene-label .tag { font-size: 13px; color: #00ff99; letter-spacing: 4px; }
+#s3 .scene-label h2 { font-size: 32px; font-weight: 900; margin-top: 5px; }
+
+/* === Scene 4: Symbiosis Space === */
+#s4 { background: #000; }
+#s4 .room-box {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%; height: 70%;
+}
+#s4 .wall-back {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #1a0530, #0a0220, #050010);
+    border: 1px solid rgba(150,80,255,0.2);
+}
+#s4 .wall-left {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 200px;
+    background: linear-gradient(90deg, rgba(100,50,200,0.3), transparent);
+    transform: perspective(800px) rotateY(30deg);
+    transform-origin: left center;
+}
+#s4 .wall-right {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 200px;
+    background: linear-gradient(-90deg, rgba(50,100,200,0.3), transparent);
+    transform: perspective(800px) rotateY(-30deg);
+    transform-origin: right center;
+}
+#s4 .wall-floor {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 200px;
+    background: linear-gradient(180deg, transparent, rgba(100,50,200,0.15));
+    transform: perspective(600px) rotateX(50deg);
+    transform-origin: center bottom;
+}
+#s4 .projection-glow {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%; height: 60%;
+    background: radial-gradient(ellipse at center, rgba(100,50,255,0.2), rgba(50,100,200,0.1) 40%, transparent 70%);
+}
+#s4 .orb {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,150,50,0.4), rgba(150,50,255,0.2) 50%, transparent 70%);
+    border-radius: 50%;
+    animation: orbPulse 4s ease-in-out infinite;
+}
+@keyframes orbPulse {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%,-50%) scale(1.3); opacity: 1; }
+}
+#s4 .symbiosis-text {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center; z-index: 20;
+}
+#s4 .symbiosis-text h2 {
+    font-size: 64px; font-weight: 900;
+    background: linear-gradient(135deg, #ff9966, #cc66ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 6px;
+}
+#s4 .symbiosis-text .desc {
+    font-size: 22px; color: rgba(255,255,255,0.4);
+    margin-top: 20px; letter-spacing: 4px;
+}
+#s4 .scene-label {
+    position: absolute; top: 40px; left: 50px; z-index: 20;
+}
+#s4 .scene-label .tag { font-size: 13px; color: #cc99ff; letter-spacing: 4px; }
+#s4 .scene-label h2 { font-size: 32px; font-weight: 900; margin-top: 5px; color: #cc99ff; }
+
+/* === Scene 5: Chip Mountain (Floor 2) === */
+#s5 { background: radial-gradient(ellipse at top, #001020 0%, #000 100%); }
+#s5 .mountain-stage {
+    position: absolute; bottom: 15%; left: 50%;
+    transform: translateX(-50%);
+    width: 1000px;
+}
+#s5 .mountain-layer {
+    display: flex; gap: 30px;
+    justify-content: center; align-items: center;
+    margin-bottom: 40px;
+}
+#s5 .chip-unit { text-align: center; }
+#s5 .chip-box {
+    width: 110px; height: 110px;
+    background: linear-gradient(135deg, #1a1a2a, #0a0a1a);
+    border: 2px solid rgba(0,212,255,0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0,212,255,0.15), inset 0 0 20px rgba(0,212,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+}
+#s5 .chip-inner {
+    width: 50px; height: 50px;
+    background: linear-gradient(135deg, #333, #111);
+    border: 1px solid rgba(0,212,255,0.4);
+    border-radius: 6px;
+    box-shadow: 0 0 15px rgba(0,212,255,0.2);
+    position: relative;
+}
+#s5 .chip-inner::after {
+    content: ''; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px; height: 20px;
+    background: radial-gradient(circle, rgba(0,212,255,0.6), transparent 70%);
+}
+#s5 .layer-top .chip-box { border-color: rgba(0,255,200,0.5); box-shadow: 0 0 40px rgba(0,255,200,0.2); }
+#s5 .layer-mid .chip-box { border-color: rgba(0,150,255,0.4); }
+#s5 .layer-bot .chip-box { border-color: rgba(0,100,200,0.3); }
+#s5 .chip-label {
+    margin-top: 8px; font-size: 12px;
+    color: rgba(0,212,255,0.7); font-weight: 700;
+}
+#s5 .mountain-floor {
+    position: absolute; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 900px; height: 80px;
+    background: linear-gradient(180deg, #1a1a2a, #050510);
+    border-radius: 50% 50% 0 0 / 30% 30% 0 0;
+    box-shadow: 0 0 40px rgba(0,150,255,0.1);
+}
+#s5 .mountain-glow {
+    position: absolute; bottom: 5%; left: 50%;
+    transform: translateX(-50%);
+    width: 1100px; height: 200px;
+    background: radial-gradient(ellipse at center bottom, rgba(0,150,255,0.1), transparent 70%);
+}
+#s5 .scene-label {
+    position: absolute; top: 40px; left: 50px; z-index: 20;
+}
+#s5 .scene-label .tag { font-size: 13px; color: #00d4ff; letter-spacing: 4px; }
+#s5 .scene-label h2 { font-size: 32px; font-weight: 900; margin-top: 5px; color: #00d4ff; }
+
+/* === Scene 6: Cockpit === */
+#s6 { background: linear-gradient(135deg, #0a0510, #050208); }
+#s6 .cockpit-stage {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 450px;
+}
+#s6 .cockpit-body {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #1a1a25, #0a0a15);
+    border-radius: 60px 60px 20px 20px;
+    border: 3px solid rgba(0,150,255,0.2);
+    box-shadow: 0 0 60px rgba(0,150,255,0.15), inset 0 0 40px rgba(0,150,255,0.05);
+}
+#s6 .windshield {
+    position: absolute; top: 20px; left: 20px; right: 20px;
+    height: 180px;
+    background: linear-gradient(180deg, rgba(0,30,60,0.6), rgba(0,50,100,0.4) 50%, rgba(0,80,150,0.3));
+    border-radius: 50px 50px 5px 5px; overflow: hidden;
+}
+#s6 .windshield::after {
+    content: ''; position: absolute; inset: 0;
+    background:
+        radial-gradient(circle at 30% 40%, rgba(0,200,255,0.1), transparent 30%),
+        radial-gradient(circle at 70% 60%, rgba(100,200,255,0.08), transparent 30%);
+}
+#s6 .dash-display {
+    position: absolute; bottom: 30px; left: 30px; right: 30px;
+    height: 100px; display: flex; gap: 15px;
+}
+#s6 .dash-screen {
+    flex: 1;
+    background: linear-gradient(135deg, #001020, #000510);
+    border: 1px solid rgba(0,200,255,0.3);
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,200,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: rgba(0,200,255,0.5); letter-spacing: 2px;
+}
+#s6 .steering-glow {
+    position: absolute; bottom: 70px; left: 50%;
+    transform: translateX(-50%);
+    width: 160px; height: 160px;
+    border: 3px solid rgba(0,150,255,0.2);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(0,150,255,0.1);
+}
+#s6 .scene-label {
+    position: absolute; top: 40px; left: 50px; z-index: 20;
+}
+#s6 .scene-label .tag { font-size: 13px; color: #00d4ff; letter-spacing: 4px; }
+#s6 .scene-label h2 { font-size: 32px; font-weight: 900; margin-top: 5px; color: #00d4ff; }
+
+/* === Scene 7: Building Exterior === */
+#s7 { background: linear-gradient(180deg, #050510, #0a0a20, #050510); }
+#s7 .building {
+    position: absolute; bottom: 10%; left: 50%;
+    transform: translateX(-50%);
+    width: 400px; height: 500px;
+}
+#s7 .floor-block {
+    width: 100%; margin-bottom: 5px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+}
+#s7 .floor-1 {
+    height: 180px;
+    background: linear-gradient(135deg, rgba(0,60,30,0.4), rgba(0,40,20,0.3));
+    border: 2px solid rgba(0,255,150,0.3);
+    box-shadow: 0 0 30px rgba(0,255,150,0.15);
+}
+#s7 .floor-1::after { content: '🤖 机器人星球'; font-size: 20px; color: rgba(0,255,150,0.6); }
+#s7 .floor-2 {
+    height: 180px;
+    background: linear-gradient(135deg, rgba(0,30,60,0.4), rgba(0,20,40,0.3));
+    border: 2px solid rgba(0,212,255,0.3);
+    box-shadow: 0 0 30px rgba(0,212,255,0.15);
+}
+#s7 .floor-2::after { content: '💎 芯片万象'; font-size: 20px; color: rgba(0,212,255,0.6); }
+#s7 .floor-3 {
+    height: 130px;
+    background: linear-gradient(135deg, rgba(40,20,80,0.4), rgba(20,10,50,0.3));
+    border: 2px solid rgba(150,100,255,0.3);
+    box-shadow: 0 0 30px rgba(150,100,255,0.15);
+}
+#s7 .floor-3::after { content: '🌟 共生未来'; font-size: 20px; color: rgba(150,100,255,0.6); }
+#s7 .light-pillar {
+    position: absolute; left: 50%; bottom: 10%;
+    transform: translateX(-50%);
+    width: 6px; height: 520px;
+    background: linear-gradient(180deg, rgba(0,212,255,0) 0%, rgba(0,212,255,0.8) 50%, rgba(0,212,255,0) 100%);
+    box-shadow: 0 0 40px rgba(0,212,255,0.6);
+    animation: pillarGlow 3s ease-in-out infinite;
+    z-index: 5;
+}
+@keyframes pillarGlow {
+    0%,100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+#s7 .building-title {
+    position: absolute; top: 15%; left: 50%;
+    transform: translateX(-50%);
+    text-align: center; z-index: 20;
+}
+#s7 .building-title h2 {
+    font-size: 48px; font-weight: 900;
+    background: linear-gradient(135deg, #00d4ff, #6644ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 4px;
+}
+#s7 .building-title .sub {
+    font-size: 18px; color: rgba(255,255,255,0.4);
+    margin-top: 10px; letter-spacing: 6px;
+}
+#s7 .ground-glow {
+    position: absolute; bottom: 5%; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 60px;
+    background: radial-gradient(ellipse at center, rgba(0,150,255,0.2), transparent 70%);
+}
+
+/* === Scene 8: Ending === */
+#s8 { background: radial-gradient(ellipse at center, #0a0a30 0%, #000 100%); }
+#s8 .ending-text {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center; z-index: 20;
+}
+#s8 .ending-slogan {
+    font-size: 72px; font-weight: 900;
+    background: linear-gradient(135deg, #00d4ff, #6644ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 4px;
+}
+#s8 .ending-sub {
+    font-size: 24px; color: rgba(255,255,255,0.6);
+    letter-spacing: 6px; margin: 20px 0 40px;
+}
+#s8 .ending-info {
+    font-size: 18px; color: rgba(255,255,255,0.7);
+    line-height: 2;
+}
+#s8 .ending-orb {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,212,255,0.1), transparent 70%);
+    border-radius: 50%;
+    animation: orbPulse2 5s ease-in-out infinite;
+}
+@keyframes orbPulse2 {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%,-50%) scale(1.5); opacity: 0.8; }
+}
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+<!-- Scene 1: Entrance Tunnel -->
+<div class="scene3d active" id="s1">
+    <div class="light-beam"></div>
+    <div class="tunnel-arc arc5"></div>
+    <div class="tunnel-arc arc4"></div>
+    <div class="tunnel-arc arc3"></div>
+    <div class="tunnel-arc arc2"></div>
+    <div class="tunnel-arc arc1"></div>
+    <div class="tunnel-text">
+        <h1>一颗芯片<br>赋能千万种形态</h1>
+        <div class="sub">BLACK SESAME · ROBOT PLANET</div>
+    </div>
+    <div class="floor-reflection"></div>
+    <div class="scene-label">
+        <div class="tag">SCENE 01 · 入口</div>
+        <h2>品牌隧道</h2>
+    </div>
+</div>
+
+<!-- Scene 2: Tower -->
+<div class="scene3d" id="s2">
+    <div class="particle-ring ring3"></div>
+    <div class="particle-ring ring2"></div>
+    <div class="particle-ring ring1"></div>
+    <div class="tower-base"></div>
+    <div class="tower-body">
+        <div class="tower-screen">
+            <div class="tower-chip"></div>
+        </div>
+    </div>
+    <div class="glow-floor"></div>
+    <div class="scene-label">
+        <div class="tag">SCENE 02 · 核心装置</div>
+        <h2>千万形态塔</h2>
+        <div class="desc">3米环形LED柱 · 芯片→千万机器人形态粒子动画</div>
+    </div>
+</div>
+
+<!-- Scene 3: Floor 1 Panorama -->
+<div class="scene3d" id="s3">
+    <div class="ceiling-lights">
+        <div class="light"></div><div class="light"></div><div class="light"></div>
+        <div class="light"></div><div class="light"></div><div class="light"></div>
+    </div>
+    <div class="big-screen"></div>
+    <div class="room-floor"></div>
+    <div class="exhibit-row">
+        <div class="exhibit">
+            <div class="robot-body"><div class="r-humanoid"></div></div>
+            <div class="robot-platform"></div>
+            <div class="exhibit-label">Walker S3</div>
+        </div>
+        <div class="exhibit">
+            <div class="robot-body"><div class="r-dog"></div></div>
+            <div class="robot-platform"></div>
+            <div class="exhibit-label">M20 Pro</div>
+        </div>
+        <div class="exhibit">
+            <div class="robot-body"><div class="r-coffee"></div></div>
+            <div class="robot-platform"></div>
+            <div class="exhibit-label">咖啡机器人</div>
+        </div>
+        <div class="exhibit">
+            <div class="robot-body"><div class="r-delivery"></div></div>
+            <div class="robot-platform"></div>
+            <div class="exhibit-label">云迹送餐</div>
+        </div>
+        <div class="exhibit">
+            <div class="robot-body"><div class="r-arm"></div></div>
+            <div class="robot-platform"></div>
+            <div class="exhibit-label">遨博协作臂</div>
+        </div>
+    </div>
+    <div class="scene-label">
+        <div class="tag">SCENE 03 · 一楼 280㎡</div>
+        <h2>🤖 机器人星球</h2>
+    </div>
+</div>
+
+<!-- Scene 4: Symbiosis Space -->
+<div class="scene3d" id="s4">
+    <div class="room-box">
+        <div class="wall-back"></div>
+        <div class="wall-left"></div>
+        <div class="wall-right"></div>
+        <div class="wall-floor"></div>
+        <div class="projection-glow"></div>
+        <div class="orb"></div>
+    </div>
+    <div class="symbiosis-text">
+        <h2>人机共生</h2>
+        <div class="desc">HUMAN · ROBOT · SYMBIOSIS</div>
+    </div>
+    <div class="scene-label">
+        <div class="tag">SCENE 04 · 沉浸空间</div>
+        <h2>人机共生沉浸体验</h2>
+    </div>
+</div>
+
+<!-- Scene 5: Chip Mountain -->
+<div class="scene3d" id="s5">
+    <div class="mountain-glow"></div>
+    <div class="mountain-stage">
+        <div class="mountain-layer layer-top">
+            <div class="chip-unit"><div class="chip-box"><div class="chip-inner"></div></div><div class="chip-label">华山A2000</div></div>
+            <div class="chip-unit"><div class="chip-box"><div class="chip-inner"></div></div><div class="chip-label">华山A2000</div></div>
+        </div>
+        <div class="mountain-layer layer-mid">
+            <div class="chip-unit"><div class="chip-box"><div class="chip-inner"></div></div><div class="chip-label">武当C1296</div></div>
+            <div class="chip-unit"><div class="chip-box"><div class="chip-inner"></div></div><div class="chip-label">武当C1236</div></div>
+            <div class="chip-unit"><div class="chip-box"><div class="chip-inner"></div></div><div class="chip-label">武当C1296</div></div>
+        </div>
+        <div class="mountain-layer layer-bot">
+            <div class="chip-unit"><div class="chip-box"><div class="chip-inner"></div></div><div class="chip-label">华山A1000</div></div>
+            <div class="chip-unit"><div class="chip-box"><div class="chip-inner"></div></div><div class="chip-label">亿智芯片</div></div>
+            <div class="chip-unit"><div class="chip-box"><div class="chip-inner"></div></div><div class="chip-label">华山A1000</div></div>
+            <div class="chip-unit"><div class="chip-box"><div class="chip-inner"></div></div><div class="chip-label">亿智芯片</div></div>
+        </div>
+        <div class="mountain-floor"></div>
+    </div>
+    <div class="scene-label">
+        <div class="tag">SCENE 05 · 二楼</div>
+        <h2>🏔️ 芯片山脉展台</h2>
+    </div>
+</div>
+
+<!-- Scene 6: Cockpit -->
+<div class="scene3d" id="s6">
+    <div class="cockpit-stage">
+        <div class="cockpit-body">
+            <div class="windshield"></div>
+            <div class="steering-glow"></div>
+            <div class="dash-display">
+                <div class="dash-screen">仪表盘</div>
+                <div class="dash-screen">导航</div>
+                <div class="dash-screen">ADAS</div>
+                <div class="dash-screen">座舱</div>
+            </div>
+        </div>
+    </div>
+    <div class="scene-label">
+        <div class="tag">SCENE 06 · 二楼</div>
+        <h2>🚗 智能座舱体验舱</h2>
+    </div>
+</div>
+
+<!-- Scene 7: Building -->
+<div class="scene3d" id="s7">
+    <div class="building-title">
+        <h2>芯片之树</h2>
+        <div class="sub">三层楼 · 一棵从芯片生长的科技之树</div>
+    </div>
+    <div class="light-pillar"></div>
+    <div class="building">
+        <div class="floor-block floor-3"></div>
+        <div class="floor-block floor-2"></div>
+        <div class="floor-block floor-1"></div>
+    </div>
+    <div class="ground-glow"></div>
+</div>
+
+<!-- Scene 8: Ending -->
+<div class="scene3d" id="s8">
+    <div class="ending-orb"></div>
+    <div class="ending-text">
+        <div class="ending-slogan">BEST TECH<br>BEST LIFE</div>
+        <div class="ending-sub">当芯片有了身体 · 未来便有了温度</div>
+        <div class="ending-info">
+            黑芝麻智能 · 机器人场景展馆<br>
+            📍 深圳前海 · 2026年8月底全面开园<br>
+            🏆 端侧AI推理芯片全球领导者
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+const scenes = document.querySelectorAll('.scene3d');
+const durations = [4000, 4000, 6000, 4000, 5000, 4000, 4000, 4000];
+let current = 0;
+
+function switchTo(index) {
+    scenes.forEach((s, i) => s.classList.toggle('active', i === index));
+    current = index;
+}
+
+let elapsed = 0;
+const totalDuration = durations.reduce((a,b) => a+b, 0);
+
+function tick() {
+    elapsed += 100;
+    let accum = 0;
+    for (let i = 0; i < durations.length; i++) {
+        accum += durations[i];
+        if (elapsed < accum) {
+            if (current !== i) switchTo(i);
+            break;
+        }
+    }
+    if (elapsed >= totalDuration) {
+        elapsed = 0;
+        switchTo(0);
+    }
+}
+
+setInterval(tick, 100);
+</script>
+
+</body>
+</html>

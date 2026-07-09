@@ -1,0 +1,112 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>LED屏3 · 中枢调度大屏</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#001025;overflow:hidden;font-family:'Microsoft YaHei',sans-serif}canvas{display:block}</style>
+</head><body><canvas id="c"></canvas><script>
+// Pause when not visible (performance)
+var _raf=requestAnimationFrame;
+var _paused=false;
+document.addEventListener('visibilitychange',function(){_paused=document.hidden});
+window.requestAnimationFrame=function(cb){if(_paused)return setTimeout(function(){requestAnimationFrame(cb)},100);return _raf(cb)};
+
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const W=1920,H=600;cv.width=W;cv.height=H;
+let t=0;const FPS=30;
+const robots=[
+{n:'Walker S3',c:'#00FF99',x:300,y:200,tx:300,ty:200,st:'WORK',task:'Greeting',bat:87},
+{n:'M20 Pro',c:'#00CCFF',x:600,y:150,tx:600,ty:150,st:'WORK',task:'Patrol',bat:72},
+{n:'Coffee',c:'#FF9944',x:900,y:300,tx:900,ty:300,st:'WORK',task:'Order#023',bat:95},
+{n:'Delivery',c:'#4488FF',x:1200,y:200,tx:1200,ty:200,st:'IDLE',task:'Standby',bat:91},
+{n:'Cleaner',c:'#AA66FF',x:500,y:400,tx:500,ty:400,st:'IDLE',task:'Standby',bat:85},
+{n:'Arm',c:'#FFCC00',x:1400,y:350,tx:1400,ty:350,st:'WORK',task:'Demo',bat:100},
+{n:'Haina',c:'#FF6699',x:800,y:450,tx:800,ty:450,st:'IDLE',task:'Standby',bat:76}
+];
+// Trigger scenario: cycles every 60s, scenario 1 at 15-45s, then back to default
+let scenario=0;
+function drawFloorplan(){
+ctx.strokeStyle='rgba(0,100,200,0.2)';ctx.lineWidth=1;ctx.strokeRect(50,70,1100,500);
+for(let i=0;i<10;i++){ctx.beginPath();ctx.moveTo(50+i*110,70);ctx.lineTo(50+i*110,570);ctx.stroke();}
+for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(50,70+i*100);ctx.lineTo(1150,70+i*100);ctx.stroke();}
+robots.forEach((r,i)=>{
+r.x+=(r.tx-r.x)*0.02;r.y+=(r.ty-r.y)*0.02;
+if(scenario===0&&Math.random()<0.01){r.tx=100+Math.random()*1000;r.ty=100+Math.random()*400;}
+ctx.fillStyle=r.c;ctx.globalAlpha=0.15;ctx.beginPath();ctx.arc(r.x,r.y,18,0,7);ctx.fill();ctx.globalAlpha=1;
+ctx.fillStyle=r.c;ctx.beginPath();ctx.arc(r.x,r.y,7,0,7);ctx.fill();
+ctx.strokeStyle=r.c;ctx.globalAlpha=0.3;ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(r.x,r.y);ctx.lineTo(r.x-(r.tx-r.x)*0.3,r.y-(r.ty-r.y)*0.3);ctx.stroke();ctx.globalAlpha=1;
+ctx.font='11px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle=r.c;ctx.fillText(r.n,r.x,r.y-14);});}
+function drawTaskPanel(){
+ctx.fillStyle='rgba(0,30,60,0.5)';ctx.fillRect(1200,70,700,500);
+ctx.font='bold 18px Microsoft YaHei';ctx.textAlign='left';ctx.fillStyle='#00D4FF';ctx.fillText('TASK LIST',1230,105);
+ctx.strokeStyle='rgba(0,212,255,0.2)';ctx.beginPath();ctx.moveTo(1230,115);ctx.lineTo(1850,115);ctx.stroke();
+robots.forEach((r,i)=>{const y=145+i*50;
+const icon=r.st==='IDLE'?'[IDLE]':r.st==='WORK'?'[WORK]':'[ALERT]';
+ctx.font='14px monospace';ctx.textAlign='left';
+ctx.fillStyle=r.st==='IDLE'?'rgba(255,255,255,0.3)':'#00FF88';
+ctx.fillText(icon+' '+r.n+' '+r.task,1230,y);
+ctx.fillStyle=r.c;ctx.font='11px monospace';
+ctx.fillText('Bat: '+(70+Math.floor(Math.sin(t*0.02+i)*20))+'%',1230,y+18);});
+ctx.fillStyle='rgba(0,212,255,0.05)';ctx.fillRect(0,570,W,30);
+ctx.font='11px monospace';ctx.textAlign='left';ctx.fillStyle='rgba(0,212,255,0.5)';
+const load=60+Math.floor(Math.sin(t*0.03)*20);
+ctx.fillText('Compute: '+'#'.repeat(load/10)+'.'+'.'+'.'+' '+load+'%',20,590);
+ctx.fillText('Throughput: '+(1.0+Math.sin(t*0.05)*0.3).toFixed(1)+' GB/s',300,590);
+ctx.fillText('Online: 7/7',550,590);}
+function draw(){
+ctx.fillStyle='#001025';ctx.fillRect(0,0,W,H);
+ctx.fillStyle='rgba(0,212,255,0.1)';ctx.fillRect(0,0,W,50);
+ctx.font='bold 22px Microsoft YaHei';ctx.textAlign='left';ctx.fillStyle='#00D4FF';ctx.fillText('SesameX MULTI-ROBOT ORCHESTRATION',20,35);
+ctx.textAlign='right';ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='14px monospace';ctx.fillText(new Date().toLocaleTimeString('zh-CN'),W-20,35);
+const sec=t/FPS;
+// Scenario cycle: default(0-15s) -> spill(15-40s) -> photo(40-55s) -> delivery(55-70s) -> repeat
+if(sec%70<15)scenario=0;else if(sec%70<40)scenario=1;else if(sec%70<55)scenario=2;else scenario=3;
+
+if(scenario===0){
+drawFloorplan();drawTaskPanel();
+}else if(scenario===1){
+// SPILL DETECTION
+drawFloorplan();
+const ss=(sec%70-15);
+if(ss<3){ctx.fillStyle='rgba(255,50,50,'+(0.3+Math.sin(t*0.3)*0.3)+')';
+ctx.fillRect(850,280,100,80);
+ctx.font='bold 18px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='#FF3333';
+ctx.fillText('ALERT: SPILL DETECTED',900,270);}
+else if(ss<6){ctx.strokeStyle='#FFD700';ctx.lineWidth=2;ctx.setLineDash([5,5]);
+ctx.beginPath();ctx.moveTo(robots[1].x,robots[1].y);ctx.lineTo(robots[4].tx,robots[4].ty);ctx.stroke();ctx.setLineDash([]);
+ctx.font='14px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='#FFD700';
+ctx.fillText('DISPATCHING...',900,270);}
+else if(ss<15){robots[4].tx=850;robots[4].ty=320;
+ctx.strokeStyle='#00FF88';ctx.lineWidth=2;ctx.setLineDash([3,3]);
+ctx.beginPath();ctx.moveTo(500,400);ctx.lineTo(850,320);ctx.stroke();ctx.setLineDash([]);
+ctx.font='14px monospace';ctx.textAlign='center';ctx.fillStyle='#00FF88';
+const prog=Math.min((ss-6)/9,1);ctx.fillText('CLEANING... '+Math.floor(prog*100)+'%',900,270);}
+else{ctx.font='bold 16px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='#00FF88';
+ctx.fillText('CLEANING COMPLETE - AUTONOMOUS',900,270);robots[4].tx=500;robots[4].ty=400;}
+drawTaskPanel();}
+else if(scenario===2){
+// PHOTO RELAY
+drawFloorplan();
+const ss=(sec%70-40);
+if(ss<5){ctx.fillStyle='rgba(0,255,153,0.2)';ctx.beginPath();ctx.arc(robots[0].x,robots[0].y,25,0,7);ctx.fill();
+ctx.font='14px monospace';ctx.textAlign='center';ctx.fillStyle='#00FF99';ctx.fillText('CAPTURING...',robots[0].x,robots[0].y-30);}
+else if(ss<8){ctx.strokeStyle='#00D4FF';ctx.lineWidth=3;ctx.setLineDash([8,4]);
+ctx.beginPath();ctx.moveTo(robots[0].x,robots[0].y);ctx.lineTo(robots[2].x,robots[2].y);ctx.stroke();ctx.setLineDash([]);
+ctx.font='14px monospace';ctx.textAlign='center';ctx.fillStyle='#00D4FF';ctx.fillText('DATA TRANSFER',900,200);}
+else if(ss<12){ctx.font='14px monospace';ctx.textAlign='center';ctx.fillStyle='#FF9944';
+const prog=Math.min((ss-8)/4,1);ctx.fillText('BREWING... '+Math.floor(prog*100)+'%',robots[2].x,robots[2].y-30);}
+else{ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillStyle='#00FF88';
+ctx.fillText('READY - SCAN FACE TO PICKUP',robots[2].x,robots[2].y-30);}
+drawTaskPanel();}
+else{
+// DELIVERY
+drawFloorplan();
+const ss=(sec%70-55);
+if(ss<3){robots[3].tx=1200;}
+else if(ss<10){robots[3].tx=600;robots[3].ty=150;
+ctx.strokeStyle='#00FF88';ctx.lineWidth=2;ctx.setLineDash([4,4]);
+ctx.beginPath();ctx.moveTo(1200,200);ctx.lineTo(600,150);ctx.stroke();ctx.setLineDash([]);
+ctx.font='14px monospace';ctx.textAlign='center';ctx.fillStyle='#00FF88';
+ctx.fillText('DELIVERING TO ROOM A',900,200);}
+else{ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillStyle='#00FF88';
+ctx.fillText('DELIVERED - ROOM A',900,200);robots[3].tx=1200;robots[3].ty=200;}
+drawTaskPanel();}
+t++;requestAnimationFrame(draw);}draw();
+</script></body></html>

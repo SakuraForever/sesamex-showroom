@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>黑芝麻智能 · 一楼机器人展厅 · 3D漫游</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:#000;font-family:'Microsoft YaHei','PingFang SC',sans-serif;color:#fff}
+canvas{display:block}
+
+#ui-overlay{position:fixed;inset:0;pointer-events:none;z-index:100}
+
+/* Top bar */
+#top-bar{position:fixed;top:0;left:0;right:0;padding:15px 30px;display:flex;justify-content:space-between;align-items:center;z-index:100;background:linear-gradient(180deg,rgba(0,0,0,0.6),transparent);pointer-events:none}
+#top-bar .logo{font-size:18px;font-weight:900;letter-spacing:2px;text-shadow:0 0 15px rgba(0,212,255,0.6)}
+#top-bar .logo span{color:#00d4ff}
+#top-bar .info{font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:3px}
+
+/* Zone navigator */
+#zone-nav{position:fixed;left:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:100}
+#zone-nav .zone-btn{background:rgba(0,10,30,0.8);border:1px solid rgba(0,212,255,0.2);color:rgba(255,255,255,0.6);padding:10px 16px;border-radius:8px;cursor:pointer;font-size:12px;transition:all 0.3s;backdrop-filter:blur(10px);text-align:left;min-width:140px;pointer-events:auto}
+#zone-nav .zone-btn:hover{background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.5);color:#fff}
+#zone-nav .zone-btn.active{background:rgba(0,212,255,0.3);border-color:#00d4ff;color:#fff;box-shadow:0 0 15px rgba(0,212,255,0.3)}
+#zone-nav .zone-btn .num{font-size:10px;color:rgba(0,212,255,0.5);margin-right:6px}
+
+/* Mode buttons */
+#mode-bar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:100}
+#mode-bar button{background:rgba(0,10,30,0.8);border:1px solid rgba(0,212,255,0.3);color:#fff;padding:12px 24px;border-radius:10px;cursor:pointer;font-size:14px;transition:all 0.3s;backdrop-filter:blur(10px)}
+#mode-bar button:hover{background:rgba(0,212,255,0.2)}
+#mode-bar button.active{background:rgba(0,212,255,0.4);border-color:#00d4ff}
+
+/* Controls hint */
+#hint{position:fixed;bottom:20px;right:20px;background:rgba(0,0,0,0.7);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:12px 18px;z-index:100;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.8;backdrop-filter:blur(10px)}
+#hint .k{display:inline-block;background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.3);border-radius:3px;padding:1px 6px;font-family:monospace;color:#00d4ff;font-size:11px;margin:0 2px}
+
+/* Info panel */
+#info-panel{position:fixed;top:50%;right:-420px;transform:translateY(-50%);width:380px;background:rgba(0,8,25,0.95);border:1px solid rgba(0,212,255,0.4);border-radius:16px;padding:28px;z-index:200;backdrop-filter:blur(20px);transition:right 0.4s ease;pointer-events:auto}
+#info-panel.show{right:20px}
+#info-panel .close{position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,0.3);font-size:22px;cursor:pointer}
+#info-panel .close:hover{color:#fff}
+#info-panel .tag{font-size:11px;color:rgba(0,212,255,0.5);letter-spacing:3px;margin-bottom:8px}
+#info-panel h2{font-size:22px;color:#00d4ff;margin-bottom:12px;font-weight:700}
+#info-panel .desc{font-size:13px;color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:15px}
+#info-panel .specs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#info-panel .spec{background:rgba(0,212,255,0.06);border-radius:6px;padding:8px}
+#info-panel .spec-l{font-size:10px;color:rgba(255,255,255,0.35)}
+#info-panel .spec-v{font-size:13px;color:#00d4ff;font-weight:700;margin-top:2px}
+
+/* Loading */
+#loading{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column}
+#loading .spin{width:50px;height:50px;border:3px solid rgba(0,212,255,0.15);border-top-color:#00d4ff;border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#loading .txt{margin-top:15px;color:rgba(255,255,255,0.4);font-size:13px;letter-spacing:4px}
+
+/* Crosshair */
+#cross{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:16px;height:16px;z-index:50;pointer-events:none;display:none}
+#cross::before,#cross::after{content:'';position:absolute;background:rgba(255,255,255,0.4)}
+#cross::before{top:50%;left:0;right:0;height:1px;transform:translateY(-50%)}
+#cross::after{left:50%;top:0;bottom:0;width:1px;transform:translateX(-50%)}
+
+/* Tour progress */
+#tour-bar{position:fixed;top:60px;left:50%;transform:translateX(-50%);width:400px;z-index:100;display:none}
+#tour-bar .label{font-size:12px;color:rgba(0,212,255,0.6);text-align:center;margin-bottom:6px;letter-spacing:2px}
+#tour-bar .track{height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden}
+#tour-bar .fill{height:100%;background:linear-gradient(90deg,#00d4ff,#6644ff);width:0%;transition:width 0.5s;border-radius:2px}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spin"></div><div class="txt">加载一楼3D展厅...</div></div>
+
+<div id="top-bar">
+    <div class="logo">🤖 <span>黑芝麻智能</span> · 机器人星球</div>
+    <div class="info">280㎡ · FLOOR 1 · 3D ROAMING</div>
+</div>
+
+<div id="zone-nav">
+    <div class="zone-btn active" data-zone="0"><span class="num">01</span>入口品牌墙</div>
+    <div class="zone-btn" data-zone="1"><span class="num">02</span>芯片世界树</div>
+    <div class="zone-btn" data-zone="2"><span class="num">03</span>机器人展示区</div>
+    <div class="zone-btn" data-zone="3"><span class="num">04</span>中枢调度大屏</div>
+    <div class="zone-btn" data-zone="4"><span class="num">05</span>时间之门</div>
+    <div class="zone-btn" data-zone="5"><span class="num">06</span>人机共生·未来</div>
+    <div class="zone-btn" data-zone="6"><span class="num">07</span>鸟瞰全景</div>
+</div>
+
+<div id="mode-bar">
+    <button id="btn-orbit" class="active">🖱️ 环绕</button>
+    <button id="btn-walk">🚶 漫游</button>
+    <button id="btn-tour">🎬 自动导览</button>
+</div>
+
+<div id="hint">
+    <div><span class="k">拖拽</span>旋转 <span class="k">滚轮</span>缩放</div>
+    <div><span class="k">点击</span>查看详情 <span class="k">WASD</span>行走</div>
+</div>
+
+<div id="tour-bar">
+    <div class="label" id="tour-label">自动导览中...</div>
+    <div class="track"><div class="fill" id="tour-fill"></div></div>
+</div>
+
+<div id="cross"></div>
+
+<div id="info-panel">
+    <button class="close" onclick="closeInfo()">×</button>
+    <div class="tag" id="i-tag"></div>
+    <h2 id="i-title"></h2>
+    <div class="desc" id="i-desc"></div>
+    <div class="specs" id="i-specs"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+let scene,camera,renderer,orbit,pointer,clock,raycaster,mouse;
+let interactables=[],currentZone=0,mode='orbit';
+let walkMode=false,tourMode=false,tourStep=0,tourTimer=0;
+let mf=0,mb=0,ml=0,mr=0,vel=new THREE.Vector3(),dir=new THREE.Vector3();
+
+// Zone camera positions
+const zoneCameras=[
+    {pos:[0,3,18],target:[0,3,0],label:'入口品牌墙'},      // 0 Entrance
+    {pos:[8,5,8],target:[0,3,0],label:'芯片世界树'},        // 1 World Tree
+    {pos:[-10,4,-5],target:[-8,2,-10],label:'机器人展示区'},  // 2 Robots
+    {pos:[0,4,-8],target:[0,4,-15],label:'中枢调度大屏'},    // 3 Screen
+    {pos:[0,3,2],target:[0,3,-4],label:'时间之门'},         // 4 Time Gate
+    {pos:[10,3,12],target:[14,3,8],label:'人机共生·未来'},   // 5 Future
+    {pos:[0,25,25],target:[0,0,0],label:'鸟瞰全景'},        // 6 Bird view
+];
+
+function init(){
+    scene=new THREE.Scene();
+    scene.fog=new THREE.FogExp2(0x000008,0.012);
+    scene.background=new THREE.Color(0x000003);
+
+    camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,0.1,500);
+    camera.position.set(0,3,18);
+
+    renderer=new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(innerWidth,innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    renderer.shadowMap.enabled=true;
+    renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure=1.3;
+    document.body.appendChild(renderer.domElement);
+
+    clock=new THREE.Clock();
+    raycaster=new THREE.Raycaster();
+    mouse=new THREE.Vector2();
+
+    // Controls
+    orbit=new THREE.OrbitControls(camera,renderer.domElement);
+    orbit.enableDamping=true;
+    orbit.dampingFactor=0.06;
+    orbit.minDistance=2;
+    orbit.maxDistance=50;
+    orbit.maxPolarAngle=Math.PI/2-0.02;
+    orbit.target.set(0,3,0);
+
+    pointer=new THREE.PointerLockControls(camera,renderer.domElement);
+
+    // Build everything
+    buildRoom();
+    buildEntrance();
+    buildWorldTree();
+    buildRobotZone();
+    buildCentralScreen();
+    buildTimeGate();
+    buildFutureZone();
+    buildLighting();
+    buildParticles();
+    buildNDA();
+
+    // Events
+    addEventListener('resize',onResize);
+    renderer.domElement.addEventListener('click',onClick);
+    addEventListener('keydown',e=>{switch(e.code){case'KeyW':case'ArrowUp':mf=1;break;case'KeyS':case'ArrowDown':mb=1;break;case'KeyA':case'ArrowLeft':ml=1;break;case'KeyD':case'ArrowRight':mr=1;break;case'Escape':closeInfo();break}});
+    addEventListener('keyup',e=>{switch(e.code){case'KeyW':case'ArrowUp':mf=0;break;case'KeyS':case'ArrowDown':mb=0;break;case'KeyA':case'ArrowLeft':ml=0;break;case'KeyD':case'ArrowRight':mr=0;break}});
+
+    // Zone nav
+    document.querySelectorAll('.zone-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            const z=parseInt(btn.dataset.zone);
+            document.querySelectorAll('.zone-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            flyToZone(z);
+        });
+    });
+
+    // Mode buttons
+    document.getElementById('btn-orbit').onclick=()=>setMode('orbit');
+    document.getElementById('btn-walk').onclick=()=>setMode('walk');
+    document.getElementById('btn-tour').onclick=()=>startTour();
+
+    document.getElementById('loading').style.display='none';
+    animate();
+}
+
+// === ROOM (40x20 floor, representing 280sqm) ===
+function buildRoom(){
+    const W=40,D=20,H=6;
+    // Floor
+    const fMat=new THREE.MeshStandardMaterial({color:0x06060c,metalness:0.85,roughness:0.25});
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,D),fMat);
+    floor.rotation.x=-Math.PI/2;
+    floor.receiveShadow=true;
+    scene.add(floor);
+
+    // Floor grid
+    const grid=new THREE.GridHelper(W,40,0x003355,0x001122);
+    grid.position.y=0.01;
+    grid.material.opacity=0.4;
+    grid.material.transparent=true;
+    scene.add(grid);
+
+    // Floor glow lines (robot paths)
+    const pathMat=new THREE.MeshBasicMaterial({color:0x00ff88,transparent:true,opacity:0.15});
+    for(let i=-W/2;i<=W/2;i+=5){
+        const l=new THREE.Mesh(new THREE.PlaneGeometry(0.08,D),pathMat);
+        l.rotation.x=-Math.PI/2;
+        l.position.set(i,0.02,0);
+        scene.add(l);
+    }
+
+    // Ceiling
+    const ceil=new THREE.Mesh(new THREE.PlaneGeometry(W,D),new THREE.MeshStandardMaterial({color:0x030308,metalness:0.3,roughness:0.7}));
+    ceil.rotation.x=Math.PI/2;
+    ceil.position.y=H;
+    scene.add(ceil);
+
+    // Ceiling light strips
+    for(let i=-W/2+5;i<W/2;i+=8){
+        const strip=new THREE.Mesh(new THREE.PlaneGeometry(3,0.1),new THREE.MeshBasicMaterial({color:0x00aaff,transparent:true,opacity:0.3}));
+        strip.position.set(i,H-0.01,0);
+        strip.rotation.x=Math.PI/2;
+        scene.add(strip);
+    }
+
+    // Walls
+    const wMat=new THREE.MeshStandardMaterial({color:0x0a0a14,metalness:0.2,roughness:0.8});
+    const wallDefs=[
+        {p:[0,H/2,-D/2],r:[0,0,0],w:W},
+        {p:[0,H/2,D/2],r:[0,Math.PI,0],w:W},
+        {p:[-W/2,H/2,0],r:[0,Math.PI/2,0],w:D},
+        {p:[W/2,H/2,0],r:[0,-Math.PI/2,0],w:D},
+    ];
+    wallDefs.forEach(w=>{
+        const wall=new THREE.Mesh(new THREE.PlaneGeometry(w.w,H),wMat);
+        wall.position.set(...w.p);
+        wall.rotation.set(...w.r);
+        scene.add(wall);
+        // Wall LED strips
+        for(let y=1.5;y<H;y+=2){
+            const s=new THREE.Mesh(new THREE.PlaneGeometry(w.w*0.8,0.03),new THREE.MeshBasicMaterial({color:0x001a33,transparent:true,opacity:0.5}));
+            s.position.set(w.p[0],y,w.p[2]);
+            s.rotation.set(w.r[0],w.r[1],w.r[2]);
+            scene.add(s);
+        }
+    });
+}
+
+// === ENTRANCE BRAND WALL ===
+function buildEntrance(){
+    const g=new THREE.Group();
+    // LED banner
+    const banner=new THREE.Mesh(new THREE.PlaneGeometry(12,2.5),new THREE.MeshBasicMaterial({color:0x001530}));
+    banner.position.set(0,3,-9.8);
+    g.add(banner);
+    // Text
+    const c=document.createElement('canvas');c.width=1024;c.height=256;
+    const ctx=c.getContext('2d');
+    const grad=ctx.createLinearGradient(0,0,1024,0);
+    grad.addColorStop(0,'#00d4ff');grad.addColorStop(0.5,'#6644ff');grad.addColorStop(1,'#00d4ff');
+    ctx.fillStyle=grad;ctx.font='bold 80px Microsoft YaHei';ctx.textAlign='center';
+    ctx.fillText('一颗芯片 · 千万形态',512,100);
+    ctx.font='28px Microsoft YaHei';ctx.fillStyle='rgba(0,212,255,0.5)';
+    ctx.fillText('BLACK SESAME · ROBOT PLANET',512,180);
+    const tex=new THREE.CanvasTexture(c);
+    const txt=new THREE.Mesh(new THREE.PlaneGeometry(11,2.3),new THREE.MeshBasicMaterial({map:tex,transparent:true}));
+    txt.position.set(0,3,-9.7);
+    g.add(txt);
+    // Logo glow
+    const logo=new THREE.PointLight(0x00d4ff,2,15);
+    logo.position.set(0,4,-9);
+    g.add(logo);
+    g.userData={name:'入口品牌墙',tag:'ENTRANCE · 入口',desc:'展厅入口巨型LED品牌墙。展示黑芝麻智能核心信息——"一颗芯片，赋能千万种形态"。冷白色洗墙灯均匀照亮，营造科技第一印象。',specs:[{l:'尺寸',v:'12m×2.5m'},{l:'类型',v:'LED横幅'},{l:'面积',v:'12㎡'},{l:'色调',v:'冷白'}]};
+    interactables.push(g);
+    scene.add(g);
+}
+
+// === WORLD TREE (Core Installation) ===
+let treeCore,treeLight,treeRings=[],treeParticles;
+function buildWorldTree(){
+    const g=new THREE.Group();
+    // Layer 0: Seed (chip)
+    const chip=new THREE.Mesh(new THREE.BoxGeometry(0.4,0.15,0.4),new THREE.MeshStandardMaterial({color:0x111122,metalness:0.95,roughness:0.05,emissive:0x00d4ff,emissiveIntensity:0.8}));
+    chip.position.y=0.15;
+    chip.userData.isChip=true;
+    g.add(chip);
+    treeCore=chip;
+
+    // Layer 1: Root base (glowing platform)
+    const baseMat=new THREE.MeshStandardMaterial({color:0x1a1a2e,metalness:0.7,roughness:0.3,emissive:0x002244,emissiveIntensity:0.3});
+    const base=new THREE.Mesh(new THREE.CylinderGeometry(1.8,2.2,0.25,6),baseMat);
+    base.position.y=0.125;
+    base.receiveShadow=true;
+    g.add(base);
+    // Base glow ring
+    const baseRing=new THREE.Mesh(new THREE.TorusGeometry(2,0.04,8,32),new THREE.MeshBasicMaterial({color:0x00d4ff,transparent:true,opacity:0.6}));
+    baseRing.position.y=0.02;baseRing.rotation.x=Math.PI/2;
+    g.add(baseRing);
+
+    // Layer 2: Trunk (hexagonal LED column)
+    const trunkMat=new THREE.MeshStandardMaterial({color:0x001020,metalness:0.9,roughness:0.1,emissive:0x004466,emissiveIntensity:0.4});
+    const trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,4,6),trunkMat);
+    trunk.position.y=2.25;
+    trunk.castShadow=true;
+    g.add(trunk);
+    // Inner glow
+    const inner=new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.3,3.8,6),new THREE.MeshBasicMaterial({color:0x00d4ff,transparent:true,opacity:0.6}));
+    inner.position.y=2.25;
+    g.add(inner);
+
+    // Layer 3: Branch rings (orbiting forms)
+    const formColors=[0x00d4ff,0x00ff99,0xff9944,0x6644ff,0x4488ff,0xaa66ff];
+    for(let i=0;i<3;i++){
+        const ring=new THREE.Mesh(new THREE.TorusGeometry(1.5+i*0.6,0.03,6,24),new THREE.MeshBasicMaterial({color:formColors[i],transparent:true,opacity:0.5}));
+        ring.position.y=3+i*0.3;
+        ring.rotation.x=Math.PI/2+i*0.4;
+        ring.userData.rotSpeed=(0.5+i*0.3)*(i%2?1:-1);
+        treeRings.push(ring);
+        g.add(ring);
+    }
+    // Floating form particles
+    const fpCount=80;
+    const fpPos=new Float32Array(fpCount*3);
+    const fpCol=new Float32Array(fpCount*3);
+    for(let i=0;i<fpCount;i++){
+        const a=Math.random()*Math.PI*2;
+        const r=1.5+Math.random()*1.5;
+        fpPos[i*3]=Math.cos(a)*r;
+        fpPos[i*3+1]=2.5+Math.random()*2;
+        fpPos[i*3+2]=Math.sin(a)*r;
+        const c=new THREE.Color(formColors[i%6]);
+        fpCol[i*3]=c.r;fpCol[i*3+1]=c.g;fpCol[i*3+2]=c.b;
+    }
+    const fpGeo=new THREE.BufferGeometry();
+    fpGeo.setAttribute('position',new THREE.BufferAttribute(fpPos,3));
+    fpGeo.setAttribute('color',new THREE.BufferAttribute(fpCol,3));
+    treeParticles=new THREE.Points(fpGeo,new THREE.PointsMaterial({size:0.12,vertexColors:true,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending}));
+    g.add(treeParticles);
+
+    // Layer 4: Star ceiling (fibers)
+    for(let i=0;i<30;i++){
+        const a=Math.random()*Math.PI*2;
+        const r=Math.random()*3;
+        const fiber=new THREE.Mesh(new THREE.SphereGeometry(0.03,4,4),new THREE.MeshBasicMaterial({color:formColors[i%6]}));
+        fiber.position.set(Math.cos(a)*r,5.5+Math.random()*0.5,Math.sin(a)*r);
+        fiber.userData.pulse=Math.random()*Math.PI*2;
+        g.add(fiber);
+    }
+
+    // Core light
+    treeLight=new THREE.PointLight(0x00d4ff,3,15);
+    treeLight.position.y=3;
+    g.add(treeLight);
+
+    g.position.set(0,0,-3);
+    g.userData={name:'芯片世界树',tag:'CORE · 核心装置',desc:'展厅核心装置。一棵从芯片长出的世界树——种子是华山A2000芯片，树根是算力基座，树干是LED光柱，枝叶是千万种机器人形态的全息粒子，树冠是天花板光纤星空。一切始于这颗芯片。',specs:[{l:'总高度',v:'4.5m'},{l:'芯片',v:'华山A2000'},{l:'结构',v:'5层'},{l:'面积',v:'36㎡'}]};
+    interactables.push(g);
+    scene.add(g);
+}
+
+// === ROBOT ZONE ===
+function buildRobotZone(){
+    const robots=[
+        {x:-12,z:-6,c:0x00ff99,n:'Walker S3',t:'HUMANOID · 人形机器人',d:'优必选Walker S3人形机器人，展厅主角。负责迎宾导引、带客参观、人像采集。基于黑芝麻华山A2000芯片驱动。',s:[{l:'型号',v:'Walker S3'},{l:'品牌',v:'优必选'},{l:'芯片',v:'华山A2000'},{l:'功能',v:'迎宾+讲解'}]},
+        {x:-7,z:-9,c:0x00ccff,n:'M20 Pro',t:'QUADRUPED · 机器狗',d:'云深处M20 Pro机器狗，配置3m×2m越障坡道。演示爬坡、避障与自主路径规划。',s:[{l:'型号',v:'M20 Pro'},{l:'品牌',v:'云深处'},{l:'功能',v:'越障+巡检'},{l:'平台',v:'SesameX Kalos'}]},
+        {x:-2,z:-7,c:0xff9944,n:'咖啡机器人',t:'SERVICE · 服务',d:'Walker S3拍照→咖啡机制作AI专属拉花→凭脸自取。杯上印着自己，即是认领凭证。',s:[{l:'型号',v:'TBD'},{l:'功能',v:'肖像拉花'},{l:'亮点',v:'AI专属'},{l:'平台',v:'SesameX Liora'}]},
+        {x:3,z:-9,c:0x4488ff,n:'云迹送餐',t:'LOGISTICS · 物流',d:'云迹送餐机器人，送包到会议室。基于SesameX Kalos平台，自主导航。',s:[{l:'型号',v:'云迹送餐'},{l:'品牌',v:'云迹'},{l:'功能',v:'送物'},{l:'平台',v:'SesameX Kalos'}]},
+        {x:8,z:-6,c:0xaa66ff,n:'遨博协作臂',t:'MANIPULATOR · 机械臂',d:'遨博协作机械臂，演示动捕数采、家务整理。基于SesameX Aura平台。',s:[{l:'型号',v:'遨博'},{l:'品牌',v:'遨博'},{l:'功能',v:'操作'},{l:'平台',v:'SesameX Aura'}]},
+    ];
+    robots.forEach(r=>{
+        const g=new THREE.Group();
+        // Platform
+        const plat=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.5,0.15,20),new THREE.MeshStandardMaterial({color:0x1a1a2a,metalness:0.8,roughness:0.2,emissive:r.c,emissiveIntensity:0.08}));
+        plat.position.y=0.075;plat.receiveShadow=true;
+        g.add(plat);
+        // Body
+        const body=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.45,1.8,10),new THREE.MeshStandardMaterial({color:0x888899,metalness:0.9,roughness:0.15,emissive:r.c,emissiveIntensity:0.12}));
+        body.position.y=1.1;body.castShadow=true;
+        g.add(body);
+        // Head
+        const head=new THREE.Mesh(new THREE.SphereGeometry(0.3,12,12),new THREE.MeshStandardMaterial({color:0x999999,metalness:0.9,roughness:0.1,emissive:r.c,emissiveIntensity:0.15}));
+        head.position.y=2.1;head.castShadow=true;
+        g.add(head);
+        // Glow ring
+        const ring=new THREE.Mesh(new THREE.TorusGeometry(1.3,0.04,6,24),new THREE.MeshBasicMaterial({color:r.c,transparent:true,opacity:0.5}));
+        ring.position.y=0.04;ring.rotation.x=Math.PI/2;
+        g.add(ring);
+        // Light
+        const light=new THREE.PointLight(r.c,1.2,5);
+        light.position.y=1.5;
+        g.add(light);
+        // Label
+        const lc=document.createElement('canvas');lc.width=256;lc.height=48;
+        const lx=lc.getContext('2d');
+        lx.fillStyle='rgba(0,0,15,0.8)';lx.fillRect(0,0,256,48);
+        lx.font='bold 22px Microsoft YaHei';lx.fillStyle='#'+r.c.toString(16).padStart(6,'0');
+        lx.textAlign='center';lx.fillText(r.n,128,32);
+        const lt=new THREE.CanvasTexture(lc);
+        const label=new THREE.Sprite(new THREE.SpriteMaterial({map:lt,transparent:true}));
+        label.position.y=2.8;label.scale.set(2.5,0.5,1);
+        g.add(label);
+
+        g.position.set(r.x,0,r.z);
+        g.userData={name:r.n,tag:r.t,desc:r.d,specs:r.s};
+        interactables.push(g);
+        scene.add(g);
+    });
+
+    // Obstacle course for M20
+    const ramp=new THREE.Mesh(new THREE.BoxGeometry(2.5,0.3,1.5),new THREE.MeshStandardMaterial({color:0x1a1a1a,metalness:0.5,roughness:0.8}));
+    ramp.position.set(-7,-0.5,-10.5);
+    ramp.rotation.z=0.2;
+    scene.add(ramp);
+}
+
+// === CENTRAL SCREEN ===
+function buildCentralScreen(){
+    const g=new THREE.Group();
+    // Frame
+    const frame=new THREE.Mesh(new THREE.BoxGeometry(8,2.5,0.15),new THREE.MeshStandardMaterial({color:0x0a0a15,metalness:0.9,roughness:0.1}));
+    g.add(frame);
+    // Screen
+    const screen=new THREE.Mesh(new THREE.PlaneGeometry(7.5,2.2),new THREE.MeshBasicMaterial({color:0x001025}));
+    screen.position.z=0.08;
+    g.add(screen);
+    // Grid lines
+    for(let i=0;i<6;i++){
+        const l=new THREE.Mesh(new THREE.PlaneGeometry(7,0.015),new THREE.MeshBasicMaterial({color:0x00d4ff,transparent:true,opacity:0.2}));
+        l.position.set(0,-0.9+i*0.35,0.09);
+        g.add(l);
+    }
+    // Title
+    const c=document.createElement('canvas');c.width=512;c.height=128;
+    const ctx=c.getContext('2d');
+    ctx.font='bold 32px Microsoft YaHei';ctx.fillStyle='#00d4ff';ctx.textAlign='center';
+    ctx.fillText('多机协同中枢调度系统',256,50);
+    ctx.font='18px Microsoft YaHei';ctx.fillStyle='rgba(0,212,255,0.4)';
+    ctx.fillText('MULTI-ROBOT ORCHESTRATION',256,85);
+    const tex=new THREE.CanvasTexture(c);
+    const txt=new THREE.Mesh(new THREE.PlaneGeometry(6.5,1.6),new THREE.MeshBasicMaterial({map:tex,transparent:true}));
+    txt.position.z=0.1;
+    g.add(txt);
+    // Light
+    const sl=new THREE.PointLight(0x00aaff,2,12);
+    sl.position.z=1;
+    g.add(sl);
+
+    g.position.set(0,3.5,-9.9);
+    g.userData={name:'中枢调度大屏',tag:'ORCHESTRATION · 调度',desc:'统一中枢统管6台机器人。实时可视化位置、状态、任务。访客可触发：模拟洒漏→M20发现→中枢派单→UP清洁，全程无人。',specs:[{l:'尺寸',v:'8m×2.5m'},{l:'功能',v:'多机调度'},{l:'交互',v:'访客触发'},{l:'面积',v:'30㎡'}]};
+    interactables.push(g);
+    scene.add(g);
+}
+
+// === TIME GATE ===
+let gateMaterials=[];
+function buildTimeGate(){
+    const g=new THREE.Group();
+    // Arch (torus half)
+    const archMat=new THREE.MeshBasicMaterial({color:0x0044ff,transparent:true,opacity:0.3});
+    const arch=new THREE.Mesh(new THREE.TorusGeometry(1.8,0.15,8,16,Math.PI),archMat);
+    arch.position.y=0;
+    g.add(arch);
+    gateMaterials.push(archMat);
+
+    // Side panels
+    for(let s of [-1,1]){
+        const panel=new THREE.Mesh(new THREE.BoxGeometry(0.2,3.6,0.8),new THREE.MeshBasicMaterial({color:0x002266,transparent:true,opacity:0.4}));
+        panel.position.x=s*1.8;
+        panel.position.y=1.8;
+        g.add(panel);
+        gateMaterials.push(panel.material);
+    }
+
+    // Text "现在" and "未来"
+    const tc=document.createElement('canvas');tc.width=256;tc.height=64;
+    const tx=tc.getContext('2d');
+    tx.font='bold 28px Microsoft YaHei';tx.fillStyle='#00d4ff';tx.textAlign='center';
+    tx.fillText('时间之门',128,40);
+    const tex=new THREE.CanvasTexture(tc);
+    const label=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true}));
+    label.position.y=3.5;label.scale.set(2.5,0.6,1);
+    g.add(label);
+
+    g.position.set(0,0,3);
+    g.userData={name:'时间之门',tag:'TRANSITION · 穿越通道',desc:'从"现在"走向"未来"的物理过渡。LED拱门穿越时，光线从冷蓝渐变为暖橙金，配合风机和振动，营造穿越感。',specs:[{l:'尺寸',v:'3m×2.8m'},{l:'面积',v:'8㎡'},{l:'效果',v:'渐变+风+振动'},{l:'色调',v:'蓝→橙'}]};
+    interactables.push(g);
+    scene.add(g);
+}
+
+// === FUTURE ZONE (Human-Robot Symbiosis) ===
+let symbiosisOrb,futureParticles;
+function buildFutureZone(){
+    const g=new THREE.Group();
+
+    // 270° curved screen walls
+    const curveMat=new THREE.MeshStandardMaterial({color:0x150010,metalness:0.3,roughness:0.9,emissive:0x220011,emissiveIntensity:0.2,side:THREE.DoubleSide});
+    for(let i=0;i<3;i++){
+        const ang=-Math.PI/2+i*Math.PI/4;
+        const panel=new THREE.Mesh(new THREE.PlaneGeometry(5,5),curveMat);
+        panel.position.set(14+Math.cos(ang)*3.5,2.5,8+Math.sin(ang)*3.5);
+        panel.rotation.y=ang+Math.PI/2;
+        g.add(panel);
+        // Projection glow
+        const glow=new THREE.PointLight(i===0?0xff8844:(i===1?0xcc66ff:0xffaa00),1.5,8);
+        glow.position.set(14+Math.cos(ang)*2,3,8+Math.sin(ang)*2);
+        g.add(glow);
+    }
+
+    // Symbiosis Orb
+    const orb=new THREE.Mesh(new THREE.SphereGeometry(1.2,24,24),new THREE.MeshBasicMaterial({color:0xff8844,transparent:true,opacity:0.5}));
+    orb.position.set(14,3.5,8);
+    g.add(orb);
+    symbiosisOrb=orb;
+    // Outer shells
+    for(let i=1;i<=3;i++){
+        const shell=new THREE.Mesh(new THREE.SphereGeometry(1.2+i*0.4,20,20),new THREE.MeshBasicMaterial({color:i%2?0xff6644:0xcc66ff,transparent:true,opacity:0.12/i}));
+        shell.position.set(14,3.5,8);
+        g.add(shell);
+    }
+    // Warm light
+    const wl=new THREE.PointLight(0xff8844,3,10);
+    wl.position.set(14,3.5,8);
+    g.add(wl);
+
+    // Floor projection area (light disc)
+    const disc=new THREE.Mesh(new THREE.CircleGeometry(3,32),new THREE.MeshBasicMaterial({color:0xff6633,transparent:true,opacity:0.08}));
+    disc.rotation.x=-Math.PI/2;
+    disc.position.set(14,0.02,8);
+    g.add(disc);
+
+    // Ambient future particles
+    const fpCount=100;
+    const fpPos=new Float32Array(fpCount*3);
+    const fpCol=new Float32Array(fpCount*3);
+    for(let i=0;i<fpCount;i++){
+        fpPos[i*3]=12+Math.random()*5;
+        fpPos[i*3+1]=Math.random()*5;
+        fpPos[i*3+2]=6+Math.random()*5;
+        const c=new THREE.Color().setHSL(0.05+Math.random()*0.1,0.8,0.5+Math.random()*0.3);
+        fpCol[i*3]=c.r;fpCol[i*3+1]=c.g;fpCol[i*3+2]=c.b;
+    }
+    const fpGeo=new THREE.BufferGeometry();
+    fpGeo.setAttribute('position',new THREE.BufferAttribute(fpPos,3));
+    fpGeo.setAttribute('color',new THREE.BufferAttribute(fpCol,3));
+    futureParticles=new THREE.Points(fpGeo,new THREE.PointsMaterial({size:0.08,vertexColors:true,transparent:true,opacity:0.6,blending:THREE.AdditiveBlending}));
+    g.add(futureParticles);
+
+    g.userData={name:'人机共生·第五世界',tag:'FUTURE · 未来共生',desc:'270°环幕沉浸空间，展示2040年人机共生社会。地面互动投影、天花板光纤流光、暖色光球呼吸。你不是在看未来，你站在未来里。当芯片有了身体，未来便有了温度。',specs:[{l:'面积',v:'75㎡'},{l:'投影',v:'270°环幕'},{l:'体验',v:'沉浸互动'},{l:'色调',v:'暖橙+紫'}]};
+    interactables.push(g);
+    scene.add(g);
+}
+
+// === NDA ROOM ===
+function buildNDA(){
+    const g=new THREE.Group();
+    // Room shell
+    const shell=new THREE.Mesh(new THREE.BoxGeometry(3,3,3),new THREE.MeshStandardMaterial({color:0x0a0a14,metalness:0.3,roughness:0.8,side:THREE.BackSide}));
+    shell.position.set(-16,1.5,-5);
+    g.add(shell);
+    // Door (red glow)
+    const door=new THREE.Mesh(new THREE.PlaneGeometry(0.8,2),new THREE.MeshBasicMaterial({color:0xff3333,transparent:true,opacity:0.3}));
+    door.position.set(-14.5,1,-5);
+    door.rotation.y=Math.PI/2;
+    g.add(door);
+    // Label
+    const c=document.createElement('canvas');c.width=128;c.height=32;
+    const ctx=c.getContext('2d');
+    ctx.font='bold 18px Microsoft YaHei';ctx.fillStyle='#ff4444';ctx.textAlign='center';
+    ctx.fillText('🔒 NDA',64,22);
+    const tex=new THREE.CanvasTexture(c);
+    const label=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true}));
+    label.position.set(-14,3,-5);label.scale.set(1.5,0.4,1);
+    g.add(label);
+
+    g.userData={name:'NDA保密室',tag:'CONFIDENTIAL · 保密',desc:'门禁控制的保密项目室，展示新一代机器人预览和核心技术原型。仅NDA签署方可进入。',specs:[{l:'面积',v:'17㎡'},{l:'门禁',v:'NDA控制'},{l:'内容',v:'新品预览'},{l:'访客',v:'VIP/客户'}]};
+    interactables.push(g);
+    scene.add(g);
+}
+
+// === LIGHTING ===
+function buildLighting(){
+    scene.add(new THREE.AmbientLight(0x111122,0.4));
+    // Spotlights
+    [[-10,-5],[10,-5],[-10,5],[10,5],[0,0],[0,-8],[0,8]].forEach(([x,z])=>{
+        const s=new THREE.SpotLight(0x3388ff,0.6,20,Math.PI/5,0.5,1);
+        s.position.set(x,5.5,z);
+        s.target.position.set(x,0,z);
+        scene.add(s,target=s.target);
+        scene.add(s.target);
+    });
+    // Future zone warm light
+    const fw=new THREE.PointLight(0xff7733,1.5,15);
+    fw.position.set(14,2,8);
+    scene.add(fw);
+}
+
+// === AMBIENT PARTICLES ===
+function buildParticles(){
+    const n=300;
+    const pos=new Float32Array(n*3);
+    const col=new Float32Array(n*3);
+    for(let i=0;i<n;i++){
+        pos[i*3]=(Math.random()-0.5)*35;
+        pos[i*3+1]=Math.random()*5+0.5;
+        pos[i*3+2]=(Math.random()-0.5)*18;
+        const c=new THREE.Color().setHSL(0.55+Math.random()*0.1,0.7,0.4+Math.random()*0.3);
+        col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;
+    }
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+    scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.06,vertexColors:true,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending})));
+}
+
+// === INTERACTION ===
+function onClick(e){
+    mouse.x=(e.clientX/innerWidth)*2-1;
+    mouse.y=-(e.clientY/innerHeight)*2+1;
+    raycaster.setFromCamera(mouse,camera);
+    const meshes=[];
+    interactables.forEach(g=>g.traverse(c=>{if(c.isMesh)meshes.push(c)}));
+    const hits=raycaster.intersectObjects(meshes);
+    if(hits.length){
+        let o=hits[0].object;
+        while(o&&!o.userData.name)o=o.parent;
+        if(o&&o.userData.name) showInfo(o.userData);
+    }
+}
+
+function showInfo(d){
+    document.getElementById('i-tag').textContent=d.tag;
+    document.getElementById('i-title').textContent=d.name;
+    document.getElementById('i-desc').textContent=d.desc;
+    document.getElementById('i-specs').innerHTML=d.specs.map(s=>`<div class="spec"><div class="spec-l">${s.l}</div><div class="spec-v">${s.v}</div></div>`).join('');
+    document.getElementById('info-panel').classList.add('show');
+}
+function closeInfo(){document.getElementById('info-panel').classList.remove('show')}
+
+// === ZONE FLY ===
+function flyToZone(z){
+    currentZone=z;
+    tourMode=false;
+    document.getElementById('tour-bar').style.display='none';
+    const c=zoneCameras[z];
+    // Animate camera
+    const startPos=camera.position.clone();
+    const startTarget=orbit.target.clone();
+    const endPos=new THREE.Vector3(...c.pos);
+    const endTarget=new THREE.Vector3(...c.target);
+    let t=0;
+    const dur=1.5;
+    const wasEnabled=orbit.enabled;
+    orbit.enabled=false;
+    function step(){
+        t+=0.016/dur;
+        if(t>=1)t=1;
+        const e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2; // easeInOut
+        camera.position.lerpVectors(startPos,endPos,e);
+        orbit.target.lerpVectors(startTarget,endTarget,e);
+        if(t<1)requestAnimationFrame(step);
+        else orbit.enabled=wasEnabled;
+    }
+    step();
+
+    // Update gate color based on zone
+    if(z>=5){
+        // Future zone - warm colors
+        gateMaterials.forEach(m=>{m.color.setHex(0xff8844);m.opacity=0.5});
+    }else{
+        gateMaterials.forEach(m=>{m.color.setHex(0x0044ff);m.opacity=0.3});
+    }
+}
+
+// === MODE ===
+function setMode(m){
+    mode=m;
+    if(m==='walk'){
+        walkMode=true;tourMode=false;
+        orbit.enabled=false;
+        camera.position.set(0,2,10);
+        document.getElementById('cross').style.display='block';
+        document.getElementById('btn-walk').classList.add('active');
+        document.getElementById('btn-orbit').classList.remove('active');
+        document.getElementById('btn-tour').classList.remove('active');
+        document.getElementById('tour-bar').style.display='none';
+    }else if(m==='orbit'){
+        walkMode=false;tourMode=false;
+        orbit.enabled=true;
+        document.getElementById('cross').style.display='none';
+        document.getElementById('btn-orbit').classList.add('active');
+        document.getElementById('btn-walk').classList.remove('active');
+        document.getElementById('btn-tour').classList.remove('active');
+        document.getElementById('tour-bar').style.display='none';
+    }
+}
+
+// === AUTO TOUR ===
+function startTour(){
+    tourMode=true;
+    walkMode=false;
+    orbit.enabled=false;
+    tourStep=0;
+    tourTimer=0;
+    document.getElementById('btn-tour').classList.add('active');
+    document.getElementById('btn-orbit').classList.remove('active');
+    document.getElementById('btn-walk').classList.remove('active');
+    document.getElementById('tour-bar').style.display='block';
+    document.getElementById('cross').style.display='none';
+    nextTourStep();
+}
+
+function nextTourStep(){
+    if(tourStep>=zoneCameras.length){
+        tourMode=false;
+        document.getElementById('tour-bar').style.display='none';
+        document.getElementById('btn-tour').classList.remove('active');
+        document.getElementById('btn-orbit').classList.add('active');
+        orbit.enabled=true;
+        return;
+    }
+    const c=zoneCameras[tourStep];
+    document.getElementById('tour-label').textContent='📍 '+c.label;
+    document.querySelectorAll('.zone-btn').forEach((b,i)=>b.classList.toggle('active',i===tourStep));
+    // Update gate
+    if(tourStep>=5) gateMaterials.forEach(m=>{m.color.setHex(0xff8844)});
+    else gateMaterials.forEach(m=>{m.color.setHex(0x0044ff)});
+
+    tourStep++;
+    tourTimer=0;
+}
+
+// === ANIMATE ===
+function animate(){
+    requestAnimationFrame(animate);
+    const t=clock.getElapsedTime();
+
+    // World tree animations
+    if(treeCore){
+        treeCore.material.emissiveIntensity=0.6+Math.sin(t*1.2)*0.3;
+        treeCore.rotation.y+=0.02;
+    }
+    if(treeLight) treeLight.intensity=2.5+Math.sin(t*2)*1;
+    treeRings.forEach(r=>r.rotation.z+=r.userData.rotSpeed*0.01);
+    if(treeParticles) treeParticles.rotation.y+=0.003;
+
+    // Star ceiling pulse
+    scene.children.forEach(c=>{
+        if(c.userData.pulse!==undefined){
+            c.material.opacity=0.3+Math.sin(t*2+c.userData.pulse)*0.3;
+        }
+    });
+
+    // Gate color shift
+    gateMaterials.forEach(m=>{
+        if(currentZone>=5||tourStep>=5){
+            const blend=(Math.sin(t*0.5)+1)/2;
+            m.color.setRGB(0.5+blend*0.5,0.4+blend*0.3,0.2+blend*0.2);
+        }
+    });
+
+    // Symbiosis orb
+    if(symbiosisOrb){
+        const s=1+Math.sin(t*1.5)*0.08;
+        symbiosisOrb.scale.set(s,s,s);
+        symbiosisOrb.material.opacity=0.4+Math.sin(t*1.5)*0.15;
+    }
+    if(futureParticles) futureParticles.rotation.y+=0.002;
+
+    // Tour mode
+    if(tourMode){
+        tourTimer+=0.016;
+        const c=zoneCameras[Math.min(tourStep-1,zoneCameras.length-1)];
+        if(c){
+            const progress=Math.min(tourTimer/4,1); // 4 seconds per zone
+            document.getElementById('tour-fill').style.width=(tourStep/zoneCameras.length*100+progress/zoneCameras.length*100)+'%';
+            // Smooth camera movement
+            const ang=t*0.3;
+            if(tourStep<=1){
+                camera.position.set(Math.sin(ang)*8,4+Math.sin(t)*0.5,Math.cos(ang)*8);
+                orbit.target.set(0,3,-3);
+            }else{
+                const startPos=new THREE.Vector3(...c.pos);
+                const startTarget=new THREE.Vector3(...c.target);
+                camera.position.lerp(startPos,0.02);
+                orbit.target.lerp(startTarget,0.02);
+                // Add slight orbit
+                camera.position.x+=Math.sin(t*0.5)*0.5;
+            }
+            if(tourTimer>=4) nextTourStep();
+        }
+    }
+
+    // Walk mode
+    if(walkMode&&pointer.isLocked){
+        vel.x-=vel.x*10*0.016;
+        vel.z-=vel.z*10*0.016;
+        dir.z=Number(mf)-Number(mb);
+        dir.x=Number(mr)-Number(ml);
+        dir.normalize();
+        if(mf||mb)vel.z-=dir.z*30*0.016;
+        if(ml||mr)vel.x-=dir.x*30*0.016;
+        pointer.moveRight(-vel.x*0.016);
+        pointer.moveForward(-vel.z*0.016);
+    }
+
+    if(mode==='orbit'||tourMode) orbit.update();
+    renderer.render(scene,camera);
+}
+
+function onResize(){
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+}
+
+init();
+</script>
+</body>
+</html>
