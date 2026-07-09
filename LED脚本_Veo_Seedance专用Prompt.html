@@ -1,19 +1,342 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LED脚本_Veo_Seedance专用Prompt</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown-dark.css">
-<style>body{background:#0d1117;color:#c9d1d9;padding:40px;max-width:900px;margin:0 auto;font-family:-apple-system,sans-serif;line-height:1.8}
-table{border-collapse:collapse;width:100%}td,th{border:1px solid #30363d;padding:8px 12px}
-th{background:#161b22}tr:nth-child(even){background:#161b22}
-code{background:#1c2128;padding:2px 6px;border-radius:4px}
-pre{background:#161b22;padding:16px;border-radius:8px;overflow-x:auto}
-blockquote{border-left:3px solid #0a84ff;padding-left:16px;color:#8b949e}
-</style></head><body class="markdown-body"><div id="content"></div>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-fetch('../docs/LED脚本_Veo_Seedance专用Prompt.md').then(r=>r.text()).then(md=>{
-document.getElementById('content').innerHTML=marked.parse(md);
-mermaid.initialize({startOnLoad:true,theme:'dark'});
-mermaid.run();
-})
-</script>
-</body></html>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Veo Prompt</title><style>:root{--bg:#0d1117;--bg2:#161b22;--text:#c9d1d9;--sub:#8b949e;--acc:#0a84ff;--bd:#30363d}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif;line-height:1.8;padding:40px 20px}.doc{max-width:900px;margin:0 auto}h1{font-size:28px;margin:32px 0 16px;color:#f0f6fc;border-bottom:1px solid var(--bd);padding-bottom:8px}h2{font-size:22px;margin:28px 0 12px;color:#f0f6fc;border-left:3px solid var(--acc);padding-left:12px}h3{font-size:18px;margin:24px 0 8px;color:#d0d7de}p{font-size:15px;margin-bottom:12px}ul,ol{font-size:15px;margin-bottom:12px;padding-left:24px}li{margin-bottom:6px}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}th{background:var(--bg2);color:var(--acc);padding:10px 14px;border:1px solid var(--bd)}td{padding:10px 14px;border:1px solid var(--bd)}tr:nth-child(even) td{background:var(--bg2)}code{background:var(--bg2);padding:2px 8px;border-radius:4px;font-size:13px;color:#79c0ff}pre{background:var(--bg2);padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0;border:1px solid var(--bd)}blockquote{border-left:3px solid var(--acc);padding:8px 20px;margin:16px 0;color:var(--sub);background:var(--bg2);border-radius:0 8px 8px 0}hr{border:none;border-top:1px solid var(--bd);margin:32px 0}a{color:#58a6ff}strong{color:#f0f6fc}.mermaid{background:var(--bg2);padding:16px;border-radius:8px;margin:16px 0;text-align:center}</style></head><body><div class="doc"><h1 id="led-veo-3-seedance-aiprompt">LED播放内容 Veo 3 / Seedance AI视频生成Prompt</h1>
+<blockquote>
+<p>7块屏，每块1-3个独立Prompt，每段5-8秒，单动作描述。</p>
+<p>使用方法：复制Prompt粘贴到Veo 3 / Seedance / Runway Gen-3 / Sora</p>
+</blockquote>
+<hr />
+<h2 id="_1">通用规范</h2>
+<h3 id="prompt">品牌色（所有Prompt统一引用）</h3>
+<table>
+<thead>
+<tr>
+<th>色名</th>
+<th>色值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>科技蓝</td>
+<td>#00D4FF</td>
+<td>冷色区主色（屏1-4）</td>
+</tr>
+<tr>
+<td>紫</td>
+<td>#6644FF</td>
+<td>冷色区辅色</td>
+</tr>
+<tr>
+<td>暖橙</td>
+<td>#FF8844</td>
+<td>暖色区主色（屏7）</td>
+</tr>
+<tr>
+<td>金</td>
+<td>#FFD700</td>
+<td>暖色区辅色</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">冷色区统一风格词</h3>
+<pre><code>dark background, cyan-blue glow (#00D4FF), purple accent (#6644FF), brushed steel surfaces, glossy black reflective floor, volumetric fog, cinematic lighting
+</code></pre>
+<h3 id="_3">暖色区统一风格词</h3>
+<pre><code>warm golden lighting, amber and orange particles (#FF8844), soft glow, deep dark background, emotional atmosphere
+</code></pre>
+<h3 id="negative-promptprompt">通用Negative Prompt（所有Prompt都加）</h3>
+<pre><code>text, watermark, chinese characters, logo, people faces, cartoon, anime, low quality, blurry, overexposed, distorted geometry, fisheye, oversaturated, noisy
+</code></pre>
+<hr />
+<h2 id="midjourney">第一步：先用Midjourney生成参考帧</h2>
+<blockquote>
+<p>Veo/Seedance对展厅场景没有先验知识，建议先生成静态参考图，再用image-to-video模式生成动态视频。</p>
+</blockquote>
+<h3 id="mjprompt7">MJ参考帧Prompt（共7张）</h3>
+<pre><code>/imagine: futuristic dark showroom entrance, curved LED wall displaying blue circuit patterns, black glossy floor reflection, cyan glow, fog, no people, architectural visualization, octane render, 8K --ar 16:9 --s 750
+
+/imagine: glowing hexagonal LED pillar in dark exhibition hall, computer chip at base pulsing blue light, holographic particles orbiting, fiber optic ceiling, no people, cinematic, 8K --ar 9:16 --s 750
+
+/imagine: dark high-tech control room, large screen showing robot floor plan with colored dots and trail paths, data dashboard, cyan UI, no people, 8K --ar 16:9 --s 750
+
+/imagine: transparent robot computing module floating in dark space, internal chips visible, green glow, 3D product visualization, octane render, 8K --ar 16:9 --s 750
+
+/imagine: dark showroom with seven transparent OLED panels showing robot status data, colorful borders, battery bars, no people, futuristic UI, 8K --ar 16:9 --s 750
+
+/imagine: warm coffee station with small display screen, orange accent lighting, robotic coffee machine, cream colored background, cozy tech aesthetic, 8K --ar 16:9 --s 750
+
+/imagine: immersive curved projection room showing warm futuristic city scene, orange and golden lighting, particle effects, fiber optic starfield ceiling, no people, 8K --ar 16:9 --s 750
+</code></pre>
+<hr />
+<h2 id="1">屏1 · 入口品牌墙</h2>
+<h3 id="1a-logo">1A · 粒子汇聚成LOGO</h3>
+<pre><code>Camera: slow dolly forward, eye-level wide shot
+
+Hundreds of glowing cyan-blue particles flow from both edges of the frame 
+toward the center of a dark space. The particles converge and merge into 
+a single pulsing sphere of white-blue light. Deep black background with 
+subtle dark blue gradient. Volumetric fog near the floor. Brushed steel 
+frame edges visible.
+
+Duration: 5s | Resolution: 1920x400 | FPS: 30
+</code></pre>
+<h3 id="1b">1B · 芯片生长为光柱</h3>
+<pre><code>Camera: low angle tilt-up, slow crane up
+
+A single computer chip on a dark glossy floor begins to glow with cyan 
+light. A vertical beam of light shoots upward from the chip, growing 
+into a tall luminous column. The light shifts from blue at the base to 
+purple (#6644FF) at the top. Particles spiral upward along the beam. 
+Each robot silhouette has a small green &quot;SesameX Inside&quot; indicator light. 
+Dark exhibition hall background.
+
+Duration: 6s | Resolution: 1920x400 | FPS: 30
+</code></pre>
+<h3 id="1c">1C · 粒子瀑布</h3>
+<pre><code>Camera: static wide shot, slight push-in
+
+A cascade of golden particles falls from the top of the frame like a 
+curtain of light, filling the entire width. The particles are warm gold 
+(#FFD700) with subtle orange accents. Dark background. The waterfall 
+moves in slow motion, particles twinkling as they fall.
+
+Duration: 5s | Resolution: 1920x400 | FPS: 30
+</code></pre>
+<hr />
+<h2 id="2">屏2 · 芯片世界树光柱</h2>
+<h3 id="2a-3d">2A · 芯片3D旋转</h3>
+<pre><code>Camera: slow 360-degree orbit around center
+
+A computer chip hovers in the center of a dark hexagonal glass column. 
+The chip slowly rotates, revealing layered internal circuit architecture. 
+Blue-white light pulses from within like a steady heartbeat. Thin light 
+rays emit outward through the glass faces. Dark void background.
+
+Duration: 8s | Resolution: 480x1080 | FPS: 30
+</code></pre>
+<h3 id="2b">2B · 粒子形态变换</h3>
+<pre><code>Camera: upward tilt, slow spiral motion
+
+Glowing blue particles erupt upward from a central light source inside a 
+glass column. As the particles rise, they briefly form recognizable 
+silhouettes — a humanoid figure, a quadruped, a mechanical arm — each 
+lasting one second before dissolving back into particles. The forms cycle 
+continuously as the particle stream rises. Each robot form has a subtle green &quot;SesameX Inside&quot; glow tag. Dark background with cyan glow.
+
+Duration: 8s | Resolution: 480x1080 | FPS: 30
+</code></pre>
+<h3 id="2c">2C · 数据流上升</h3>
+<pre><code>Camera: static, looking up through glass column
+
+Streams of small glowing blue data particles flow upward through a 
+transparent hexagonal glass column, like a reverse waterfall. The 
+particles glow cyan (#00D4FF) against deep black. Occasional brighter 
+flashes pulse through the stream. Minimal, elegant, high-tech.
+
+Duration: 5s | Resolution: 480x1080 | FPS: 30
+</code></pre>
+<hr />
+<h2 id="3">屏3 · 中枢调度大屏</h2>
+<h3 id="3a">3A · 俯视图机器人移动</h3>
+<pre><code>Camera: top-down static shot of a large screen
+
+A dark blue dashboard display titled &quot;SesameX Multi-Robot Orchestration&quot; showing a floor plan grid. Colored dots 
+(cyan, green, orange, purple) move slowly across the grid in different 
+directions, leaving fading trail lines behind them. A side panel shows 
+scrolling text entries with colored status indicators. Subtle UI animation, 
+data visualization aesthetic. Dark blue background (#001025).
+
+Duration: 8s | Resolution: 1920x600 | FPS: 30
+</code></pre>
+<h3 id="3b">3B · 警报触发动画</h3>
+<pre><code>Camera: static shot of dashboard screen
+
+On a dark blue dashboard, a red-bordered alert box appears and pulses. 
+An animated dashed line draws from one colored dot to another across the 
+floor plan. A green progress bar fills up at the bottom. The alert box 
+disappears, replaced by a green checkmark icon. Flat UI motion graphics, 
+cyan and green color scheme on dark background.
+
+Duration: 6s | Resolution: 1920x600 | FPS: 30
+</code></pre>
+<hr />
+<h2 id="4-sesamex">屏4 · SesameX平台</h2>
+<h3 id="4a">4A · 模组拆解</h3>
+<pre><code>Camera: slow push-in, slight rotation
+
+A dark metallic computing module floats in black space. Its outer shell 
+smoothly separates into transparent layers, revealing internal circuit 
+boards and a glowing green chip at the center. Thin annotation lines 
+appear briefly then fade. Green particle glow (#00FF99). Dark background. 
+Product visualization style.
+
+Duration: 8s | Resolution: 1920x600 | FPS: 30
+</code></pre>
+<h3 id="4b">4B · 多模态融合</h3>
+<pre><code>Camera: static center frame
+
+Four glowing icons — a blue circle, an orange triangle, a purple square, 
+and a green hexagon — positioned at the four corners of the frame. They 
+simultaneously spiral inward toward the center, merging into a single 
+bright flash of white-blue light. The light fades to reveal a small 
+glowing chip module. Dark background.
+
+Duration: 5s | Resolution: 1920x600 | FPS: 30
+</code></pre>
+<hr />
+<h2 id="5-oled">屏5 · 透明OLED状态看板</h2>
+<h3 id="5">5 · 数据看板实时更新</h3>
+<pre><code>Camera: static wide shot of a wall display
+
+Seven semi-transparent display panels arranged in a grid on a dark wall. 
+Each panel has a thin colored border (green, blue, orange, purple) and a &quot;SesameX: Kalos/Aura/Liora&quot; label. Inside 
+each panel, small progress bars fill and empty, numbers change, and status 
+dots blink between green and yellow. The panels are transparent enough to 
+see blurred shapes behind them. Clean futuristic UI, subtle ambient particles.
+
+Duration: 8s | Resolution: 1400x1080 | FPS: 30
+</code></pre>
+<hr />
+<h2 id="6">屏6 · 咖啡取餐屏</h2>
+<h3 id="6a">6A · 咖啡制作进度</h3>
+<pre><code>Camera: static shot of a small display screen
+
+A warm cream-colored display screen with an orange header bar. A circular 
+avatar placeholder sits on the left. On the right, a horizontal orange 
+progress bar slowly fills from left to right. Below, two smaller rows of 
+text scroll gently. Warm, inviting color palette. Soft ambient glow.
+
+Duration: 6s | Resolution: 1280x400 | FPS: 30
+</code></pre>
+<h3 id="6b">6B · 取餐提醒脉冲</h3>
+<pre><code>Camera: static, slight zoom pulse
+
+A warm cream display screen with a large pulsing orange circle in the 
+center. The circle expands and contracts rhythmically, emitting a soft 
+golden glow. The background darkens slightly with each pulse. Warm, 
+satisfying, notification aesthetic.
+
+Duration: 4s | Resolution: 1280x400 | FPS: 30
+</code></pre>
+<hr />
+<h2 id="7">屏7 · 第五世界弧幕</h2>
+<h3 id="7a">7A · 机器狗引路（第一人称）</h3>
+<pre><code>Camera: first-person tracking shot, accelerating forward
+
+A black quadruped robot with a green &quot;SesameX Inside&quot; indicator walks ahead through a dark exhibition space, then 
+turns and moves toward a glowing tunnel entrance. The camera follows 
+behind, accelerating forward. Light streaks on both sides stretch into 
+speed lines as the tunnel approaches. Cool blue transitions to warm orange 
+lighting at the tunnel threshold.
+
+Duration: 8s | Resolution: 1920x600 | FPS: 30
+</code></pre>
+<h3 id="7b">7B · 智慧城市鸟瞰</h3>
+<pre><code>Camera: high-altitude aerial sweep, slow banking turn
+
+A sweeping aerial view of a futuristic green city at golden hour. Sleek 
+curved buildings with vertical gardens. Small robotic vehicles move along 
+elevated roads. Drone formations cross the sky. Warm golden sunlight bathes 
+the scene. Each robot has a green &quot;SesameX Inside&quot; indicator light. Hopeful, serene, 
+grand scale.
+
+Duration: 8s | Resolution: 1920x600 | FPS: 30
+</code></pre>
+<h3 id="7c">7C · 生态自然巡检</h3>
+<pre><code>Camera: low tracking shot through forest, then crane up to reveal landscape
+
+A quadruped robot with &quot;SesameX Inside&quot; marker walks through a misty forest at dawn, light beams 
+piercing through the tree canopy. The camera cranes upward to reveal a 
+vast green landscape with a river. A drone skims across the water surface. 
+Natural color palette — deep greens, soft blues, warm morning light.
+
+Duration: 8s | Resolution: 1920x600 | FPS: 30
+</code></pre>
+<h3 id="7d">7D · 世界树共生宣言</h3>
+<pre><code>Camera: slow dolly back from center, then tilt up
+
+In a dark void, thousands of golden particles converge from all directions 
+toward the center, forming a towering tree-shaped column of light. The 
+branches burst into sparkling golden particles that drift outward like 
+fireflies. The light shifts from gold to warm orange. Epic, emotional, 
+orchestral grandeur. Dark background with warm glow.
+
+Duration: 8s | Resolution: 1920x600 | FPS: 30
+</code></pre>
+<hr />
+<h2 id="prompt_1">附加Prompt</h2>
+<h3 id="_4">芝麻开门</h3>
+<pre><code>Camera: eye-level static, slight push-in
+
+A dark high-tech door frame with thin LED strips along its edges. The LED 
+strips pulse once with blue-white light, then the door panels slide apart 
+smoothly. Behind the door, warm orange light spills out with floating 
+particles. Fog rolls along the floor threshold. Transition from cold blue 
+to warm orange lighting.
+
+Duration: 5s | Resolution: 1920x1080 | FPS: 30
+</code></pre>
+<h3 id="_5">采摘水果</h3>
+<pre><code>Camera: side-angle medium shot, slight push-in
+
+A robotic arm with a precision gripper reaches upward in a dark high-tech 
+exhibition space and gently grasps a red apple from a branch-like mount. 
+The arm slowly lowers the apple and places it on a glowing presentation 
+tray. Warm spotlight illuminates the apple against the dark background. 
+Cyan accent lighting on the robotic arm joints.
+
+Duration: 6s | Resolution: 1920x1080 | FPS: 30
+</code></pre>
+<hr />
+<h2 id="_6">生成参数建议</h2>
+<table>
+<thead>
+<tr>
+<th>屏幕组</th>
+<th>推荐工具</th>
+<th>分辨率</th>
+<th>单段时长</th>
+<th>帧率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>屏1-4（冷色区）</td>
+<td>Veo 3 / Runway Gen-3</td>
+<td>1920×400~600</td>
+<td>5-8s</td>
+<td>30fps</td>
+</tr>
+<tr>
+<td>屏5-6（UI看板）</td>
+<td>Runway Gen-3（UI动画强）</td>
+<td>1280~1400</td>
+<td>4-8s</td>
+<td>30fps</td>
+</tr>
+<tr>
+<td>屏7（沉浸影片）</td>
+<td>Veo 3（电影感强）</td>
+<td>1920×600</td>
+<td>8s</td>
+<td>30fps</td>
+</tr>
+<tr>
+<td>附加场景</td>
+<td>Seedance / Sora</td>
+<td>1920×1080</td>
+<td>5-6s</td>
+<td>30fps</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_7">后期拼接流程</h2>
+<ol>
+<li>每个Prompt生成3-5个版本，选最佳1个</li>
+<li>用Premiere Pro按时间轴顺序拼接</li>
+<li>叠加品牌LOGO、中文字幕（After Effects）</li>
+<li>统一调色：冷色区→暖色区渐变过渡</li>
+<li>添加背景音乐（冷色区科技低频，暖色区弦乐）</li>
+<li>输出最终MP4（H.265，匹配LED物理分辨率）</li>
+</ol>
+<hr />
+<p>**</p></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark"});document.querySelectorAll("pre code.language-mermaid").forEach(function(el){var d=document.createElement("div");d.className="mermaid";d.textContent=el.textContent;el.parentElement.parentElement.replaceChild(d,el.parentElement);mermaid.run({nodes:[d]})})</script></body></html>

@@ -1,19 +1,996 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>机器人区域LED播放内容脚本</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown-dark.css">
-<style>body{background:#0d1117;color:#c9d1d9;padding:40px;max-width:900px;margin:0 auto;font-family:-apple-system,sans-serif;line-height:1.8}
-table{border-collapse:collapse;width:100%}td,th{border:1px solid #30363d;padding:8px 12px}
-th{background:#161b22}tr:nth-child(even){background:#161b22}
-code{background:#1c2128;padding:2px 6px;border-radius:4px}
-pre{background:#161b22;padding:16px;border-radius:8px;overflow-x:auto}
-blockquote{border-left:3px solid #0a84ff;padding-left:16px;color:#8b949e}
-</style></head><body class="markdown-body"><div id="content"></div>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-fetch('../docs/机器人区域LED播放内容脚本.md').then(r=>r.text()).then(md=>{
-document.getElementById('content').innerHTML=marked.parse(md);
-mermaid.initialize({startOnLoad:true,theme:'dark'});
-mermaid.run();
-})
-</script>
-</body></html>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LED脚本</title><style>:root{--bg:#0d1117;--bg2:#161b22;--text:#c9d1d9;--sub:#8b949e;--acc:#0a84ff;--bd:#30363d}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif;line-height:1.8;padding:40px 20px}.doc{max-width:900px;margin:0 auto}h1{font-size:28px;margin:32px 0 16px;color:#f0f6fc;border-bottom:1px solid var(--bd);padding-bottom:8px}h2{font-size:22px;margin:28px 0 12px;color:#f0f6fc;border-left:3px solid var(--acc);padding-left:12px}h3{font-size:18px;margin:24px 0 8px;color:#d0d7de}p{font-size:15px;margin-bottom:12px}ul,ol{font-size:15px;margin-bottom:12px;padding-left:24px}li{margin-bottom:6px}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}th{background:var(--bg2);color:var(--acc);padding:10px 14px;border:1px solid var(--bd)}td{padding:10px 14px;border:1px solid var(--bd)}tr:nth-child(even) td{background:var(--bg2)}code{background:var(--bg2);padding:2px 8px;border-radius:4px;font-size:13px;color:#79c0ff}pre{background:var(--bg2);padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0;border:1px solid var(--bd)}blockquote{border-left:3px solid var(--acc);padding:8px 20px;margin:16px 0;color:var(--sub);background:var(--bg2);border-radius:0 8px 8px 0}hr{border:none;border-top:1px solid var(--bd);margin:32px 0}a{color:#58a6ff}strong{color:#f0f6fc}.mermaid{background:var(--bg2);padding:16px;border-radius:8px;margin:16px 0;text-align:center}</style></head><body><div class="doc"><h1 id="led">黑芝麻智能 · 机器人区域LED播放内容脚本</h1>
+<blockquote>
+<p>1F具身智能区 · 7块LED屏幕 · 完整分镜脚本
+</p>
+<p>每块屏含：画面描述 / 文字内容 / 动画效果 / 时长 / 循环逻辑 / 触发条件</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录</h2>
+<ol>
+<li><a href="#屏1--入口品牌墙led横幅">屏1 · 入口品牌墙LED横幅</a></li>
+<li><a href="#屏2--芯片世界树led光柱">屏2 · 芯片世界树LED光柱</a></li>
+<li><a href="#屏3--中枢调度大屏">屏3 · 中枢调度大屏</a></li>
+<li><a href="#屏4--sesamex平台展示大屏">屏4 · SesameX平台展示大屏</a></li>
+<li><a href="#屏5--机器人展位透明oled">屏5 · 机器人展位透明OLED（×7）</a></li>
+<li><a href="#屏6--咖啡机器人取餐提醒屏">屏6 · 咖啡机器人取餐提醒屏</a></li>
+<li><a href="#屏7--未来区第五世界弧幕">屏7 · 未来区第五世界弧幕</a></li>
+</ol>
+<hr />
+<h2 id="1-led">屏1 · 入口品牌墙LED横幅</h2>
+<h3 id="_2">基本信息</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>尺寸</strong> | 宽12m × 高2.5m |</p>
+<p>| <strong>类型</strong> | P2室内LED屏 |
+| <strong>位置</strong> | 1F入口正对面墙壁 |</p>
+<p>| <strong>播放模式</strong> | 循环播放（无人触发时默认状态） |</p>
+<h3 id="120">播放内容（循环周期：120秒）</h3>
+<h4 id="a-30">场景A · 品牌标语（30秒）</h4>
+<pre><code>
+时间轴：
+0-3s ：黑屏→粒子从两侧向中心汇聚
+3-8s ：粒子凝聚成黑芝麻LOGO（发光效果）
+8-15s ：LOGO下方淡入文字（渐变蓝紫色）：
+ &quot;黑芝麻智能科技&quot;
+ &quot;BLACK SESAME TECHNOLOGIES&quot;
+15-25s ：文字变换为品牌口号（逐字打字效果）：
+ &quot;一颗芯片 赋能千万种形态&quot;
+ &quot;A Chip, Endless Forms&quot;
+25-30s ：LOGO+口号整体淡出，粒子散开
+
+视觉风格：
+
+- 背景：深空黑(#000510)
+
+- 主色：科技蓝(#00D4FF)→紫色(#6644FF)渐变
+
+- LOGO：白色发光，带轻微脉冲呼吸
+
+- 粒子：500个蓝白色光点
+
+</code></pre>
+<h4 id="b-30">场景B · 企业定位（30秒）</h4>
+<pre><code>
+30-35s ：背景切换为芯片电路纹理（缓慢流动）
+35-45s ：文字依次出现（左侧竖排）：
+ &quot;端侧AI推理芯片全球领导者&quot;
+ &quot;Global Leader in Edge AI Inference&quot;
+45-55s ：右侧出现数据动画：
+ &quot;2026年&quot; → 数字滚动
+ &quot;覆盖场景&quot; → 图标弹出（汽车/机器人/卫星/船舶/农机）
+55-60s ：所有元素淡出
+
+视觉风格：
+
+- 背景：PCB走线纹路，缓慢流动发光
+
+- 文字：白色+蓝色描边
+
+- 场景图标：扁平化风格，弹出动画
+
+</code></pre>
+<h4 id="c-30">场景C · 芯片世界树预告（30秒）</h4>
+<pre><code>
+60-65s ：中心出现一颗发光芯片（从远处飞来放大）
+65-75s ：芯片&quot;生长&quot;出一棵光柱（向上延伸）
+ 光柱周围浮现7种机器人剪影（人形/机器狗/咖啡/送餐/清洁/机械臂/飞行器）
+75-85s ：文字浮现：
+ &quot;芯片世界树  SesameX驱动千万形态&quot;
+ &quot;CHIP WORLD TREE · POWERED BY SesameX&quot;
+85-90s ：所有元素缩小为LOGO，回到起点
+
+视觉风格：
+
+- 芯片种子：蓝白脉冲光
+
+- 光柱：蓝→紫→暖橙渐变
+
+- 机器人剪影：线框风格，围绕光柱旋转
+
+</code></pre>
+<h4 id="d-best-tech-best-life30">场景D · BEST TECH BEST LIFE（30秒）</h4>
+<pre><code>
+90-95s ：全屏粒子瀑布（从上向下流下）
+95-105s：粒子组成大字：
+ &quot;BEST TECH&quot;
+ &quot;BEST LIFE&quot;
+ 字体超大，充满画面
+105-115s：下方小字淡入：
+ &quot;黑芝麻智能科技 · 端侧AI推理芯片&quot;
+115-120s：渐黑，回到场景A
+
+视觉风格：
+
+- 金色粒子瀑布
+
+- 大字：白色+金色发光
+
+- 整体氛围：温暖
+
+</code></pre>
+<h3 id="_3">特殊触发</h3>
+<p>| 触发条件 | 响应 |</p>
+<p>|----------|------|
+| 有VIP访客签到 | 切换为个性化欢迎词："欢迎 XXX 先生/女士莅临黑芝麻智能" |</p>
+<p>| APEC期间 | 增加多语种轮播（中/英/日/韩） |
+| 洒漏事件触发 | 底部出现通知条："正在执行清洁任务..." |</p>
+<hr />
+<h2 id="2-led">屏2 · 芯片世界树LED光柱</h2>
+<h3 id="_4">基本信息</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>尺寸</strong> | 高2.5m × 六面（每面宽0.4m） |</p>
+<p>| <strong>类型</strong> | P1.5柔性LED屏（六边形柱体） |
+| <strong>位置</strong> | 1F具身智能区正中央 |</p>
+<p>| <strong>播放模式</strong> | 循环播放（6面同步/错位显示） |</p>
+<h3 id="60">播放内容（循环周期：60秒）</h3>
+<h4 id="phase-1-0-15">Phase 1 · 芯片觉醒（0-15秒）</h4>
+<pre><code>
+0-3s ：六面同时显示一颗芯片从底部&quot;生长&quot;到顶部（线框+光效）
+3-8s ：芯片在柱体中央旋转（3D截面动画，展示内部结构）
+ 显示标注线：
+ &quot;SesameX系列芯片&quot;
+ &quot;高算力AI推理芯片&quot;
+ &quot;制程：Xnm&quot;
+ &quot;算力：XXX TOPS&quot;
+8-15s ：芯片爆发出光粒子，从中心向六面扩散
+
+六面协同：
+
+- 面1/面4：正面/背面显示芯片3D旋转
+
+- 面2/面5：左右侧面显示技术参数
+
+- 面3/面6：显示芯片内部架构拓扑图
+
+</code></pre>
+<h4 id="phase-2-15-40">Phase 2 · 千万形态演化（15-40秒）</h4>
+<pre><code>
+15-20s ：粒子从芯片核心向柱体顶部涌动
+20-30s ：粒子在六面分别变形为不同机器人形态：
+ 面1： 人形机器人（Walker S3剪影）→ 打招呼动作
+ 面2： 机器狗（M20 Pro剪影）→ 跑步动作
+ 面3： 咖啡机器人 → 制作咖啡动作
+ 面4： 送餐机器人 → 送物动作
+ 面5： 清洁机器人 → 清扫动作
+ 面6： 机械臂 → 抓取动作
+30-40s ：7种形态围绕柱体旋转一周（画面在六面之间流动）
+ 每种形态经过时显示标注：
+ &quot;SesameX Kalos 驱动&quot;
+ &quot;SesameX Aura 驱动&quot;
+ &quot;SesameX Liora 驱动&quot;
+ 每面右上角持续显示&quot;SesameX Inside&quot;品牌标记（白色小字+绿色脉冲点）
+
+</code></pre>
+<h4 id="phase-3-40-50">Phase 3 · 算力数据流（40-50秒）</h4>
+<pre><code>
+40-45s ：所有机器人形态化为数据粒子，回到芯片核心
+45-50s ：显示数据流动画——从底部芯片向上涌动
+ 数字瀑布效果：
+ &quot;256 TOPS&quot;
+ &quot;AI推理延迟 &lt; 5ms&quot;
+ &quot;能效比 XXX&quot;
+ &quot;支持LLM/VLA/世界模型&quot;
+
+</code></pre>
+<h4 id="phase-4-50-60">Phase 4 · 品牌呼吸（50-60秒）</h4>
+<pre><code>
+50-55s ：六面统一显示黑芝麻LOGO，缓慢呼吸式发光
+55-60s ：LOGO化为粒子，回到Phase 1起点
+
+</code></pre>
+<h3 id="_5">互动触发</h3>
+<p>| 触发条件 | 响应 |</p>
+<p>|----------|------|
+| 访客拿起展台上的展品 | 六面切换为对应展品的3D结构拆解动画 |</p>
+<p>| 采摘机器人启动 | 显示水果采摘第一视角画面 |
+| Walker S3迎宾表演 | 光柱颜色变绿，同步呼吸 |</p>
+<hr />
+<h2 id="3">屏3 · 中枢调度大屏</h2>
+<h3 id="_6">基本信息</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>尺寸</strong> | 宽8m × 高2.5m |</p>
+<p>| <strong>类型</strong> | P1.5 LED拼接屏 |
+| <strong>位置</strong> | 现在区正后方墙壁 |</p>
+<p>| <strong>播放模式</strong> | 实时数据可视化 + 触发式演示 |</p>
+<h3 id="_7">界面布局</h3>
+<pre><code>
+ SesameX 多机协同中枢调度系统 ← 顶部标题栏(5%)
+ POWERED BY SesameX · MULTI-ROBOT ORCHESTRATION
+
+
+ 机器人俯视图 任务列表 + 数据流
+ (展厅平面图)
+ Walker S3 正在迎宾
+ Walker S3 M20 Pro 巡检中
+ M20 Pro 咖啡订单#023 制作中
+ 咖啡机器人 云迹送餐 已送达
+ 云迹送餐 云迹UP 待命中
+ 云迹UP 遨博臂 待命中
+ 遨博臂
+
+ (实时位置移动) 算力消耗： 80%
+ 数据吞吐：1.2 GB/s
+
+ [触发洒漏演示] [触发送物任务] [触发拍照接力] ← 底部触摸按钮(10%)
+
+</code></pre>
+<h3 id="_8">默认状态（无触发时）</h3>
+<pre><code>
+- 左侧：展厅俯视图，7台机器人以不同颜色圆点显示实时位置
+
+- 圆点带拖尾轨迹（最近10秒移动路径）
+
+- 机器人图标随实际移动而移动（数据来自各机器人定位系统）
+
+- 右侧：实时任务列表，自动滚动更新
+
+- 底部数据：算力消耗进度条 + 数据吞吐量曲线图
+
+- 整体配色：深蓝背景(#001025) + 青色数据(#00D4FF) + 绿色完成态
+
+</code></pre>
+<h3 id="1-60">触发场景1 · 洒漏事件演示（60秒）</h3>
+<pre><code>
+第0秒 ：屏幕中央弹出警告框（红色闪烁）：
+ 事件检测：地面洒漏
+ 位置：咖啡站前方1.5m
+ 检测者：M20 Pro 机器狗
+
+第5秒 ：中枢调度动画：
+ &quot;正在分析... → 正在派单...&quot;
+ 连线动画从M20 Pro图标连到云迹UP图标
+
+第10秒 ：任务分配确认：
+ 任务已分配：云迹UP底盘
+ 路径规划中... 显示路径线（绿色虚线）
+
+第15秒 ：云迹UP开始移动：
+ 俯视图中云迹UP图标沿绿色路径移动
+ 实时显示：剩余距离 / 预计到达时间
+
+第30秒 ：到达现场，开始清洁：
+ &quot;正在清洁... 进度： 80%&quot;
+
+第45秒 ：清洁完成：
+ 清洁完成
+ &quot;全程无人 · 耗时45秒 · 多机协同 v1.0&quot;
+
+第60秒 ：恢复默认状态
+
+</code></pre>
+<h3 id="2-120">触发场景2 · 拍照接力演示（120秒）</h3>
+<pre><code>
+第0秒 ：&quot;拍照接力任务启动&quot;
+ Walker S3图标高亮
+
+第10秒 ：Walker S3完成拍照：
+ 屏幕右侧显示采集的人像照片（马赛克处理保护隐私）
+ &quot;人像采集完成 → 数据传递中...&quot;
+
+第15秒 ：数据流动画：
+ 从Walker S3图标到咖啡机器人图标的蓝色数据流
+
+第20秒 ：咖啡机器人开始制作：
+ &quot;正在制作专属拉花咖啡...&quot;
+ 进度条动画
+
+第90秒 ：咖啡制作完成：
+ 显示拉花咖啡效果图
+ &quot;请凭脸自取 &quot;
+
+第120秒 ：恢复默认状态
+
+</code></pre>
+<h3 id="3-90">触发场景3 · 送物任务（90秒）</h3>
+<pre><code>
+第0秒 ：&quot;送物任务启动&quot;
+ 访客在触摸台选择目标位置（如：会议室A）
+
+第5秒 ：路径规划：
+ 俯视图中显示绿色路径线
+
+第10秒 ：云迹送餐开始移动：
+ 实时追踪位置
+
+第60秒 ：送达确认：
+ 物品已送达 会议室A
+ &quot;全程自主导航 · 无需人工干预&quot;
+
+第90秒 ：恢复默认状态
+
+</code></pre>
+<hr />
+<h2 id="4-sesamex">屏4 · SesameX平台展示大屏</h2>
+<h3 id="_9">基本信息</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>尺寸</strong> | 宽5m × 高2.5m |</p>
+<p>| <strong>类型</strong> | LED屏 |
+| <strong>位置</strong> | 芯片世界树后方 |</p>
+<p>| <strong>播放模式</strong> | 三平台轮播 + 互动切换 |</p>
+<h3 id="9030">播放内容（循环周期：90秒，每个平台30秒）</h3>
+<h4 id="kalos0-30">Kalos展示（0-30秒）</h4>
+<pre><code>
+0-5s ：Kalos LOGO从粒子中生成（绿色主色调）
+5-10s ：3D模组拆解动画：
+ 模组外壳透明化 → 内部芯片+电路板可见
+ 标注：
+ &quot;Kalos 高性能机器人计算平台&quot;
+ &quot;基于SesameX&quot;
+ &quot;支持 VLA / 世界模型推理&quot;
+
+10-20s ：应用场景视频（分屏）：
+ 左：机器狗奔跑（M20 Pro实拍）
+ 右：数据叠加（延迟&lt;5ms / 算力256TOPS）
+
+20-25s ：开发套件展示（360°旋转）：
+ &quot;Kalos开发套件&quot;
+ &quot;开箱即用 · 支持ROS2&quot;
+
+25-30s：&quot;最佳机器人商业落地合作伙伴&quot; 认证印章
+
+</code></pre>
+<h4 id="aura30-60">Aura展示（30-60秒）</h4>
+<pre><code>
+30-35s ：Aura LOGO（蓝色主色调）
+35-40s ：多模态融合动画：
+ 视觉+触觉+语言+动作 四个图标汇聚到Aura芯片
+ &quot;Aura 多模态感知计算平台&quot;
+
+40-50s ：应用场景：
+ 协作机械臂精确抓取 → 力反馈数据可视化
+ &quot;VTLA多模态交互&quot;
+ &quot;支持视觉-触觉-语言-动作融合&quot;
+
+50-55s ：开发套件展示
+55-60s：认证印章
+
+</code></pre>
+<h4 id="liora60-90">Liora展示（60-90秒）</h4>
+<pre><code>
+60-65s ：Liora LOGO（橙色主色调）
+65-70s ：边缘AI终端动画：
+ 多个IoT设备图标连接到Liora芯片
+ &quot;Liora 边缘AI终端平台&quot;
+ &quot;低功耗 · 高能效&quot;
+
+70-80s ：应用场景：
+ 咖啡机AI拉花 / 传感器阵列 / 智能家居
+
+80-85s ：开发套件展示
+85-90s：认证印章 → 回到Kalos
+
+</code></pre>
+<hr />
+<h2 id="5-oled">屏5 · 机器人展位透明OLED</h2>
+<h3 id="_10">基本信息</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>尺寸</strong> | 每块约15寸竖屏 |</p>
+<p>| <strong>类型</strong> | 透明OLED屏 |
+| <strong>位置</strong> | 每台机器人展位侧面 |</p>
+<p>| <strong>数量</strong> | 7块（每台机器人1块） |
+| <strong>播放模式</strong> | 各自独立实时状态显示 |</p>
+<h3 id="oled">各机器人OLED内容</h3>
+<h4 id="walker-s3-oled">Walker S3 展位OLED</h4>
+<pre><code>
+ Walker S3 ← 品牌LOGO
+ 优必选
+
+
+ 状态：迎宾中 ← 实时状态（绿=工作/黄=待命/红=离线）
+
+ 芯片: SesameX Liora
+ 平台: SesameX
+
+ 今日迎宾：47人 ← 今日数据
+ 拍照：23张
+
+ 电量：87% ← 电量条
+
+
+ 下次表演：2分 ← 倒计时
+ 15秒后
+
+
+背景：半透明，可看到后方实物
+
+</code></pre>
+<h4 id="m20-pro-oled">M20 Pro 展位OLED</h4>
+<pre><code>
+ M20 Pro
+ 云深处
+
+ 状态：巡检中
+
+ 芯片：SesameX
+ Aura
+
+ 今日巡检：8圈
+ 越障：12次
+
+ 电量：72%
+
+
+ 下次越障：1分
+ 30秒后
+
+ 速度：1.2 m/s ← 实时速度
+
+</code></pre>
+<h4 id="oled_1">咖啡机器人 展位OLED</h4>
+<pre><code>
+ 咖啡机器人
+
+ 状态：制作中
+
+ 平台：SesameX
+ Aura
+
+ 今日咖啡：15杯
+ 排队：2单
+
+ 当前制作：
+ 订单#023
+ ← 制作进度
+ 剩余：45秒
+
+ 咖啡豆：68% ← 原料余量
+
+</code></pre>
+<h4 id="oled_2">云迹送餐 展位OLED</h4>
+<pre><code>
+ 云迹送餐
+ 云迹科技
+
+ 状态：待命
+
+ 平台：SesameX
+ Kalos
+
+ 今日送物：8次
+ 准时率：100%
+
+ 电量：91%
+
+
+ 位置：充电桩
+
+ 累计里程：2.3km
+
+</code></pre>
+<h4 id="up-oled">云迹UP底盘 展位OLED</h4>
+<pre><code>
+ 云迹UP底盘
+ 云迹科技
+
+ 状态：待命
+
+ 平台：SesameX
+ Kalos
+
+ 今日清洁：3次
+ 面积：45 ㎡
+
+ 电量：85%
+
+
+ 清洁液：72%
+ 水箱：68%
+
+</code></pre>
+<h4 id="oled_3">遨博协作臂 展位OLED</h4>
+<pre><code>
+ 遨博协作臂
+ 遨博智能
+
+ 状态：演示中
+
+ 平台：SesameX
+ Aura
+
+ 今日演示：12次
+ 抓取成功率：99%
+
+ 电量：外接电源
+
+
+ 负载：3kg
+ 精度：±0.02mm
+
+</code></pre>
+<h4 id="oled_4">遨博海纳移动协作 展位OLED</h4>
+<pre><code>
+ 遨博海纳
+ 移动协作机器人
+
+ 状态：待命
+
+ 平台：SesameX
+ Aura
+
+ 今日任务：5次
+ 自主导航：100%
+
+ 电量：76%
+
+
+ 手臂负载：5kg
+ 移动速度：1.0m/s
+
+</code></pre>
+<hr />
+<h2 id="6">屏6 · 咖啡机器人取餐提醒屏</h2>
+<h3 id="_11">基本信息</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>尺寸</strong> | 约19寸横屏 |</p>
+<p>| <strong>类型</strong> | 普通LCD屏 |
+| <strong>位置</strong> | 咖啡机器人取餐口上方 |</p>
+<p>| <strong>播放模式</strong> | 实时订单状态 |</p>
+<h3 id="_12">界面布局</h3>
+<pre><code>
+ SesameX 智能咖啡站 ← 标题栏
+
+
+ 正在制作
+
+ [人像照片] 订单 #023 ← 当前制作
+ 80%
+ 剩余：30秒
+
+
+ 排队等候
+
+ [人像] #024 预计 3分钟 ← 排队列表
+ [人像] #025 预计 6分钟
+
+
+ 今日已制作：15杯 ← 统计
+
+
+背景：暖色调（#FFF5E8）
+
+</code></pre>
+<h3 id="_13">状态切换</h3>
+<p>| 状态 | 显示内容 |</p>
+<p>|------|----------|
+| <strong>空闲</strong> | "请面向摄像头拍照，开始您的专属咖啡体验 " |</p>
+<p>| <strong>拍照中</strong> | "正在采集人像... 请保持微笑 " + 倒计时3-2-1 |
+| <strong>制作中</strong> | 当前订单照片 + 进度条 + "正在制作您的专属拉花..." |</p>
+<p>| <strong>取餐</strong> | "咖啡已就绪！请凭脸取餐 " + 人像大图闪烁 |
+| <strong>离线</strong> | "维护中，请稍候 " |</p>
+<hr />
+<h2 id="7">屏7 · 未来区第五世界弧幕</h2>
+<h3 id="_14">基本信息</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>尺寸</strong> | 弧长约15m × 高4m（270°环幕） |</p>
+<p>| <strong>类型</strong> | 4台4K激光投影+边缘融合 |
+| <strong>位置</strong> | 未来区第五世界三面墙壁 |</p>
+<p>| <strong>播放模式</strong> | 沉浸影片循环 + 触发式体验 |</p>
+<h3 id="6_1">影片脚本（循环周期：6分钟）</h3>
+<h4 id="30">开场 · 机器狗引路（30秒）</h4>
+<pre><code>
+画面：第一人称视角（从展厅地面开始）
+
+- M20 Pro机器狗从画面远处跑来，转身面向观众，机身闪烁&quot;SesameX Inside&quot;标记
+
+- 屏幕显示文字：&quot;欢迎来到第五世界 SesameX Powered&quot;
+
+- 机器狗转身跑向一条光隧道
+
+- 视角跟随机器狗加速前冲
+
+- 两侧光线拉伸成速度线
+
+- 音效：科技感引擎加速声 + 温暖弦乐
+
+色调：冷蓝渐变到暖橙
+
+</code></pre>
+<h4 id="204090">第一章 · 智慧城市2040（90秒）</h4>
+<pre><code>
+画面：从隧道出口&quot;冲出&quot;，来到一座未来城市上空
+
+- 鸟瞰未来城市，建筑流线型，绿色植被覆盖
+
+- 机器人在城市中工作：
+ · 清洁机器人清扫街道（地面视角）
+ · 送餐机器人在天桥上穿行（侧面跟拍）
+ · 人形机器人在公园陪老人散步（温暖色调）
+ · 无人机编队飞过天际线（壮阔全景）
+
+- 每个机器人都有&quot;SesameX Inside&quot;标记闪烁（绿色脉冲）
+
+- 文字浮现：&quot;SesameX · 城市每一个角落都有芯片的温度&quot;
+
+色调：明亮暖色，黄金时刻光线
+音效：城市白噪音（低音量）+ 温暖配乐
+
+</code></pre>
+<h4 id="90">第二章 · 危险救援（90秒）</h4>
+<pre><code>
+画面：场景切换，地震/灾后废墟
+
+- 机器狗在废墟中搜索（红外视角切换），机身&quot;SesameX Inside&quot;标记闪烁
+
+- 人形机器人搬开石块（SesameX Inside）
+
+- 无人机投放救援物资（SesameX Inside）
+
+- 人和机器人握手（特写）
+
+- 文字：&quot;SesameX · 当人类无法到达的地方，芯片先行&quot;
+
+色调：暖橙+灰色（废墟）→ 温暖金色（获救）
+音效：紧张鼓点 → 获救后的舒缓旋律
+
+</code></pre>
+<h4 id="90_1">第三章 · 生态守护（90秒）</h4>
+<pre><code>
+画面：唯美自然场景
+
+- 机器狗在森林巡检（SesameX Inside），晨雾光线穿透树冠
+
+- 无人机在水面检测水质（SesameX Inside），俯拍蓝色水面
+
+- 机器人在农田精准作业（SesameX Inside），绿色田野
+
+- 卫星从太空俯瞰地球（SesameX Inside），远景
+
+- 文字：&quot;SesameX · 一颗芯片，守护一个星球&quot;
+
+色调：自然绿+蓝色（纪录片风格）
+音效：自然环境音 + 大气磅礴配乐
+
+</code></pre>
+<h4 id="60_1">终章 · 人机共生宣言（60秒）</h4>
+<pre><code>
+画面：回到光隧道
+
+- 所有的机器人从四面八方汇聚
+
+- 它们化为光粒子，融合成一棵光柱之树（芯片世界树）
+
+- 树枝上绽放千万种形态
+
+- 画面定格，大字浮现：
+ &quot;BEST TECH&quot;
+ &quot;BEST LIFE&quot;
+ &quot;&quot;
+
+- 渐黑，回到开场
+
+色调：金色+暖橙（温暖感动）
+音效：情感高潮配乐 → 渐弱
+
+</code></pre>
+<h3 id="_15">触发体验</h3>
+<p>| 触发条件 | 响应 |</p>
+<p>|----------|------|
+| 访客进入未来区 | 影片从头播放 |</p>
+<p>| 地面互动投影被踩踏 | 对应区域弹出3D场景缩略图 |
+| 脑机接口启动 | 弧幕显示脑波可视化（同步EEG数据） |</p>
+<p>| 共生宣言提交 | 弧幕角落显示新提交的AI生成作品 |</p>
+<hr />
+<h2 id="_16">技术规格汇总</h2>
+<h3 id="led_1">所有LED屏幕统一规格</h3>
+<p>| 参数 | 规格 |</p>
+<p>|------|------|
+| <strong>色深</strong> | 16bit（1670万色） |</p>
+<p>| <strong>刷新率</strong> | ≥3840Hz |
+| <strong>亮度</strong> | ≥800nit（室内） |</p>
+<p>| <strong>播放器</strong> | 灵星云OS / 诺瓦LCT |
+| <strong>内容格式</strong> | MP4(H.265) + 实时HTML5 |</p>
+<p>| <strong>同步方式</strong> | NTP时间同步 + RS485级联 |</p>
+<h3 id="_17">内容制作要求</h3>
+<p>| 项目 | 要求 |</p>
+<p>|------|------|
+| <strong>分辨率</strong> | 匹配各屏物理分辨率（如8m×2.5m P1.5 = 8000×2500） |</p>
+<p>| <strong>帧率</strong> | 60fps（动画流畅） |
+| <strong>色彩空间</strong> | Rec.709 / sRGB |</p>
+<p>| <strong>安全区</strong> | 画面边缘10%为安全区（不放关键文字） |
+| <strong>字幕</strong> | 中文用思源黑体，英文用Helvetica Neue |</p>
+<p>| <strong>品牌色</strong> | 主色#00D4FF（科技蓝）/ 辅色#6644FF（紫）/ 暖色#FF8844（橙） |</p>
+<hr />
+<h2 id="_18">交付清单</h2>
+<p>| 脚本编号 | 屏幕 | 内容时长 | 交付物 |</p>
+<p>|----------|------|----------|--------|
+| 脚本1 | 入口品牌墙 | 120秒循环 | MP4视频×4场景 |</p>
+<p>| 脚本2 | 芯片世界树光柱 | 60秒循环 | 6面同步MP4 |
+| 脚本3 | 中枢调度大屏 | 实时+3触发 | HTML5交互程序 |</p>
+<p>| 脚本4 | SesameX平台屏 | 90秒循环 | MP4视频×3平台 |
+| 脚本5 | 7块透明OLED | 实时状态 | HTML5数据看板 |</p>
+<p>| 脚本6 | 咖啡取餐屏 | 实时订单 | HTML5交互程序 |
+| 脚本7 | 第五世界弧幕 | 6分钟循环 | 4K投影影片×1 |</p>
+<hr />
+<hr />
+<h2 id="a">追加A · "芝麻开门"语音交互脚本</h2>
+<h3 id="_19">触发位置</h3>
+<p>前瞻技术区入口门 / 具身智能区入口</p>
+<h3 id="10">分镜脚本（10秒）</h3>
+<pre><code>
+第0秒 ：访客走到门前，说出&quot;芝麻开门&quot;
+ 语音识别系统检测到关键词
+
+第1秒 ：门上方LED横幅闪烁（蓝→白→蓝脉冲）
+ 屏幕显示声波动画（实时渲染访客的声音波形）
+
+第2-3秒 ：门两侧的LED柱显示&quot;时光之门 · 已开启&quot;
+ 多语种同步显示：
+ &quot;时光之门 已开启 / Portal Opened / ポータル開啟 / 포털 열림&quot;
+
+第3-5秒 ：门缓缓打开（电动门）
+ 门内LED地灯从两侧向中心依次点亮（引导路径）
+ 音效：低频&quot;嗡&quot;声 → 频率渐升 → 清脆的&quot;叮&quot;声
+
+第5-8秒 ：门完全打开
+ 正前方屏幕显示欢迎语：
+ &quot;欢迎进入未来&quot;
+ &quot;WELCOME TO THE FUTURE&quot;
+ 背景粒子从门内向访客方向飘出
+
+第8-10秒：粒子消散，进入正常展厅内容
+
+</code></pre>
+<h3 id="_20">技术要求</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| 语音识别 | 本地离线模型（Snowboy/Porcupine），关键词"芝麻开门" |</p>
+<p>| 响应延迟 | &lt;500ms（从语音结束到门开始打开） |
+| 误触防护 | 5秒冷却时间（防止连续触发） |</p>
+<p>| 备用方案 | 门侧触摸屏按钮（无语音时手动开门） |</p>
+<hr />
+<h2 id="b">追加B · 芯片世界树"采摘水果"互动分镜</h2>
+<h3 id="_21">互动概述</h3>
+<blockquote>
+<p>科技树装置暗藏真实水果，采摘机器人摘取水果递给访客，同时LED切换对应内容。</p>
+</blockquote>
+<h3 id="60_2">完整分镜（60秒）</h3>
+<pre><code>
+Phase 1 · 待机（持续）
+
+- 世界树光柱正常循环播放（Phase 1-4）
+
+- 树枝上的水果展台亮起暖色灯（吸引注意）
+
+- SesameX大屏显示：&quot;拿起展品，开启互动体验&quot;
+
+Phase 2 · 触发（第0秒）
+
+- 访客拿起展台上的SesameX模组展品
+
+- 传感器检测到展品被拿起（RFID/红外）
+
+- 世界树光柱立即切换：
+ · 六面统一显示该模组的3D结构拆解动画
+ · 标注：&quot;SesameX Kalos / Aura / Liora&quot;
+
+- SesameX大屏同步切换为该模组详细参数
+
+Phase 3 · 采摘（第5-15秒）
+
+- 光柱顶部显示：&quot;正在为您采摘...&quot;
+
+- 采摘机器人（协作臂）启动：
+ · 机械臂用真空吸盘从随机位置摘下一颗真实苹果
+ · 世界树光柱同步播放采摘第一视角画面
+ · 机械臂将水果递向访客方向
+
+- 音效：清脆的采摘声 + 温暖提示音
+
+Phase 4 · 递送（第15-25秒）
+
+- 机械臂将水果放置在取物台上
+
+- 光柱显示：&quot;请取走您的水果 &quot;
+
+- SesameX大屏显示：
+ &quot;SesameX赋能 · 从芯片到果实&quot;
+ &quot;端侧AI驱动的精准抓取&quot;
+ 展示抓取过程中的力控数据曲线
+
+Phase 5 · 恢复（第25-60秒）
+
+- 访客取走水果
+
+- 机械臂回到待机位
+
+- 光柱回到正常循环
+
+- 展品放回展台（或由工作人员补放）
+
+- 水果补给：每2小时由工作人员补充
+
+</code></pre>
+<h3 id="_22">技术要求</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| 水果类型 | 苹果/橙子（直径70-80mm，重量150-180g） |</p>
+<p>| 补给频率 | 每2小时检查，每日最大互动次数50次 |
+| 机械臂 | 遨博i5协作臂+真空吸盘（已配置在世界树旁） |</p>
+<p>| 力控精度 | 真空吸附（不损伤苹果），随机位置视觉寻找 |
+| 传感器 | 展品底座RFID标签 + 红外接近开关 |</p>
+<hr />
+<h2 id="c-sesamex">追加C · SesameX技术深度内容</h2>
+<h3 id="4sesamex">新增到屏4（SesameX大屏）的技术展示模块</h3>
+<p>在原有3平台轮播后，增加一轮技术能力展示（90秒）：</p>
+<h4 id="bst-robot-os90-120">技术展示 · BST Robot OS（第90-120秒）</h4>
+<pre><code>
+90-95s ：ROS2拓扑动画弹出
+ &quot;BST Robot OS — 多域融合机器人操作系统&quot;
+ 显示多核架构图（A核+R5核）
+
+95-100s ：双屏对比演示画面：
+ 左：实时CPU占用率曲线（传统方案 vs BST优化）
+ 右：延迟曲线对比
+ &quot;BST ROS2 加速通信 — 零拷贝数据通路&quot;
+ &quot;延迟降低 60%&quot;
+
+100-105s：急停按钮互动演示动画：
+ &quot;车规级 ROS 安全通信&quot;
+ &quot;R5毫秒级响应 vs A核软件路径&quot;
+ 时间轴对比动画
+
+105-120s：代码部署全流程动画：
+ &quot;PC–板端一体化开发工具链&quot;
+ 改代码→交叉编译→部署→OTA升级
+ 全流程可视化（流动的数据线）
+
+</code></pre>
+<h4 id="120-150">技术展示 · 感知流水线（第120-150秒）</h4>
+<pre><code>
+120-125s：&quot;全硬件加速感知流水线&quot;
+ 4-6路Camera实时画面墙
+
+125-135s：GPU/HWCV负载对比图表
+ &quot;硬件加速 vs 软件处理&quot;
+ 实时帧率/功耗/延迟数据
+
+135-150s：&quot;机器人数据闭环 — Trigger智能采集&quot;
+ 展示数据录制闭环流程动画：
+ 场景→触发→采集→标注→训练→部署→反馈
+
+</code></pre>
+<h4 id="vla150-180">技术展示 · VLA与世界模型（第150-180秒）</h4>
+<pre><code>
+150-160s：&quot;机器人智能进化平台&quot;
+ VLA推理过程可视化：
+ 视觉输入→语言理解→动作输出
+ 三通道并行动画
+
+160-170s：&quot;From Car to Robot — 从智能汽车到Physical AI&quot;
+ 汽车场景→机器人场景的迁移动画
+ 共享底层芯片架构图
+
+170-180s：&quot;世界模型闭环&quot;
+ 感知→预测→规划→行动→反馈→学习
+ 六步循环动画
+ &quot;面向实时生成式推理与世界模型闭环&quot;
+
+180s ：回到Kalos展示（循环起点）
+
+</code></pre>
+<hr />
+<h2 id="d">追加D · 技术架构说明</h2>
+<h3 id="_23">中枢调度大屏 · 数据来源</h3>
+<p>| 数据项 | 技术方案 | 协议 | 延迟 |</p>
+<p>|--------|----------|------|------|
+| 机器人位置 | UWB超宽带定位（±10cm精度） | MQTT/JSON | &lt;50ms |</p>
+<p>| 机器人状态 | 各机器人ROS2 topic订阅 | ROS2 DDS | &lt;100ms |
+| 任务状态 | 中枢调度系统API | WebSocket | &lt;200ms |</p>
+<p>| 电量数据 | 机器人BMS广播 | CAN→MQTT | &lt;1s |
+| 算力监控 | SesameX板载监控Agent | MQTT | &lt;500ms |</p>
+<h3 id="oled_5">透明OLED · 数据更新方案</h3>
+<p>| 项目 | 方案 |</p>
+<p>|------|------|
+| 显示技术 | Web页面（Chromium Kiosk模式） |</p>
+<p>| 数据推送 | WebSocket连接中枢服务器 |
+| 更新频率 | 位置1Hz / 状态2Hz / 电量0.1Hz |</p>
+<p>| 离线缓存 | 本地缓存最后数据，断线时显示"通信中断" |</p>
+<h3 id="_24">弧幕投影 · 分辨率修正</h3>
+<p>| 项目 | 计算 |</p>
+<p>|------|------|
+| 单台投影 | 4K（3840×2160） |</p>
+<p>| 投影数量 | 4台 |
+| 融合区重叠 | 每边重叠15%（约576px） |</p>
+<p>| 有效总分辨率 | (3840-576×2)×4 + 576×2 = 10560×2160（约10K） |
+| 实际输出 | 边缘融合后约10000×2000有效像素 |</p>
+<hr />
+<h2 id="e">追加E · 异常状态显示规范</h2>
+<h3 id="_25">统一异常状态表</h3>
+<p>| 状态 | 图标 | 颜色 | 显示内容 | 自动恢复 |</p>
+<p>|------|------|------|----------|----------|
+| <strong>正常工作</strong> | | 绿色(#00FF88) | 正常状态显示 | - |</p>
+<p>| <strong>待命</strong> | | 黄色(#FFCC00) | "待命中..." | 有任务时自动恢复 |
+| <strong>充电中</strong> | | 蓝色(#00AAFF) | "充电中 XX%" | 电量&gt;80%恢复 |</p>
+<p>| <strong>离线</strong> | | 红色(#FF3333) | " 通信中断" 持续闪烁 | 通信恢复后自动恢复 |
+| <strong>故障</strong> | | 深红(#FF0000) | " 维护中" + 故障码 | 需人工复位 |</p>
+<p>| <strong>维护模式</strong> | | 灰色(#888888) | "系统维护中 · 请稍候" | 维护结束后恢复 |</p>
+<h3 id="_26">大屏异常处理</h3>
+<pre><code>
+当任何机器人离线超过10秒：
+1. 中枢大屏该机器人图标变红+闪烁
+2. 任务列表标记为&quot; 中断&quot;
+3. 自动尝试重新连接（每5秒一次）
+4. 30秒未恢复 → 触发值班人员通知（短信/钉钉）
+
+当多台机器人同时离线（&gt;3台）：
+1. 大屏顶部弹出全局警告条
+2. 自动切换为&quot;降级模式&quot;（仅展示静态内容）
+3. 触发紧急通知
+
+</code></pre>
+<hr />
+<h2 id="f">追加F · 多语言支持方案</h2>
+<h3 id="_27">语言切换矩阵</h3>
+<p>| 屏幕 | 默认 | APEC模式 | VIP模式 |</p>
+<p>|------|------|----------|---------|
+| 入口品牌墙 | 中文 | 中/英/日/韩轮播 | 访客指定语言 |</p>
+<p>| 世界树光柱 | 中文+英文 | 中/英/日/韩 | 访客指定语言 |
+| 中枢调度大屏 | 中文 | 中文（不变） | 中文（不变） |</p>
+<p>| SesameX屏 | 中文+英文 | 中/英/日/韩 | 访客指定语言 |
+| 透明OLED | 中文 | 中文（不变） | 中文（不变） |</p>
+<p>| 咖啡取餐屏 | 中文 | 中/英切换 | 访客指定语言 |
+| 第五世界弧幕 | 中文字幕 | 中/英/日/韩字幕 | 访客指定语言 |</p>
+<h3 id="_28">切换方式</h3>
+<ul>
+<li>
+<p><strong>自动</strong>：通过RFID手环读取访客国籍信息</p>
+</li>
+<li>
+<p><strong>手动</strong>：入口处设置语言选择触摸屏</p>
+</li>
+<li>
+<p><strong>全局</strong>：中控系统一键切换所有屏幕语言</p>
+</li>
+</ul>
+<hr />
+<h2 id="g">追加G · 每日运营时间表</h2>
+<h3 id="0830">开机序列（每日08:30）</h3>
+<pre><code>
+08:30 系统总控启动 → 各LED播放器上电
+08:31 入口品牌墙 → 开机自检画面（黑芝麻LOGO脉冲）
+08:32 世界树光柱 → 六面渐次点亮（从底部到顶部）
+08:33 SesameX大屏 → 三平台LOGO依次出现
+08:34 中枢调度大屏 → 系统初始化动画 → 连接各机器人
+08:35 透明OLED（7块） → 逐块点亮，显示&quot;系统就绪&quot;
+08:36 咖啡取餐屏 → 显示&quot;咖啡站已就绪 &quot;
+08:37 弧幕投影 → 开机校准画面 → 渐入开场影片
+08:38 全部就绪 → 入口品牌墙显示&quot;开馆&quot;
+08:38 机器人启动 → Walker S3就位 → M20 Pro开始巡检
+08:40 开馆
+
+</code></pre>
+<h3 id="1800">关机序列（每日18:00）</h3>
+<pre><code>
+18:00 入口品牌墙显示&quot;今日闭馆&quot;
+18:01 机器人返回充电桩
+18:05 弧幕投影渐暗
+18:06 透明OLED显示&quot;系统关闭中...&quot;→渐暗
+18:07 SesameX大屏 → 三平台LOGO渐暗
+18:08 世界树光柱 → 从顶部到底部渐暗
+18:09 中枢调度大屏 → &quot;系统已关闭&quot;
+18:10 入口品牌墙 → 黑芝麻LOGO最后一次呼吸 → 熄灭
+18:11 系统总控关机
+
+</code></pre>
+<h3 id="0800-1000">维护模式（每周一08:00-10:00）</h3>
+<pre><code>
+- 所有屏幕显示&quot;系统维护中 · 10:00开馆&quot;
+
+- 机器人进行自检和校准
+
+- LED屏进行坏点检测
+
+- 投影仪进行色彩校准
+
+- 中枢系统进行软件更新
+
+</code></pre>
+<hr />
+<p><em>本脚本涵盖7块LED屏完整分镜、芝麻开门互动、采摘水果分镜、SesameX技术深度展示、技术架构说明、异常处理规范、多语言支持、每日运营时间表。</em></p>
+<p><em>© 2026 黑芝麻智能 · BEST TECH / BEST LIFE</em></p></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark"});document.querySelectorAll("pre code.language-mermaid").forEach(function(el){var d=document.createElement("div");d.className="mermaid";d.textContent=el.textContent;el.parentElement.parentElement.replaceChild(d,el.parentElement);mermaid.run({nodes:[d]})})</script></body></html>

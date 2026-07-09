@@ -1,19 +1,570 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>机器人联动方案设计</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown-dark.css">
-<style>body{background:#0d1117;color:#c9d1d9;padding:40px;max-width:900px;margin:0 auto;font-family:-apple-system,sans-serif;line-height:1.8}
-table{border-collapse:collapse;width:100%}td,th{border:1px solid #30363d;padding:8px 12px}
-th{background:#161b22}tr:nth-child(even){background:#161b22}
-code{background:#1c2128;padding:2px 6px;border-radius:4px}
-pre{background:#161b22;padding:16px;border-radius:8px;overflow-x:auto}
-blockquote{border-left:3px solid #0a84ff;padding-left:16px;color:#8b949e}
-</style></head><body class="markdown-body"><div id="content"></div>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-fetch('../docs/机器人联动方案设计.md').then(r=>r.text()).then(md=>{
-document.getElementById('content').innerHTML=marked.parse(md);
-mermaid.initialize({startOnLoad:true,theme:'dark'});
-mermaid.run();
-})
-</script>
-</body></html>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>联动设计</title><style>:root{--bg:#0d1117;--bg2:#161b22;--text:#c9d1d9;--sub:#8b949e;--acc:#0a84ff;--bd:#30363d}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif;line-height:1.8;padding:40px 20px}.doc{max-width:900px;margin:0 auto}h1{font-size:28px;margin:32px 0 16px;color:#f0f6fc;border-bottom:1px solid var(--bd);padding-bottom:8px}h2{font-size:22px;margin:28px 0 12px;color:#f0f6fc;border-left:3px solid var(--acc);padding-left:12px}h3{font-size:18px;margin:24px 0 8px;color:#d0d7de}p{font-size:15px;margin-bottom:12px}ul,ol{font-size:15px;margin-bottom:12px;padding-left:24px}li{margin-bottom:6px}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}th{background:var(--bg2);color:var(--acc);padding:10px 14px;border:1px solid var(--bd)}td{padding:10px 14px;border:1px solid var(--bd)}tr:nth-child(even) td{background:var(--bg2)}code{background:var(--bg2);padding:2px 8px;border-radius:4px;font-size:13px;color:#79c0ff}pre{background:var(--bg2);padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0;border:1px solid var(--bd)}blockquote{border-left:3px solid var(--acc);padding:8px 20px;margin:16px 0;color:var(--sub);background:var(--bg2);border-radius:0 8px 8px 0}hr{border:none;border-top:1px solid var(--bd);margin:32px 0}a{color:#58a6ff}strong{color:#f0f6fc}.mermaid{background:var(--bg2);padding:16px;border-radius:8px;margin:16px 0;text-align:center}</style></head><body><div class="doc"><h1 id="_1">黑芝麻智能 · 机器人联动方案设计</h1>
+<blockquote>
+<p>7台机器人 · 中枢调度 · 端-边-云协同 · 6大联动场景
+</p>
+<p>前海展厅1F具身智能区 · 323㎡</p>
+</blockquote>
+<hr />
+<h2 id="_2">目录</h2>
+<ol>
+<li><a href="#第一章--端-边-云三层系统架构">端-边-云三层系统架构</a></li>
+<li><a href="#第二章--中枢调度系统设计">中枢调度系统设计</a></li>
+<li><a href="#第三章--7台机器人角色与行为定义">7台机器人角色与行为定义</a></li>
+<li><a href="#第四章--6大联动场景工程方案">6大联动场景工程方案</a></li>
+<li><a href="#第五章--硬件清单">硬件清单</a></li>
+<li><a href="#第六章--故障降级与日常运营">故障降级与日常运营</a></li>
+</ol>
+<hr />
+<h2 id="-">第一章 · 端-边-云三层系统架构</h2>
+<h3 id="11">1.1 架构总览</h3>
+<pre><code>
+┌─────────────────────────────────────────────────────┐
+│                    云端 (Cloud)                       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
+│  │ 模型训练  │  │ 数据分析  │  │ 远程监控/OTA升级  │  │
+│  │ VLA/VLM  │  │ 访客行为  │  │ 故障告警/日志     │  │
+│  └─────┬────┘  └─────┬────┘  └────────┬─────────┘  │
+│        │             │                │              │
+└────────┼─────────────┼────────────────┼──────────────┘
+         │  模型下发    │  数据上报      │  远程指令
+         ▼             ▼                ▼
+┌─────────────────────────────────────────────────────┐
+│                边缘侧 (Edge · 展厅中控)               │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
+│  │ 任务编排  │  │ 数字孪生  │  │ UWB定位服务器    │  │
+│  │ 引擎(DAG)│  │ 实时映射  │  │ 4基站±10cm      │  │
+│  └─────┬────┘  └─────┬────┘  └────────┬─────────┘  │
+│  ┌─────┴────┐  ┌─────┴────┐  ┌────────┴─────────┐  │
+│  │ 路径规划  │  │ 安全监控  │  │ LED播控服务器    │  │
+│  │ 冲突避免  │  │ 急停/围栏  │  │ 7屏同步/NTP     │  │
+│  └──────────┘  └──────────┘  └──────────────────┘  │
+└───────────────────────┬─────────────────────────────┘
+                        │  ROS2 DDS / MQTT
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│                 端侧 (Edge Device · 7台机器人)         │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐  │
+│  │Walker S3│ │M20 Pro  │ │Coffee   │ │Delivery  │  │
+│  │Liora   │ │Aura    │ │Aura    │ │Kalos    │  │
+│  └─────────┘ └─────────┘ └─────────┘ └──────────┘  │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐               │
+│  │云迹UP   │ │Arm(i5) │ │Haina   │               │
+│  │Kalos   │ │Aura    │ │Aura    │               │
+│  └─────────┘ └─────────┘ └─────────┘               │
+└─────────────────────────────────────────────────────┘
+
+</code></pre>
+<h3 id="12">1.2 三层职责定义</h3>
+<p>| 层级 | 硬件 | 职责 | 延迟要求 |</p>
+<p>|------|------|------|----------|
+| <strong>云端</strong> | 阿里云/腾讯云GPU服务器 | 模型训练/OTA/数据分析/远程监控 | 秒级~分钟级 |</p>
+<p>| <strong>边缘侧</strong> | 展厅本地服务器（双路Xeon+RTX A6000） | 任务编排/路径规划/定位/安全/LED播控 | &lt;50ms |
+| <strong>端侧</strong> | SesameX芯片（Kalos/Aura/Liora） | 实时感知/决策/运动控制/力控 | &lt;5ms |</p>
+<h3 id="13">1.3 通信架构</h3>
+<p>| 通信链路 | 协议 | 频率 | 数据内容 |</p>
+<p>|----------|------|------|----------|
+| 机器人→中控 | ROS2 DDS | 10Hz | 位置/姿态/电量/状态/传感器数据 |</p>
+<p>| 中控→机器人 | ROS2 DDS | 10Hz | 任务指令/路径点/速度限制 |
+| UWB标签→中控 | MQTT | 50Hz | 厘米级位置坐标 |</p>
+<p>| 中控→LED播控 | WebSocket | 按需 | 屏幕内容切换指令 |
+| 中控→云端 | HTTPS | 1Hz | 状态上报/数据上传 |</p>
+<p>| 云端→中控 | HTTPS/MQTT | 按需 | 模型更新/远程指令 |
+| 安全急停 | 硬线CAN总线 | 实时 | 急停信号（不经过网络） |</p>
+<h3 id="14">1.4 网络方案</h3>
+<p>| 项目 | 方案 |</p>
+<p>|------|------|
+| <strong>有线网络</strong> | 中控服务器/LED播控/UWB基站通过千兆有线连接 |</p>
+<p>| <strong>无线网络</strong> | 机器人通过Wi-Fi 6（专用SSID，非展厅访客网络），1F/2F各部署2个AP（共4个），信道错开避免同频干扰 |
+| <strong>5G备选</strong> | 关键机器人（Walker S3/M20 Pro）可配5G模块做冗余 |</p>
+<p>| <strong>网络隔离</strong> | 机器人网络与访客网络VLAN隔离 |
+| <strong>断网降级</strong> | 机器人断网时执行最后收到的任务，完成后返回充电桩 |</p>
+<hr />
+<h2 id="_3">第二章 · 中枢调度系统设计</h2>
+<h3 id="21">2.1 任务编排引擎</h3>
+<p>采用<strong>DAG（有向无环图）工作流引擎</strong>，每个联动场景定义为一个DAG：</p>
+<pre><code>
+示例：拍照接力DAG
+
+[访客触发] → [Walker拍照] → [人像数据传输] → [咖啡机识别]
+                                                      ↓
+                                              [咖啡机制作拉花] → [取餐屏更新] → [完成]
+
+</code></pre>
+<p>| 组件 | 说明 |</p>
+<p>|------|------|
+| <strong>任务定义</strong> | 每个联动场景预先编程为JSON/YAML格式的工作流 |</p>
+<p>| <strong>触发器</strong> | 传感器事件 / 手动按钮 / 定时器 / VIP签到 |
+| <strong>任务节点</strong> | 每个节点=一个机器人的一个动作（含超时/重试） |</p>
+<p>| <strong>条件分支</strong> | 支持if-else（如：咖啡豆不足时切换为备用方案） |
+| <strong>并行执行</strong> | 多个无依赖节点可并行（如：Walker拍照+M20巡检同时进行） |</p>
+<h3 id="22">2.2 路径规划与冲突避免</h3>
+<p>| 机制 | 说明 |</p>
+<p>|------|------|
+| <strong>时间窗预约</strong> | 机器人通过狭窄通道前向中控申请时间窗 |</p>
+<p>| <strong>优先级</strong> | VIP导览（高）&gt; 安全事件响应（高）&gt; 任务执行（中）&gt; 返回充电（低） |
+| <strong>静态禁区</strong> | 展品区/访客休息区/充电桩周围设为禁区 |</p>
+<p>| <strong>动态避让</strong> | 检测到其他机器人3m内时减速，1.5m内停止 |
+| <strong>行人避让</strong> | 激光雷达+深度相机检测行人，0.5m内急停 |</p>
+<h3 id="221">2.2.1 并发场景调度规则</h3>
+<p>| 并发场景 | 规则 |</p>
+<p>| --- | --- |
+| <strong>VIP导览进行中，普通访客触发拍照接力</strong> | Walker维持VIP导览，拍照接力进入队列，Walker完成当前段落后执行（访客等待不超过5分钟，否则提示改日） |</p>
+<p>| <strong>两组VIP同时签到</strong> | 第一组由Walker接待，第二组由工作人员陪同并播放自动导览视频；Walker完成第一组送别后立即切换 |
+| <strong>M20正在越障表演，洒漏事件触发</strong> | 洒漏为安全事件，M20立即中止表演，移动至洒漏位置检测上报；越障表演在完成清洁后重新触发 |</p>
+<p>| <strong>Walker电量低于25%，VIP导览中</strong> | 导览完成后不执行其他任务，直接返回充电；中控提示工作人员准备接替 |
+| <strong>多台机器人同时故障（超过2台）</strong> | 全局切换降级模式，暂停所有自动场景，仅保留静态展示，通知运营人员 |</p>
+<h3 id="23">2.3 数字孪生</h3>
+<p>| 项目 | 说明 |</p>
+<p>|------|------|
+| <strong>映射频率</strong> | 位置50Hz / 状态10Hz / 电量0.1Hz |</p>
+<p>| <strong>可视化</strong> | 中枢大屏实时显示7台机器人位置/状态/轨迹 |
+| <strong>仿真预演</strong> | 任务下发前先在数字孪生中预演路径冲突 |</p>
+<p>| <strong>历史回放</strong> | 记录最近30天运行数据，支持事件回溯 |</p>
+<hr />
+<h2 id="7">第三章 · 7台机器人角色与行为定义</h2>
+<h3 id="31-walker-s3">3.1 Walker S3（人形主角）</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>芯片</strong> | SesameX Liora |</p>
+<p>| <strong>角色</strong> | 迎宾/导览/拍照/讲解 |
+| <strong>工作区域</strong> | 入口→品牌墙→世界树→机器人区 |</p>
+<p>| <strong>待机位</strong> | 入口右侧1m处 |
+| <strong>充电桩</strong> | 入口右侧角落 |</p>
+<p>| <strong>交互方式</strong> | 语音对话/手势识别/面部表情 |
+| <strong>运动模式</strong> | 步行0.5m/s（展厅限速）/表演模式定点动作 |</p>
+<p>| <strong>安全边界</strong> | 周围1m为安全区，行人进入时停止动作 |
+| <strong>续航说明</strong> | 单次续航约90分钟（实际工作），每日需2次充电间歇 |</p>
+<p>| <strong>每日工作</strong> | 08:40就位 → 迎宾循环（约90分钟）→ 10:10–10:40充电（静默期，工作人员引导）→ 恢复迎宾 → 13:30–14:00充电（午间静默期）→ 恢复迎宾 → 17:50回充 |</p>
+<h4 id="_4">行为脚本</h4>
+<pre><code>
+状态机：
+  IDLE（待机）→ GREET（迎宾）→ GUIDE（导览）→ PHOTO（拍照）→ RETURN（回充）
+
+触发：
+  - 访客进入3m范围 → GREET
+  - VIP签到 → GUIDE（按预设路线导览）
+  - 拍照接力任务 → PHOTO（采集人像）
+  - 电量&lt;20% → RETURN
+
+</code></pre>
+<h3 id="32-m20-pro">3.2 M20 Pro（机器狗）</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>芯片</strong> | SesameX Aura |</p>
+<p>| <strong>角色</strong> | 巡检/越障表演/事件检测/引路 |
+| <strong>工作区域</strong> | 机器人区→中枢大屏前→跑道→未来区入口 |</p>
+<p>| <strong>待机位</strong> | 跑道起点 |
+| <strong>充电桩</strong> | 机器人区角落 |</p>
+<p>| <strong>交互方式</strong> | 跟随/越障表演/巡逻检测 |
+| <strong>运动模式</strong> | 巡检1.2m/s / 越障表演0.3m/s |</p>
+<p>| <strong>传感器</strong> | 激光雷达/深度相机/红外热成像（洒漏检测） |
+| <strong>每日工作</strong> | 每30分钟自动巡检一圈 → 越障表演 → 事件响应 |</p>
+<h3 id="33">3.3 咖啡机器人</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>芯片</strong> | SesameX Aura |</p>
+<p>| <strong>角色</strong> | 肖像拉花咖啡制作 |
+| <strong>工作区域</strong> | 固定位置（咖啡站） |</p>
+<p>| <strong>交互方式</strong> | 人像采集→AI拉花→制作→取餐 |
+| <strong>每日产能</strong> | 约60杯（每杯90秒制作时间） |</p>
+<p>| <strong>原料补给</strong> | 咖啡豆/牛奶/水 每日检查补充 |</p>
+<h3 id="34">3.4 云迹送餐</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>芯片</strong> | SesameX Kalos |</p>
+<p>| <strong>角色</strong> | 送包/送物到会议室 |
+| <strong>工作区域</strong> | 入口包架→走廊→会议室 |</p>
+<p>| <strong>导航</strong> | UWB+激光SLAM |
+| <strong>速度</strong> | 0.8m/s（走廊限速） |</p>
+<h3 id="35-up">3.5 云迹UP底盘</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>芯片</strong> | SesameX Kalos |</p>
+<p>| <strong>角色</strong> | 送水/清洁/洒漏处理 |
+| <strong>工作区域</strong> | 咖啡站周围→全展厅地面 |</p>
+<p>| <strong>待机位</strong> | 咖啡站旁充电桩（距咖啡站约1.5m，0.6m/s约2.5秒可达，确保洒漏T+8s到达时序可行） |
+| <strong>清洁模式</strong> | 干扫/湿拖两种 |</p>
+<p>| <strong>触发</strong> | 中枢派单/定时清洁 |</p>
+<h3 id="36-i5">3.6 遨博协作臂（i5）</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>芯片</strong> | SesameX Aura |</p>
+<p>| <strong>角色</strong> | 世界树采摘/物品抓取演示 |
+| <strong>安装</strong> | 固定在世界树装置旁的基座上 |</p>
+<p>| <strong>臂展</strong> | 886mm（槽位高度1.0–1.2m，基座高0.4m，可达范围内） |
+| <strong>末端执行器</strong> | 真空吸盘（3–4硅胶吸盘+12V微型真空泵），不损伤果肉 |</p>
+<p>| <strong>视觉</strong> | 末端安装RealSense D435i深度相机 |
+| <strong>安全</strong> | 协作臂自带碰撞检测，碰到障碍&lt;100ms停止 |</p>
+<h3 id="37">3.7 遨博海纳移动协作</h3>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>芯片</strong> | SesameX Aura |</p>
+<p>| <strong>角色</strong> | 移动抓取/超市拿零食演示 |
+| <strong>工作区域</strong> | 机械臂展位→模拟货架区 |</p>
+<p>| <strong>底盘</strong> | 麦克纳姆轮全向移动 |</p>
+<hr />
+<h2 id="6">第四章 · 6大联动场景工程方案</h2>
+<h3 id="1-vip">场景1 · VIP迎宾导览全流程</h3>
+<h4 id="_5">触发条件</h4>
+<p>VIP访客在前厅签到台签到（RFID手环/人脸识别）</p>
+<h4 id="_6">完整时间轴</h4>
+<p>| 时间 | 节点 | 机器人 | 动作 | 中控/LED联动 |</p>
+<p>|------|------|--------|------|-------------|
+| T+0s | 签到触发 | - | RFID读取VIP信息 | 品牌墙切换欢迎词 |</p>
+<p>| T+2s | Walker启动 | Walker S3 | 从待机位走向入口 | 世界树光柱变绿 |
+| T+10s | 迎宾 | Walker S3 | 到达VIP面前，语音问候 | 中枢大屏显示"Welcoming VIP" |</p>
+<p>| T+15s | 拍照 | Walker S3 | 邀请VIP合影 | 透明OLED更新Walker状态 |
+| T+30s | 导览开始 | Walker S3 | 引导VIP走向品牌墙 | 品牌墙播放企业宣传片 |</p>
+<p>| T+60s | 到达世界树 | Walker S3 | 讲解芯片世界树 | 世界树切换VIP专属内容 |
+| T+90s | 到达机器人区 | Walker S3 | 介绍各机器人 | 中枢大屏高亮显示 |</p>
+<p>| T+100s | M20表演 | M20 Pro | 越障表演 | 跑道灯亮起 |
+| T+120s | 咖啡触发 | Coffee | 开始制作VIP专属咖啡 | 咖啡屏显示"VIP Order" |</p>
+<p>| T+150s | 送包 | Delivery | VIP包送到会议室 | 包架灯闪烁提示放包 |
+| T+210s | 咖啡完成 | Coffee | VIP凭脸取咖啡 | 取餐屏显示完成 |</p>
+<p>| T+240s | 进入未来区 | Walker S3 | 引导走向时间之门 | 时间之门自动开启 |
+| T+270s | 未来区体验 | - | 第五世界弧幕播放 | 弧幕从头播放 |</p>
+<p>| T+330s | 结束 | Walker S3 | 送别，返回待机位 | 品牌墙恢复默认 |</p>
+<h4 id="_7">数据流</h4>
+<pre><code>
+签到台 → [VIP信息] → 中控 → [任务DAG] → Walker/M20/Coffee/Delivery
+Walker → [照片] → 中控 → [人像] → Coffee
+Walker → [位置] → 中控 → [LED指令] → 各LED屏
+
+</code></pre>
+<h4 id="_8">故障降级</h4>
+<p>| 故障 | 降级方案 |</p>
+<p>|------|----------|
+| Walker S3离线 | 工作人员手动导览，其他机器人正常 |</p>
+<p>| Walker拍照失败 | 咖啡机改用预设图案（非人像拉花） |
+| 咖啡机故障 | 改为人工制作咖啡 |</p>
+<p>| Delivery离线 | 工作人员手动送包 |</p>
+<hr />
+<h3 id="2">场景2 · 拍照接力→专属咖啡</h3>
+<h4 id="_9">触发条件</h4>
+<p>普通访客在Walker展位前触发拍照（触摸屏/语音"拍照"）</p>
+<h4 id="_10">工程细节</h4>
+<p>| 步骤 | 硬件动作 | 数据流 | 时长 |</p>
+<p>|------|----------|--------|------|
+| 1.人像采集 | Walker S3胸部摄像头拍照 | 照片→中控→咖啡机 | 3s |</p>
+<p>| 2.人脸识别 | 中控服务器运行人脸检测 | 特征点→拉花图案生成 | 2s |
+| 3.图案传输 | 咖啡机接收拉花图案 | 图案→Liora芯片 | 1s |</p>
+<p>| 4.制作咖啡 | 咖啡机萃取+拉花 | 全自动 | 90s |
+| 5.取餐提醒 | 取餐屏+语音播报 | 人脸ID→取餐匹配 | 5s |</p>
+<h4 id="_11">拉花图案生成方案</h4>
+<ul>
+<li>
+<p>中控运行轻量级StyleGAN模型（边缘推理）</p>
+</li>
+<li>
+<p>输入：人脸照片 → 输出：简化的线条画（适合咖啡拉花）</p>
+</li>
+<li>
+<p>生成时间：&lt;2秒（RTX A6000边缘推理）</p>
+</li>
+<li>
+<p>图案传输：HTTP API推送到咖啡机</p>
+</li>
+</ul>
+<h4 id="_12">隐私保护</h4>
+<ul>
+<li>
+<p>原始人脸照片仅在本地内存处理，特征提取完成后立即销毁，不落盘</p>
+</li>
+<li>
+<p>人脸特征向量保留至访客取餐完成（用于凭脸匹配），取餐后自动清除</p>
+</li>
+<li>
+<p>拉花图案在制作完成后30分钟自动清除</p>
+</li>
+<li>
+<p>人脸识别仅做局部特征提取，不关联身份，不上传云端</p>
+</li>
+</ul>
+<hr />
+<h3 id="3">场景3 · 洒漏自愈事件响应</h3>
+<h4 id="_13">触发条件</h4>
+<p>M20 Pro巡检时红外热成像检测到地面液体（温度异常）</p>
+<h4 id="_14">检测方案</h4>
+<p>| 传感器 | 方案 |</p>
+<p>|--------|------|
+| <strong>红外热成像</strong> | M20 Pro搭载FLIR Lepton 3.5（分辨率160x120） |</p>
+<p>| <strong>检测算法</strong> | SesameX Aura端侧实时运行（阈值：局部温差&gt;2°C） |
+| <strong>误报过滤</strong> | 连续3帧确认+面积阈值（&gt;100cm²）才触发 |</p>
+<p>| <strong>定位精度</strong> | UWB+里程计，误差&lt;30cm |</p>
+<h4 id="_15">响应时间轴</h4>
+<p>| 时间 | 事件 | 涉及设备 |</p>
+<p>|------|------|----------|
+| T+0s | M20检测到洒漏 | M20 Pro红外传感器 |</p>
+<p>| T+0.5s | M20向中枢上报（位置+照片） | M20→中控 MQTT |
+| T+1s | 中枢分析+生成任务DAG | 中控编排引擎 |</p>
+<p>| T+2s | 派单给UP底盘+路径规划 | 中控→UP DDS |
+| T+3s | UP开始移动 | 云迹UP底盘 |</p>
+<p>| T+8s | UP到达现场 | UWB定位确认 |
+| T+10s | UP切换湿拖模式开始清洁 | UP底盘+清洁模块 |</p>
+<p>| T+30s | 清洁完成+拍照确认 | UP摄像头→中控 |
+| T+31s | 中枢更新任务状态 | 中枢→LED大屏 |</p>
+<h4 id="_16">中枢大屏联动</h4>
+<ul>
+<li>
+<p>红色警报框弹出（位置标注）</p>
+</li>
+<li>
+<p>实时显示UP移动轨迹</p>
+</li>
+<li>
+<p>完成后绿色确认+数据统计</p>
+</li>
+</ul>
+<hr />
+<h3 id="4">场景4 · 送物接力</h3>
+<h4 id="_17">触发条件</h4>
+<p>访客在入口包架放置物品（RFID检测物品放置）</p>
+<h4 id="_18">路径规划</h4>
+<pre><code>
+包架（入口） → 走廊A（8m） → 走廊B（6m） → 会议室A门口
+     ↓                                    ↓
+  RFID触发                           到达通知（屏+语音）
+     ↓                                    ↓
+  Delivery取货                        Delivery返回
+
+</code></pre>
+<h4 id="_19">安全措施</h4>
+<ul>
+<li>
+<p>走廊两侧安装红外光幕（检测行人穿越）</p>
+</li>
+<li>
+<p>Delivery检测到行人2m内减速到0.3m/s</p>
+</li>
+<li>
+<p>到达会议室门口后等待10秒（访客取物）</p>
+</li>
+<li>
+<p>超时未取物 → 中枢通知工作人员</p>
+</li>
+</ul>
+<hr />
+<h3 id="5">场景5 · 芯片世界树采摘互动（详细工程方案）</h3>
+<h4 id="51">5.1 水果安装结构</h4>
+<p>| 问题 | 方案 |</p>
+<p>|------|------|
+| <strong>槽位数量</strong> | 树干内6个V型出口槽位，苹果随机落入其中一个（物理偏转片实现随机） |</p>
+<p>| <strong>槽位高度</strong> | 距地1.0–1.2m（遨博i5臂展886mm，基座高0.4m，有效可达高度约1.3m，留有余量） |
+| <strong>固定方式</strong> | 真苹果直接置于V型槽，重力固定，无需嵌入磁铁 |</p>
+<p>| <strong>随机性</strong> | 供果管顶部偏转片随机弹向6槽之一，每次位置不同，展示SesameX Aura真实感知能力 |
+| <strong>水果规格</strong> | 真苹果（直径70–80mm，重量150–180g） |</p>
+<h4 id="52">5.2 机械臂方案</h4>
+<p>| 项目 | 规格 |</p>
+<p>|------|------|
+| <strong>型号</strong> | 遨博i5（5轴协作臂，负载5kg，臂展886mm） |</p>
+<p>| <strong>安装</strong> | 基座固定在世界树装置右侧0.3m处，高度0.4m |
+| <strong>末端执行器</strong> | 真空吸盘（3–4个硅胶吸盘+12V微型真空泵），不损伤果肉，不改变苹果外观 |</p>
+<p>| <strong>视觉</strong> | 末端安装RealSense D435i深度相机 |
+| <strong>安全光幕</strong> | 机械臂工作区域前方安装PSEN安全光幕（人手进入即停） |</p>
+<h4 id="53">5.3 视觉与环境控制</h4>
+<p>| 问题 | 方案 |</p>
+<p>|------|------|
+| <strong>展厅光照杂乱</strong> | 采摘区域安装遮光罩（黑色亚克力半圆罩，隔离LED杂光） |</p>
+<p>| <strong>视觉方案</strong> | RealSense D435i + SesameX Aura端侧HSV颜色分割，扫描6个槽位找到苹果 |
+| <strong>补光</strong> | 遮光罩内安装恒定5500K LED条灯（色温稳定） |</p>
+<p>| <strong>识别算法</strong> | RGB-D点云 + HSV → 6DoF位姿估计，LED大屏实时显示D435i画面与识别框 |
+| <strong>识别耗时</strong> | &lt;200ms（端侧推理） |</p>
+<p>| <strong>成功率目标</strong> | &gt;90%（随机位置+恒定光照+颜色分割） |</p>
+<h4 id="54-10">5.4 抓取流程（总约10秒）</h4>
+<pre><code>
+步骤1：供果（自动）
+  - 链条提升机将苹果送到顶部，偏转片随机弹向6槽之一
+  - 苹果落入V型槽，重力固定
+
+步骤2：视觉扫描（0.5s）
+  - D435i扫描6个槽位
+  - Aura芯片HSV分割找到苹果，输出6DoF位姿
+  - LED大屏实时显示识别过程
+
+步骤3：运动规划（0.3s）
+  - Aura芯片运行OMPL/RRT路径规划
+  - 规划至苹果正上方，避开槽位边缘
+
+步骤4：接近吸附（2s）
+  - 机械臂移动到苹果上方，速度限制0.1m/s
+  - 真空泵启动，吸盘接触苹果表面并吸附
+
+步骤5：提起（1s）
+  - 机械臂向上提起，苹果脱离V型槽（重力脱离，无需旋转）
+  - 负压确认吸附成功
+
+步骤6：递送（3s）
+  - 移动到取物台上方，释放真空
+  - 苹果沿15°斜面滑落至取物口
+
+步骤7：复位供果（2s）
+  - 机械臂回到扫描待机位
+  - 供果管自动释放下一个苹果（随机槽位）
+  - LED显示&quot;请取走您的水果&quot;
+
+</code></pre>
+<h4 id="55">5.5 水果补给机构</h4>
+<p>| 问题 | 方案 |</p>
+<p>|------|------|
+| <strong>补充方式</strong> | 树干内部链条提升机，底部0.5m处设加料口 |</p>
+<p>| <strong>机构</strong> | 链条托杯逐个将苹果提升到顶部，偏转片随机分配到6个槽位 |
+| <strong>补给触发</strong> | 苹果摘走后，管道内下一个苹果自动重力滑落补位 |</p>
+<p>| <strong>容量</strong> | 底部储果仓一次放6–12个苹果 |
+| <strong>操作</strong> | 每日打开底部小门补充苹果，地面操作约2分钟，无需梯子 |</p>
+<p>| <strong>卫生</strong> | 真苹果直接使用，管道内壁食品级涂层，每日清洁 |</p>
+<h4 id="56">5.6 安全措施</h4>
+<p>| 措施 | 说明 |</p>
+<p>|------|------|
+| <strong>安全光幕</strong> | 机械臂前方0.5m处安装PSEN光幕，人手进入&lt;10ms停止 |</p>
+<p>| <strong>力控碰撞检测</strong> | 遨博i5自带电流反馈，碰撞力&gt;15N自动停止 |
+| <strong>速度限制</strong> | 采摘区域内所有运动速度&lt;0.1m/s |</p>
+<p>| <strong>围栏</strong> | 采摘区域设低矮装饰围栏（高15cm），视觉提示不可靠近 |
+| <strong>语音提示</strong> | 机械臂运动时播放"正在采摘，请勿靠近" |</p>
+<p>| <strong>急停按钮</strong> | 世界树旁安装红色急停按钮（硬线连接） |
+| <strong>苹果掉落</strong> | 取物台下方设接果网（防止掉落砸人） |</p>
+<h4 id="57-led">5.7 LED联动</h4>
+<p>| 阶段 | 世界树光柱 | SesameX大屏 | 中枢大屏 |</p>
+<p>|------|-----------|------------|---------|
+| 待机 | 正常循环 | "拿起展品开始互动" | 默认状态 |</p>
+<p>| 触发 | 切换模组3D拆解 | 显示模组参数 | 高亮世界树 |
+| 采摘中 | 显示D435i第一视角+HSV识别框 | 真空负压数据曲线 | "采摘中..." |</p>
+<p>| 完成 | "请取走水果" | "SesameX精准抓取" | 恢复默认 |</p>
+<hr />
+<h3 id="6_1">场景6 · 日常巡检自动化</h3>
+<h4 id="_20">触发条件</h4>
+<p>定时器（每30分钟一次）/ 手动触发</p>
+<h4 id="_21">巡检路线</h4>
+<pre><code>
+起点（充电桩）→ 品牌墙（检测LED坏点）→ 世界树（检测装置状态）
+→ 机器人区（检测地面清洁）→ 咖啡站（检测洒漏）→ 中枢大屏前
+→ 未来区入口（检测投影状态）→ 返回充电桩
+
+</code></pre>
+<h4 id="_22">巡检数据</h4>
+<ul>
+<li>
+<p>LED屏坏点检测（拍照+AI对比）</p>
+</li>
+<li>
+<p>地面清洁度检测（红外热成像）</p>
+</li>
+<li>
+<p>装置状态检测（声音异常/温度异常）</p>
+</li>
+<li>
+<p>数据上传中枢→异常自动派单</p>
+</li>
+</ul>
+<hr />
+<h2 id="_23">第五章 · 硬件清单</h2>
+<h3 id="51_1">5.1 中控系统</h3>
+<p>| 设备 | 型号/规格 | 数量 | 用途 |</p>
+<p>|------|----------|------|------|
+| 边缘服务器 | 双路Xeon Gold + RTX A6000 + 64GB RAM | 1 | 任务编排/数字孪生/视觉推理 |</p>
+<p>| UWB定位基站 | Decawave DWM1001 | 4 | 展厅全覆盖定位（±10cm） |
+| UWB标签 | 每台机器人1个 | 7 | 机器人定位标签 |</p>
+<p>| 网络交换机 | 千兆PoE交换机（24口） | 1 | 有线网络连接 |
+| Wi-Fi 6 AP | 企业级AP（专用VLAN，1F/2F各2个，信道错开） | 4 | 机器人无线通信 |</p>
+<p>| LED播控服务器 | 专用媒体服务器 | 1 | 7块LED屏播控 |
+| NTP时间服务器 | 本地GPS授时 | 1 | 全系统时间同步 |</p>
+<h3 id="52_1">5.2 安全系统</h3>
+<p>| 设备 | 规格 | 数量 | 安装位置 |</p>
+<p>|------|------|------|----------|
+| 急停按钮 | 红色蘑菇头+钥匙复位 | 5 | 入口/世界树/咖啡站/中枢屏/出口 |</p>
+<p>| 安全光幕 | PSEN系列（保护高度300mm） | 1 | 机械臂工作区前方 |
+| 安全PLC | Pilz PNOZ系列 | 1 | 安全逻辑控制 |</p>
+<p>| 激光雷达 | 每台移动机器人1个 | 5 | 移动机器人顶部 |
+| 红外光幕 | 走廊两侧 | 2 | 送物走廊 |</p>
+<h3 id="53_1">5.3 采摘互动专用</h3>
+<p>| 设备 | 规格 | 数量 |</p>
+<p>|------|------|------|
+| 遨博i5协作臂 | 5轴/5kg/886mm臂展 | 1 |</p>
+<p>| 真空吸盘组件 | 3–4硅胶吸盘+12V微型真空泵 | 1套 |
+| RealSense D435i | RGB-D深度相机（末端安装） | 1 |</p>
+<p>| 供果管+6槽V型出口 | 亚克力管+随机偏转片 | 1套 |
+| 链条提升机 | 小型链条电机+托杯，树干内置 | 1 |</p>
+<p>| 底部加料口 | 地面0.5m高，免梯子操作 | 1 |
+| 遮光罩 | 黑色亚克力半圆罩 | 1 |</p>
+<p>| 恒定LED补光 | 5500K条灯 | 1套 |
+| 接果网 | 软质尼龙网（取物台下方防掉落） | 1 |</p>
+<hr />
+<h2 id="_24">第六章 · 故障降级与日常运营</h2>
+<h3 id="61">6.1 故障分级</h3>
+<p>| 等级 | 定义 | 影响 | 响应 |</p>
+<p>|------|------|------|------|
+| <strong>P0</strong> | 中控服务器宕机 | 全部联动停止 | 5分钟内切换备用服务器 |</p>
+<p>| <strong>P1</strong> | 单台机器人故障 | 该机器人参与的场景降级 | 30分钟内修复或替换 |
+| <strong>P2</strong> | LED屏故障 | 单屏内容缺失 | 切换备用内容/当日修复 |</p>
+<p>| <strong>P3</strong> | 传感器误报 | 非关键体验受影响 | 下次维护时排查 |</p>
+<h3 id="62">6.2 降级策略</h3>
+<p>| 故障场景 | 降级方案 |</p>
+<p>|----------|----------|
+| Walker S3故障 | 工作人员替代导览/拍照 |</p>
+<p>| M20 Pro故障 | 关闭洒漏检测/人工巡检 |
+| 咖啡机故障 | 人工制作/暂停咖啡服务 |</p>
+<p>| Delivery故障 | 人工送物 |
+| UP故障 | 人工清洁/关闭自愈演示 |</p>
+<p>| 机械臂故障 | 关闭采摘互动/改为展示模式 |
+| 中控故障 | 各机器人独立运行（预设程序） |</p>
+<p>| 网络断开 | 机器人执行最后任务后返回充电桩 |</p>
+<h3 id="63">6.3 日常运营时间表</h3>
+<p>| 时间 | 事件 |</p>
+<p>|------|------|
+| 08:00 | 系统唤醒+自检 |</p>
+<p>| 08:15 | 机器人开机+校准+充电确认 |
+| 08:30 | 巡检#1（M20 Pro全自动巡检） |</p>
+<p>| 08:40 | 开馆（Walker就位） |
+| 10:00 | 水果补给#1 |</p>
+<p>| 10:10 | Walker返回充电桩（静默期，工作人员引导访客自由参观） |
+| 10:40 | Walker充电完成，重新就位迎宾 |</p>
+<p>| 12:00 | 咖啡原料检查 |
+| 13:30 | Walker返回充电桩（午间静默期） |</p>
+<p>| 14:00 | Walker充电完成，重新就位；水果补给#2 |
+| 15:30 | 巡检#2 |</p>
+<p>| 17:00 | 水果补给#3 |
+| 17:50 | 机器人返回充电桩 |</p>
+<p>| 18:00 | 闭馆+系统日志上传云端 |
+| 18:10 | 数据备份+模型微调（云端） |</p>
+<h3 id="64-kpi">6.4 KPI指标</h3>
+<p>| 指标 | 目标 |</p>
+<p>|------|------|
+| 联动场景成功率 | &gt;95% |</p>
+<p>| 单次场景完成时间偏差 | &lt;10% |
+| 机器人日均在线率 | &gt;90% |</p>
+<p>| 采摘互动成功率 | &gt;90% |
+| 咖啡制作成功率 | &gt;98% |</p>
+<p>| 安全事件 | 0次/月 |</p>
+<hr />
+<h2 id="_25">附录</h2>
+<h3 id="a">A. 行业参考</h3>
+<p>| 参考 | 启发 |</p>
+<p>|------|------|
+| 一脑多机导览（人形调用其他机器人） | Walker作为前台智能体 |</p>
+<p>| 端云协同（云训练→边推理→端执行） | 三层架构设计 |
+| 多智能体调度（分布式协商） | DAG任务编排引擎 |</p>
+<p>| 数字孪生（实时物理世界映射） | 中枢大屏实时映射 |
+| 5G+边缘计算（低延迟协同） | Wi-Fi 6+边缘服务器 |</p>
+<h3 id="b-sesamex">B. SesameX在联动中的价值</h3>
+<pre><code>
+端侧（SesameX芯片）：
+
+- Liora：Walker S3的语音/视觉/导览决策
+
+- Aura：M20 Pro的多模态感知+红外检测；咖啡机的边缘AI拉花推理；遨博i5/海纳的视觉+力控+抓取
+
+- Kalos：Delivery/UP底盘的实时导航+感知
+
+边缘侧（中控）：
+
+- 统一调度+数字孪生+安全监控
+
+云端：
+
+- VLA模型训练→OTA下发到SesameX芯片
+
+</code></pre>
+<blockquote>
+<p><strong>SesameX是整个联动的基石——每台机器人的实时智能都由SesameX芯片提供，脱离云端也能独立工作。</strong></p>
+</blockquote>
+<hr />
+<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark"});document.querySelectorAll("pre code.language-mermaid").forEach(function(el){var d=document.createElement("div");d.className="mermaid";d.textContent=el.textContent;el.parentElement.parentElement.replaceChild(d,el.parentElement);mermaid.run({nodes:[d]})})</script></body></html>
