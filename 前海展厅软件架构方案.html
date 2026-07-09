@@ -1,0 +1,222 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>软件架构方案 · 云平台对接（快速落地路线）</title><style>
+:root{--bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--bd:rgba(255,255,255,0.08);--font:-apple-system,'SF Pro Display','Microsoft YaHei','PingFang SC',sans-serif;--mono:'SF Mono','Consolas',monospace}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.8;-webkit-font-smoothing:antialiased}
+.doc-nav{position:fixed;top:0;left:0;right:0;height:48px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(28,28,30,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--bd)}
+.doc-nav .dn-back{font-size:14px;color:var(--acc);text-decoration:none;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.doc-nav .dn-back:hover{background:rgba(10,132,255,0.1)}
+.doc-nav .dn-mid{display:flex;align-items:center;gap:10px;overflow:hidden}
+.doc-nav .dn-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-nav .dn-crumb{font-size:11px;color:var(--sub);white-space:nowrap}
+.doc-nav .dn-chap{display:flex;gap:6px;flex-shrink:0}
+.doc-nav .dn-chap a{font-size:11px;color:var(--sub);text-decoration:none;padding:4px 10px;border-radius:8px;border:0.5px solid var(--bd);transition:all .15s;white-space:nowrap}
+.doc-nav .dn-chap a:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
+.doc{max-width:880px;margin:0 auto;padding:72px 24px 80px}
+h1{font-size:30px;font-weight:700;margin:36px 0 20px;letter-spacing:-0.5px;border-bottom:1px solid var(--bd);padding-bottom:12px}
+h2{font-size:22px;font-weight:600;margin:36px 0 16px;padding-left:14px;border-left:3px solid var(--acc)}
+h3{font-size:18px;font-weight:600;margin:28px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--text)}
+p{font-size:15px;margin-bottom:14px;color:var(--text)}
+ul,ol{font-size:15px;margin-bottom:14px;padding-left:26px}
+li{margin-bottom:6px}
+strong{color:#fff;font-weight:600}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;border-radius:12px;overflow:hidden;border:0.5px solid var(--bd)}
+th{background:var(--bg3);color:var(--acc);padding:12px 16px;border:0.5px solid var(--bd);font-weight:600;text-align:left}
+td{padding:10px 16px;border:0.5px solid var(--bd);color:var(--text);line-height:1.6}
+tr:nth-child(even) td{background:var(--bg2)}
+code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:13px;color:#f5f5f7;font-family:var(--mono)}
+pre{background:var(--bg2);padding:18px;border-radius:12px;overflow-x:auto;margin:18px 0;border:0.5px solid var(--bd)}
+pre code{background:none;padding:0;font-size:13px;color:#e0e0e0}
+blockquote{border-left:3px solid var(--acc);padding:12px 22px;margin:18px 0;color:var(--sub);background:var(--bg2);border-radius:0 12px 12px 0}
+hr{border:none;border-top:0.5px solid var(--bd);margin:36px 0}
+a{color:#64b5f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.mermaid{background:var(--bg2);padding:20px;border-radius:12px;margin:18px 0;text-align:center;border:0.5px solid var(--bd)}
+.doc-footer{max-width:880px;margin:0 auto;padding:0 24px 60px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.doc-footer a{font-size:13px;color:var(--sub);text-decoration:none;padding:10px 20px;border-radius:12px;border:0.5px solid var(--bd);transition:all .15s;flex:1;text-align:center;min-width:160px}
+.doc-footer a:hover{color:var(--text);border-color:rgba(255,255,255,0.15);background:var(--bg2)}
+.doc-footer a.df-disabled{opacity:0.3;pointer-events:none}
+@media(max-width:768px){
+  .doc-nav{flex-wrap:wrap;height:auto;padding:8px 12px}
+  .doc-nav .dn-mid{order:3;width:100%;margin-top:4px}
+  .doc-nav .dn-title{font-size:12px}
+  .doc-nav .dn-crumb{font-size:10px}
+  .doc-nav .dn-chap a{font-size:10px;padding:3px 8px}
+  .doc{padding:100px 16px 60px}
+  h1{font-size:24px}
+  h2{font-size:18px}
+  .doc-footer{flex-direction:column}
+  .doc-footer a{min-width:auto}
+}
+</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">软件架构方案 · 云平台对接（快速落地路线）</div><div class="dn-crumb">Phase 1 · 快速落地</div></div><div class="dn-chap"><a href="机器人联动方案设计.html">‹ 联动方案设计</a><a href="多机定位方案研究.html">多机定位与调度方案研究 ›</a></div></div><div class="doc"><h1 id="_1">前海展厅软件架构方案（云平台对接）</h1>
+<blockquote>
+<p>软件工程师规划版 · 快速落地路线 · 2026年8月底交付</p>
+</blockquote>
+<h2 id="1">1. 整体架构</h2>
+<p>整体架构采用 <strong>云平台对接云平台</strong> 的方案：</p>
+<ul>
+<li><strong>BST云平台</strong> 作为中枢，对接三家机器人厂商云平台</li>
+<li>语音交互入口 → 语义识别 → 调度模块 → 厂商云API下发任务</li>
+</ul>
+<h3 id="_2">厂商云平台接口</h3>
+<table>
+<thead>
+<tr>
+<th>厂商</th>
+<th>云平台</th>
+<th>接口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>云迹（送餐/清洁）</td>
+<td>云迹云平台</td>
+<td>https://docs.yunjiai.cn/v3-beta/task/robot_task</td>
+</tr>
+<tr>
+<td>遨博（协作臂/海纳）</td>
+<td>遨博云平台</td>
+<td>（待补充）</td>
+</tr>
+<tr>
+<td>优必选（Walker S3）</td>
+<td>优必选云平台</td>
+<td>（待补充）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">架构特点</h3>
+<ul>
+<li><strong>无需UWB</strong>：依赖各机器人自带SLAM导航</li>
+<li><strong>无需边缘服务器</strong>：所有调度通过云端API完成</li>
+<li><strong>无需ROS2 DDS</strong>：使用HTTP API通信</li>
+<li><strong>快速交付</strong>：7-8周完成（7/15启动→8月底演示）</li>
+</ul>
+<h2 id="2">2. 整体流程</h2>
+<h3 id="21">2.1 设备注册流程</h3>
+<p>BST云平台启动时，依次向三家厂商云平台请求设备列表：</p>
+<div class="mermaid">sequenceDiagram
+    participant A as BST 云平台
+    participant B as 云迹云平台
+    participant C as 遨博云平台
+    participant D as 优必选云平台
+    A->>B: HTTP Get devList
+    B-->>A: HTTP Response devList
+    A-->>A: 数据处理入库
+    A->>C: HTTP Get devList
+    C-->>A: HTTP Response devList
+    A-->>A: 数据处理入库
+    A->>D: HTTP Get devList
+    D-->>A: HTTP Response devList
+    A-->>A: 数据处理入库</div>
+<h3 id="22">2.2 交互流程</h3>
+<p>用户通过语音交互入口控制机器人：</p>
+<div class="mermaid">sequenceDiagram
+    participant A as 交互入口
+    participant B as 语音平台
+    participant C as 语义识别模块
+    participant D as 调度模块
+    participant E as 第三方云平台
+    participant F as 机器人
+    A->>B: 用户输入语音
+    B-->>B: 语音转文字
+    B-->>A: 返回文字
+    A->>C: 文字指令请求
+    C-->>C: 语义识别，识别调度机器人
+    C->>D: 传参机器人
+    D-->>D: 识别平台
+    D->>E: 传入完整文字指令请求
+    E->>F: 下发任务</div>
+<h2 id="3">3. 开发计划</h2>
+<p>按照 <strong>8月底交付完成</strong> 倒排：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>里程碑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026/07/15</td>
+<td>启动整体项目 · 小程序账号申请 · 小程序设计 · 云平台设计</td>
+</tr>
+<tr>
+<td>2026/08/中</td>
+<td>平台对接 · 交互流程开发</td>
+</tr>
+<tr>
+<td>2026/08/底</td>
+<td>完成全部开发 · 启动演示厅</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-">4. 与端-边-云方案对比</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>云平台方案（本方案）</th>
+<th>端-边-云方案（联动方案设计）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>架构</strong></td>
+<td>云平台→云平台</td>
+<td>端-边-云三层</td>
+</tr>
+<tr>
+<td><strong>定位</strong></td>
+<td>无UWB（机器人自带SLAM）</td>
+<td>UWB 4基站 ±10cm</td>
+</tr>
+<tr>
+<td><strong>调度</strong></td>
+<td>语义识别→云API</td>
+<td>DAG任务编排+数字孪生</td>
+</tr>
+<tr>
+<td><strong>通信</strong></td>
+<td>HTTP API</td>
+<td>ROS2 DDS+MQTT+WebSocket</td>
+</tr>
+<tr>
+<td><strong>硬件</strong></td>
+<td>无需本地服务器</td>
+<td>Xeon+RTX A6000</td>
+</tr>
+<tr>
+<td><strong>延迟</strong></td>
+<td>秒级（云端往返）</td>
+<td>&lt;50ms（本地）</td>
+</tr>
+<tr>
+<td><strong>成本</strong></td>
+<td>低</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>交付</strong></td>
+<td>8月底（7-8周）</td>
+<td>14-28周</td>
+</tr>
+<tr>
+<td><strong>场景</strong></td>
+<td>基本联动：迎宾/导览/送物/咖啡</td>
+<td>全部6大场景含洒漏自愈/采摘</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5">5. 演进建议</h2>
+<p>云平台方案作为 <strong>L2快速落地路线</strong>，后续可升级：</p>
+<ol>
+<li><strong>L2（现在）</strong>：云平台方案 → 基本联动 → 8月底交付</li>
+<li><strong>L2+（可选）</strong>：补充UWB+边缘服务器 → 精确定位+实时调度</li>
+<li><strong>L3</strong>：VLA端侧推理+多智能体协商（需边缘计算支撑）</li>
+<li><strong>L4</strong>：空间级感知网络+自进化（需全传感器网络）</li>
+</ol>
+<blockquote>
+<p><strong>关键决策点</strong>：如果8月底只需展示基本联动（迎宾/导览/咖啡/送物），云平台方案足够。
+如果需要洒漏自愈（31秒）、采摘互动（精确抓取）、多机防碰撞，则需要UWB+边缘计算。</p>
+</blockquote></div><div class="doc-footer"><a href="机器人联动方案设计.html" class="df-prev">‹ 联动方案设计</a><a href="index.html">返回首页</a><a href="多机定位方案研究.html" class="df-next">多机定位与调度方案研究 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark",themeVariables:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"}})</script><script src="auth.js"></script></body></html>

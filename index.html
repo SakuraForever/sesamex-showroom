@@ -267,6 +267,28 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
     这是展厅的"L2级辅助联动"——规则驱动、精确可控。
   </p>
 
+  <!-- 两条技术路线 -->
+  <div style="margin:0 0 14px;font-size:15px;font-weight:600">⚠️ 两条 L2 技术路线 · 需做决策</div>
+  <div class="grid grid-2">
+    <div class="card card-wide" style="border-color:rgba(48,209,88,0.3)" onclick="openDoc('前海展厅软件架构方案.html')">
+      <div class="card-icon">☁️</div>
+      <h3>路线A：云平台方案（快速落地 · 8月底）</h3>
+      <p>BST云→厂商云API · <strong style="color:var(--green)">无需UWB/边缘服务器</strong> · 语音→语义识别→调度 · 覆盖迎宾/导览/咖啡/送物 · 7-8周交付</p>
+      <span class="smx-tag smx-tag-green">推荐：8月底演示</span>
+    </div>
+    <div class="card" style="border-color:rgba(10,132,255,0.3)" onclick="openDoc('机器人联动方案设计.html')">
+      <div class="card-icon">🏭</div>
+      <h3>路线B：端-边-云方案（深度联动 · 14周）</h3>
+      <p>UWB ±10cm + Xeon/RTX边缘服务器 + DAG调度 · 覆盖全部6场景含洒漏自愈/采摘 · 为L3/L4预留基础</p>
+      <span class="smx-tag smx-tag-blue">完整方案</span>
+    </div>
+  </div>
+  <div style="margin:14px 0;padding:14px 18px;background:var(--bg2);border-radius:12px;border:0.5px solid var(--bd);font-size:13px;color:var(--sub);line-height:1.7">
+    <strong style="color:var(--text)">💡 决策建议：</strong>8月底先用<strong style="color:var(--green)">路线A</strong>快速交付基本联动（迎宾/咖啡/送物）；
+    采摘互动和洒漏自愈用<strong style="color:var(--blue)">路线B</strong>补充UWB+边缘计算。
+    L3/L4<strong style="color:var(--text)">必须</strong>有UWB和边缘计算支撑。
+  </div>
+
   <!-- 嵌入：联动方案可视化 -->
   <div class="embed-wrap">
     <div class="embed-hd">
@@ -371,6 +393,8 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
   <p class="section-desc">
     通过 OTA 升级，展厅从"固定规则联动"进化为"主动式智能"。端侧 VLA 模型让机器人理解访客意图，
     多智能体协商让系统自主决策。这是 L3 级——能思考、会预判、可协商。
+    <br><br><strong style="color:var(--orange)">⚠️ 前提条件：</strong>L3 需要<strong style="color:var(--text)">边缘计算服务器</strong>（端侧VLA推理）和 <strong style="color:var(--text)">UWB精确定位</strong>（多机协同）。
+    如果 L2 采用路线A（云平台方案），升级到 L3 时需要补充这些硬件。
   </p>
 
   <!-- 五大主动式能力 -->
@@ -467,6 +491,8 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
   <p class="section-desc">
     当基建预埋的传感器全部激活，当 L3 的 AI Agent 持续学习，展厅将进化为 L4 级空间智能——
     全感知、自进化、自修复。空间本身成为一个会思考的生命体。
+    <br><br><strong style="color:var(--purple)">⚠️ 前提条件：</strong>L4 需要<strong style="color:var(--text)">Phase 0 预埋的全部传感器激活</strong>（UWB+红外+毫米波+摄像头），
+    以及 L3 的边缘计算持续运行。云平台方案（路线A）无法直接升级到 L4。
   </p>
 
   <!-- L4 三大能力 -->
@@ -634,6 +660,7 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
 var DOCS=[
   {file:'黑芝麻智能_展厅设计最终方案.html',title:'展厅总体方案 · 完整策展文档',crumb:'Phase 0 · 基建预埋'},
   {file:'机器人联动方案设计.html',title:'联动方案设计 · 端-边-云架构与场景',crumb:'Phase 1 · L2联动'},
+  {file:'前海展厅软件架构方案.html',title:'软件架构方案 · 云平台对接',crumb:'Phase 1 · 快速落地路线'},
   {file:'多机定位方案研究.html',title:'多机定位与调度方案研究',crumb:'Phase 1 · 技术深挖'},
   {file:'主动式智能架构方案.html',title:'主动式智能架构方案',crumb:'Phase 2 · L3主动式智能'},
   {file:'机器人区域LED播放内容脚本.html',title:'LED脚本 · 7块屏分镜脚本',crumb:'素材 · LED脚本'},
@@ -654,6 +681,7 @@ var DOCS=[
 var DOC_ORDER=[
   '黑芝麻智能_展厅设计最终方案.html',
   '机器人联动方案设计.html',
+  '前海展厅软件架构方案.html',
   '多机定位方案研究.html',
   '主动式智能架构方案.html',
   '机器人区域LED播放内容脚本.html',
