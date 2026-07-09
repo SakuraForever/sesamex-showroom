@@ -1,54 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>多机定位与调度方案研究</title><style>
-:root{--bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--bd:rgba(255,255,255,0.08);--font:-apple-system,'SF Pro Display','Microsoft YaHei','PingFang SC',sans-serif;--mono:'SF Mono','Consolas',monospace}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.8;-webkit-font-smoothing:antialiased}
-.doc-nav{position:fixed;top:0;left:0;right:0;height:48px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(28,28,30,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--bd)}
-.doc-nav .dn-back{font-size:14px;color:var(--acc);text-decoration:none;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
-.doc-nav .dn-back:hover{background:rgba(10,132,255,0.1)}
-.doc-nav .dn-mid{display:flex;align-items:center;gap:10px;overflow:hidden}
-.doc-nav .dn-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.doc-nav .dn-crumb{font-size:11px;color:var(--sub);white-space:nowrap}
-.doc-nav .dn-chap{display:flex;gap:6px;flex-shrink:0}
-.doc-nav .dn-chap a{font-size:11px;color:var(--sub);text-decoration:none;padding:4px 10px;border-radius:8px;border:0.5px solid var(--bd);transition:all .15s;white-space:nowrap}
-.doc-nav .dn-chap a:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
-.doc{max-width:880px;margin:0 auto;padding:72px 24px 80px}
-h1{font-size:30px;font-weight:700;margin:36px 0 20px;letter-spacing:-0.5px;border-bottom:1px solid var(--bd);padding-bottom:12px}
-h2{font-size:22px;font-weight:600;margin:36px 0 16px;padding-left:14px;border-left:3px solid var(--acc)}
-h3{font-size:18px;font-weight:600;margin:28px 0 12px}
-h4{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--text)}
-p{font-size:15px;margin-bottom:14px;color:var(--text)}
-ul,ol{font-size:15px;margin-bottom:14px;padding-left:26px}
-li{margin-bottom:6px}
-strong{color:#fff;font-weight:600}
-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;border-radius:12px;overflow:hidden;border:0.5px solid var(--bd)}
-th{background:var(--bg3);color:var(--acc);padding:12px 16px;border:0.5px solid var(--bd);font-weight:600;text-align:left}
-td{padding:10px 16px;border:0.5px solid var(--bd);color:var(--text);line-height:1.6}
-tr:nth-child(even) td{background:var(--bg2)}
-code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:13px;color:#f5f5f7;font-family:var(--mono)}
-pre{background:var(--bg2);padding:18px;border-radius:12px;overflow-x:auto;margin:18px 0;border:0.5px solid var(--bd)}
-pre code{background:none;padding:0;font-size:13px;color:#e0e0e0}
-blockquote{border-left:3px solid var(--acc);padding:12px 22px;margin:18px 0;color:var(--sub);background:var(--bg2);border-radius:0 12px 12px 0}
-hr{border:none;border-top:0.5px solid var(--bd);margin:36px 0}
-a{color:#64b5f6;text-decoration:none}
-a:hover{text-decoration:underline}
-.mermaid{background:var(--bg2);padding:20px;border-radius:12px;margin:18px 0;text-align:center;border:0.5px solid var(--bd)}
-.doc-footer{max-width:880px;margin:0 auto;padding:0 24px 60px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.doc-footer a{font-size:13px;color:var(--sub);text-decoration:none;padding:10px 20px;border-radius:12px;border:0.5px solid var(--bd);transition:all .15s;flex:1;text-align:center;min-width:160px}
-.doc-footer a:hover{color:var(--text);border-color:rgba(255,255,255,0.15);background:var(--bg2)}
-.doc-footer a.df-disabled{opacity:0.3;pointer-events:none}
-@media(max-width:768px){
-  .doc-nav{flex-wrap:wrap;height:auto;padding:8px 12px}
-  .doc-nav .dn-mid{order:3;width:100%;margin-top:4px}
-  .doc-nav .dn-title{font-size:12px}
-  .doc-nav .dn-crumb{font-size:10px}
-  .doc-nav .dn-chap a{font-size:10px;padding:3px 8px}
-  .doc{padding:100px 16px 60px}
-  h1{font-size:24px}
-  h2{font-size:18px}
-  .doc-footer{flex-direction:column}
-  .doc-footer a{min-width:auto}
-}
-</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">多机定位与调度方案研究</div><div class="dn-crumb">Phase 1 · 技术深挖</div></div><div class="dn-chap"><a href="机器人联动方案设计.html">‹ 联动方案设计</a><a href="主动式智能架构方案.html">主动式智能架构方案 ›</a></div></div><div class="doc"><h1 id="_1">黑芝麻智能 · 多机定位与调度方案研究</h1>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>多机定位方案研究</title><style>:root{--bg:#ffffff;--bg2:#f6f8fa;--text:#1f2328;--sub:#656d76;--acc:#0969da;--bd:#d0d7de}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif;line-height:1.8;padding:40px 20px}.doc{max-width:900px;margin:0 auto}h1{font-size:28px;margin:32px 0 16px;color:#1f2328;border-bottom:1px solid var(--bd);padding-bottom:8px}h2{font-size:22px;margin:28px 0 12px;color:#1f2328;border-left:3px solid var(--acc);padding-left:12px}h3{font-size:18px;margin:24px 0 8px;color:#1f2328}p{font-size:15px;margin-bottom:12px}ul,ol{font-size:15px;margin-bottom:12px;padding-left:24px}li{margin-bottom:6px}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}th{background:var(--bg2);color:var(--acc);padding:10px 14px;border:1px solid var(--bd)}td{padding:10px 14px;border:1px solid var(--bd)}tr:nth-child(even) td{background:var(--bg2)}code{background:var(--bg2);padding:2px 8px;border-radius:4px;font-size:13px;color:#1f2328}pre{background:var(--bg2);padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0;border:1px solid var(--bd)}blockquote{border-left:3px solid var(--acc);padding:8px 20px;margin:16px 0;color:var(--sub);background:var(--bg2);border-radius:0 8px 8px 0}hr{border:none;border-top:1px solid var(--bd);margin:32px 0}a{color:#58a6ff}strong{color:#1f2328}.mermaid{background:var(--bg2);padding:16px;border-radius:8px;margin:16px 0;text-align:center}</style></head><body><div class="doc"><h1 id="_1">黑芝麻智能 · 多机定位与调度方案研究</h1>
 <blockquote>
 <p>7台不同品牌机器人 · 统一定位 · API调度 · 数字孪生</p>
 <p>前海展厅1F具身智能区 · 323㎡</p>
@@ -709,4 +659,4 @@ a:hover{text-decoration:underline}
 </table>
 <hr />
 <p><em>本文档分析7台不同品牌机器人的统一定位与调度方案，推荐UWB外挂式定位+API适配层架构。</em></p>
-<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><div class="doc-footer"><a href="机器人联动方案设计.html" class="df-prev">‹ 联动方案设计</a><a href="index.html">返回首页</a><a href="主动式智能架构方案.html" class="df-next">主动式智能架构方案 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark",themeVariables:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"}})</script><script src="auth.js"></script></body></html>
+<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark"})</script></body></html>
