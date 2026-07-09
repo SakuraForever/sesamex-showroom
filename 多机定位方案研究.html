@@ -1,0 +1,662 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>多机定位方案研究</title><style>:root{--bg:#ffffff;--bg2:#f6f8fa;--text:#1f2328;--sub:#656d76;--acc:#0969da;--bd:#d0d7de}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif;line-height:1.8;padding:40px 20px}.doc{max-width:900px;margin:0 auto}h1{font-size:28px;margin:32px 0 16px;color:#1f2328;border-bottom:1px solid var(--bd);padding-bottom:8px}h2{font-size:22px;margin:28px 0 12px;color:#1f2328;border-left:3px solid var(--acc);padding-left:12px}h3{font-size:18px;margin:24px 0 8px;color:#1f2328}p{font-size:15px;margin-bottom:12px}ul,ol{font-size:15px;margin-bottom:12px;padding-left:24px}li{margin-bottom:6px}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}th{background:var(--bg2);color:var(--acc);padding:10px 14px;border:1px solid var(--bd)}td{padding:10px 14px;border:1px solid var(--bd)}tr:nth-child(even) td{background:var(--bg2)}code{background:var(--bg2);padding:2px 8px;border-radius:4px;font-size:13px;color:#1f2328}pre{background:var(--bg2);padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0;border:1px solid var(--bd)}blockquote{border-left:3px solid var(--acc);padding:8px 20px;margin:16px 0;color:var(--sub);background:var(--bg2);border-radius:0 8px 8px 0}hr{border:none;border-top:1px solid var(--bd);margin:32px 0}a{color:#58a6ff}strong{color:#1f2328}.mermaid{background:var(--bg2);padding:16px;border-radius:8px;margin:16px 0;text-align:center}</style></head><body><div class="doc"><h1 id="_1">黑芝麻智能 · 多机定位与调度方案研究</h1>
+<blockquote>
+<p>7台不同品牌机器人 · 统一定位 · API调度 · 数字孪生</p>
+<p>前海展厅1F具身智能区 · 323㎡</p>
+</blockquote>
+<hr />
+<h2 id="_2">目录</h2>
+<ol>
+<li><a href="#一问题背景">问题背景</a></li>
+<li><a href="#二多机slam建图融合">多机SLAM建图融合</a></li>
+<li><a href="#三平台调平台api调度架构">平台调平台API调度架构</a></li>
+<li><a href="#四uwb+slam融合分析">UWB+SLAM融合分析</a></li>
+<li><a href="#五推荐方案">推荐方案</a></li>
+<li><a href="#六供应商配合需求">供应商配合需求</a></li>
+</ol>
+<hr />
+<h2 id="_3">一、问题背景</h2>
+<h3 id="11">1.1 当前挑战</h3>
+<table>
+<thead>
+<tr>
+<th>挑战</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>7台不同品牌</strong></td>
+<td>优必选/云深处/云迹/遨博，各厂家SDK/通信协议/定位方式完全不同</td>
+</tr>
+<tr>
+<td><strong>坐标系不统一</strong></td>
+<td>每台机器人有自己的里程计坐标系，无法直接互通</td>
+</tr>
+<tr>
+<td><strong>地图格式不统一</strong></td>
+<td>有的输出OccupancyGrid（2D栅格），有的输出点云（3D），有的只给位姿</td>
+</tr>
+<tr>
+<td><strong>精度差异大</strong></td>
+<td>人形±5cm，轮式±2cm，机器狗±10cm</td>
+</tr>
+<tr>
+<td><strong>厂家配合意愿低</strong></td>
+<td>要求厂家修改固件做融合，商业和技术风险高</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12">1.2 核心需求</h3>
+<ul>
+<li>中控系统需要<strong>知道每台机器人在展厅中的全局位置</strong></li>
+<li>中控大屏需要<strong>实时显示所有机器人的位置和状态</strong>（数字孪生）</li>
+<li>DAG调度引擎需要<strong>下发任务并确认执行状态</strong></li>
+</ul>
+<hr />
+<h2 id="slam">二、多机SLAM建图融合</h2>
+<h3 id="21">2.1 方案概述</h3>
+<blockquote>
+<p>各机器人独立SLAM建图 → 中控收集 → 坐标变换融合 → 统一地图 → 3D场景还原</p>
+</blockquote>
+<h3 id="22">2.2 技术路线</h3>
+<div class="mermaid">graph LR
+    A["Walker S3<br/>优必选SLAM"] -->|"OccupancyGrid"| F["中控地图融合引擎"]
+    B["M20 Pro<br/>云深处SLAM"] -->|"点云"| F
+    C["云迹送餐<br/>云迹SLAM"] -->|"OccupancyGrid"| F
+    D["遨博i5<br/>基座固定"] -->|"无SLAM"| F
+    F --> G["坐标变换<br/>ICP配准"]
+    G --> H["统一3D地图<br/>数字孪生底图"]</div>
+<h3 id="23">2.3 关键难点</h3>
+<table>
+<thead>
+<tr>
+<th>难点</th>
+<th>说明</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>坐标系不统一</strong></td>
+<td>Walker S3用自身里程计坐标系，M20 Pro用另一套</td>
+<td>需要手动标定坐标变换矩阵</td>
+</tr>
+<tr>
+<td><strong>地图格式不统一</strong></td>
+<td>2D栅格 vs 3D点云 vs 位姿</td>
+<td>需要格式转换层</td>
+</tr>
+<tr>
+<td><strong>精度差异</strong></td>
+<td>不同传感器精度不同，融合后边界模糊</td>
+<td>数字孪生中机器人位置跳动</td>
+</tr>
+<tr>
+<td><strong>时间同步</strong></td>
+<td>各机器人建图时刻不同</td>
+<td>需要NTP同步+时间戳对齐</td>
+</tr>
+<tr>
+<td><strong>动态物体干扰</strong></td>
+<td>建图时有人走动</td>
+<td>地图出现"鬼影"障碍物</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24">2.4 可行性评估</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>评级</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>技术可行性</td>
+<td>⚠️ 中等</td>
+<td>ICP配准+坐标变换有成熟算法，但多格式混合融合复杂</td>
+</tr>
+<tr>
+<td>工程量</td>
+<td>🔴 大</td>
+<td>需为每种地图格式写适配器，调试周期长</td>
+</tr>
+<tr>
+<td>维护成本</td>
+<td>🔴 高</td>
+<td>展厅布局变化时需要重新建图+重新融合</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>⚠️ 中</td>
+<td>融合是离线过程，不能实时更新</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="api">三、平台调平台API调度架构</h2>
+<h3 id="31">3.1 架构设计</h3>
+<div class="mermaid">graph TB
+    subgraph 中控["中控调度引擎"]
+        DAG["DAG任务编排"]
+        DM["数字孪生可视化"]
+        PATH["路径规划/冲突避免"]
+    end
+    subgraph Adapters["适配层（自研）"]
+        A1["优必选Adapter<br/>HTTP REST API"]
+        A2["云深处Adapter<br/>MQTT"]
+        A3["云迹Adapter<br/>WebSocket/HTTP"]
+        A4["遨博Adapter<br/>ROS2 DDS"]
+        A5["咖啡机Adapter<br/>HTTP API"]
+    end
+    DAG --> A1 & A2 & A3 & A4 & A5
+    A1 --> R1["Walker S3"]
+    A2 --> R2["M20 Pro"]
+    A3 --> R3["云迹送餐/UP"]
+    A4 --> R4["遨博i5/海纳"]
+    A5 --> R5["咖啡机器人"]
+    R1 & R2 & R3 & R4 & R5 -->|"位置/状态上报"| DM</div>
+<h3 id="32-adapterapi">3.2 每家Adapter需要的API接口</h3>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>说明</th>
+<th>必须</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>位置查询</strong></td>
+<td>返回机器人当前位置（x, y, θ）</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>任务下发</strong></td>
+<td>发送目标位置/动作指令</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>状态回报</strong></td>
+<td>机器人当前状态（idle/moving/error）</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>电量查询</strong></td>
+<td>电池剩余百分比</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>紧急停止</strong></td>
+<td>远程急停</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>路径规划</strong></td>
+<td>请求机器人走特定路径</td>
+<td>⚠️ 可选</td>
+</tr>
+<tr>
+<td><strong>SLAM地图</strong></td>
+<td>获取机器人的地图数据</td>
+<td>⚠️ 可选</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33">3.3 通信协议矩阵</h3>
+<table>
+<thead>
+<tr>
+<th>机器人品牌</th>
+<th>预计协议</th>
+<th>接口方式</th>
+<th>配合难度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>优必选 Walker S3</strong></td>
+<td>HTTP REST</td>
+<td>提供云端API或本地SDK</td>
+<td>⚠️ 中</td>
+</tr>
+<tr>
+<td><strong>云深处 M20 Pro</strong></td>
+<td>MQTT</td>
+<td>私有协议，需厂家文档</td>
+<td>🔴 高</td>
+</tr>
+<tr>
+<td><strong>云迹送餐/UP</strong></td>
+<td>WebSocket/HTTP</td>
+<td>云迹开放平台API</td>
+<td>✅ 低</td>
+</tr>
+<tr>
+<td><strong>遨博i5/海纳</strong></td>
+<td>ROS2 DDS</td>
+<td>标准ROS2接口</td>
+<td>✅ 低</td>
+</tr>
+<tr>
+<td><strong>咖啡机器人</strong></td>
+<td>HTTP API</td>
+<td>厂家定制</td>
+<td>⚠️ 中</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34">3.4 适配层开发工作量</h3>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>工作量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优必选Adapter</td>
+<td>2周</td>
+<td>研读API文档+封装+测试</td>
+</tr>
+<tr>
+<td>云深处Adapter</td>
+<td>3周</td>
+<td>MQTT私有协议解析</td>
+</tr>
+<tr>
+<td>云迹Adapter</td>
+<td>1周</td>
+<td>开放平台API较成熟</td>
+</tr>
+<tr>
+<td>遨博Adapter</td>
+<td>1周</td>
+<td>ROS2 DDS标准接口</td>
+</tr>
+<tr>
+<td>咖啡机Adapter</td>
+<td>1周</td>
+<td>HTTP API简单</td>
+</tr>
+<tr>
+<td>DAG调度引擎</td>
+<td>4周</td>
+<td>核心编排逻辑</td>
+</tr>
+<tr>
+<td>数字孪生可视化</td>
+<td>2周</td>
+<td>WebGL/Three.js</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td><strong>约14周</strong></td>
+<td>2-3人团队</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="uwbslam">四、UWB+SLAM融合分析</h2>
+<h3 id="41">4.1 理论方案</h3>
+<blockquote>
+<p>UWB提供全局绝对坐标，SLAM提供局部高精度，两者融合实现±2cm精度</p>
+</blockquote>
+<div class="mermaid">graph LR
+    UWB["UWB定位<br/>全局坐标 ±10cm"] --> F["卡尔曼滤波融合"]
+    SLAM["机器人SLAM<br/>局部坐标 ±2cm"] --> F
+    F --> OUT["融合输出<br/>±2cm全局精度"]</div>
+<h3 id="42">4.2 厂家配合问题</h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>说明</th>
+<th>可能性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>需要修改机器人固件</strong></td>
+<td>在机器人内部做UWB+里程计融合</td>
+<td>🔴 低</td>
+</tr>
+<tr>
+<td><strong>需要开放底层传感器接口</strong></td>
+<td>获取原始IMU/轮速数据</td>
+<td>🔴 低</td>
+</tr>
+<tr>
+<td><strong>厂家商业壁垒</strong></td>
+<td>厂家不希望被绑定到第三方定位系统</td>
+<td>🔴 低</td>
+</tr>
+<tr>
+<td><strong>技术责任归属</strong></td>
+<td>融合算法出错谁负责？</td>
+<td>🔴 不明确</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 结论：厂家配合可能性低</h3>
+<p><strong>不依赖厂家配合的替代方案</strong>：</p>
+<pre><code>UWB外挂式定位（不需要机器人知道UWB的存在）：
+  1. 每台机器人身上贴一个UWB标签（外挂，不影响机器人运行）
+  2. 4个UWB基站独立运行，获取每台机器人的全局坐标
+  3. 中控侧做&quot;软融合&quot;：
+     - UWB提供全局坐标（±10cm）
+     - 机器人自己的SLAM提供局部避障
+     - 两者在中控大屏上通过坐标变换对齐显示
+  4. 机器人不需要做任何改动
+</code></pre>
+<hr />
+<h2 id="_4">五、推荐方案</h2>
+<h3 id="51">5.1 总体架构</h3>
+<div class="mermaid">graph TB
+    subgraph 定位层["定位层（不依赖厂家）"]
+        U1["UWB基站×4"]
+        U2["UWB标签×7（贴在机器人上）"]
+        U1 --> UWB_SERVER["UWB定位服务器<br/>±10cm 50Hz"]
+    end
+    subgraph 调度层["调度层（API适配）"]
+        DAG["DAG任务编排引擎"]
+        A1["优必选Adapter"]
+        A2["云深处Adapter"]
+        A3["云迹Adapter"]
+        A4["遨博Adapter"]
+    end
+    subgraph 可视化["可视化层"]
+        CAD["展厅CAD平面图"]
+        DT["数字孪生大屏<br/>UWB位置 + CAD底图"]
+    end
+    UWB_SERVER --> DT
+    DAG --> A1 & A2 & A3 & A4
+    UWB_SERVER --> DAG
+    CAD --> DT</div>
+<h3 id="52">5.2 方案对比</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>精度</th>
+<th>依赖厂家</th>
+<th>工程量</th>
+<th>维护成本</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. UWB外挂+API调度</strong></td>
+<td>±10cm</td>
+<td>否</td>
+<td>14周</td>
+<td>低</td>
+<td>✅ <strong>推荐</strong></td>
+</tr>
+<tr>
+<td>B. UWB+SLAM深度融合</td>
+<td>±2cm</td>
+<td>是（高）</td>
+<td>20周+</td>
+<td>高</td>
+<td>⚠️ 备选</td>
+</tr>
+<tr>
+<td>C. 纯SLAM地图融合</td>
+<td>±5cm</td>
+<td>是（中）</td>
+<td>18周</td>
+<td>高</td>
+<td>❌ 不推荐</td>
+</tr>
+<tr>
+<td>D. 人工标定+API</td>
+<td>±20cm</td>
+<td>否</td>
+<td>8周</td>
+<td>低</td>
+<td>⚠️ 降级方案</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-a">5.3 推荐方案A详细设计</h3>
+<h4 id="_5">定位层</h4>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>UWB基站</strong></td>
+<td>Decawave DWM1001，4个，部署在展厅四角</td>
+</tr>
+<tr>
+<td><strong>UWB标签</strong></td>
+<td>每台机器人贴1个（魔术贴/支架固定）</td>
+</tr>
+<tr>
+<td><strong>定位精度</strong></td>
+<td>±10cm（展厅环境，金属干扰已优化）</td>
+</tr>
+<tr>
+<td><strong>更新频率</strong></td>
+<td>50Hz（位置）/ 10Hz（状态）</td>
+</tr>
+<tr>
+<td><strong>坐标系</strong></td>
+<td>UWB基站定义全局坐标系，CAD图纸对齐</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_6">调度层</h4>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>任务编排</strong></td>
+<td>DAG工作流引擎（JSON/YAML定义场景）</td>
+</tr>
+<tr>
+<td><strong>适配层</strong></td>
+<td>为每家机器人写Adapter（自研，约14周）</td>
+</tr>
+<tr>
+<td><strong>通信</strong></td>
+<td>Adapter→机器人：各厂家协议；DAG→Adapter：统一gRPC</td>
+</tr>
+<tr>
+<td><strong>数字孪生</strong></td>
+<td>中控大屏实时显示UWB位置 + CAD底图</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_7">可视化层</h4>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>底图</strong></td>
+<td>展厅CAD平面图（不使用SLAM地图）</td>
+</tr>
+<tr>
+<td><strong>机器人显示</strong></td>
+<td>UWB实时位置（彩色圆点+拖尾轨迹）</td>
+</tr>
+<tr>
+<td><strong>3D数字孪生</strong></td>
+<td>预建3D模型（Blender/Maya），不还原点云</td>
+</tr>
+<tr>
+<td><strong>实时数据</strong></td>
+<td>电量/状态/任务进度叠加显示</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_8">六、供应商配合需求</h2>
+<h3 id="61-api">6.1 必须提供的API（不修改固件）</h3>
+<table>
+<thead>
+<tr>
+<th>供应商</th>
+<th>需要提供的接口</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>优必选</strong></td>
+<td>HTTP REST API：位置查询/任务下发/状态/电量/急停</td>
+<td>Walker S3调度</td>
+</tr>
+<tr>
+<td><strong>云深处</strong></td>
+<td>MQTT接口文档：位置/任务/状态/电量/急停</td>
+<td>M20 Pro调度</td>
+</tr>
+<tr>
+<td><strong>云迹</strong></td>
+<td>开放平台API：送物/清洁任务/状态/电量</td>
+<td>送餐/UP底盘调度</td>
+</tr>
+<tr>
+<td><strong>遨博</strong></td>
+<td>ROS2 DDS Topic列表：关节控制/力控/视觉数据</td>
+<td>i5/海纳调度</td>
+</tr>
+<tr>
+<td><strong>咖啡机</strong></td>
+<td>HTTP API：拍照→拉花→制作→取餐全流程</td>
+<td>咖啡机器人调度</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62">6.2 不需要供应商做的</h3>
+<table>
+<thead>
+<tr>
+<th>不需要</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>❌ 修改固件做UWB融合</td>
+<td>UWB是外挂式，机器人无感知</td>
+</tr>
+<tr>
+<td>❌ 提供SLAM地图数据</td>
+<td>中控用CAD底图，不用SLAM地图</td>
+</tr>
+<tr>
+<td>❌ 统一通信协议</td>
+<td>Adapter层做协议转换</td>
+</tr>
+<tr>
+<td>❌ 做多机协同</td>
+<td>DAG引擎在中控侧统一编排</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_9">附录</h2>
+<h3 id="a-uwb">A. UWB定位精度影响因素</h3>
+<table>
+<thead>
+<tr>
+<th>因素</th>
+<th>影响</th>
+<th>缓解方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>金属展架反射</td>
+<td>多径效应，精度降至±30cm</td>
+<td>基站选址避开金属面</td>
+</tr>
+<tr>
+<td>LED屏电磁干扰</td>
+<td>信号丢包</td>
+<td>UWB频段（6.5GHz）与LED驱动不冲突</td>
+</tr>
+<tr>
+<td>人员遮挡</td>
+<td>非视距（NLOS）误差</td>
+<td>多基站冗余（4基站TDOA）</td>
+</tr>
+<tr>
+<td>标签安装位置</td>
+<td>机器人金属外壳遮挡</td>
+<td>标签安装在机器人顶部，远离金属面</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b-dag">B. DAG调度引擎接口定义示例</h3>
+<pre><code class="language-json">{
+  &quot;scene&quot;: &quot;vip_welcome&quot;,
+  &quot;trigger&quot;: &quot;rfid_checkin&quot;,
+  &quot;tasks&quot;: [
+    {
+      &quot;id&quot;: &quot;walker_greet&quot;,
+      &quot;robot&quot;: &quot;walker_s3&quot;,
+      &quot;adapter&quot;: &quot;ubtech&quot;,
+      &quot;action&quot;: &quot;goto_and_greet&quot;,
+      &quot;params&quot;: {&quot;target&quot;: &quot;entrance&quot;, &quot;vip_name&quot;: &quot;张总&quot;},
+      &quot;timeout&quot;: 30
+    },
+    {
+      &quot;id&quot;: &quot;m20_demo&quot;,
+      &quot;robot&quot;: &quot;m20_pro&quot;,
+      &quot;adapter&quot;: &quot;cloud_depth&quot;,
+      &quot;action&quot;: &quot;obstacle_show&quot;,
+      &quot;depends_on&quot;: [&quot;walker_greet&quot;],
+      &quot;timeout&quot;: 60
+    }
+  ]
+}
+</code></pre>
+<h3 id="c">C. 相关参考</h3>
+<table>
+<thead>
+<tr>
+<th>参考</th>
+<th>启发</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>亚马逊Kiva仓库机器人</td>
+<td>统一定位+集中调度</td>
+</tr>
+<tr>
+<td>高仙清洁机器人</td>
+<td>UWB+SLAM融合定位</td>
+</tr>
+<tr>
+<td>优必选Alpha Fleet</td>
+<td>多人形机器人协同</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>本文档分析7台不同品牌机器人的统一定位与调度方案，推荐UWB外挂式定位+API适配层架构。</em></p>
+<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark"})</script></body></html>
