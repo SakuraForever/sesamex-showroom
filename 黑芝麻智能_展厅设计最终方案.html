@@ -768,6 +768,292 @@
 </blockquote>
 <p><strong>展示设备</strong>：弧幕+沉浸影片</p>
 <hr />
+<h2 id="6-phase-0">第6章 · 基建预埋规划（Phase 0）</h2>
+<blockquote>
+<p><strong>基建预埋决定了空间智能的天花板——装修时没埋的线，后期无法追加。</strong></p>
+</blockquote>
+<h3 id="61_1">6.1 电气预埋</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>方案</th>
+<th>预留位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机器人充电桩</td>
+<td>每台机器人1个充电桩位，220V/10A</td>
+<td>入口右侧角落/机器人区/咖啡站旁</td>
+</tr>
+<tr>
+<td>中控机房</td>
+<td>双路供电（市电+UPS）</td>
+<td>展厅弱电间</td>
+</tr>
+<tr>
+<td>LED屏供电</td>
+<td>每块LED屏独立回路</td>
+<td>天花板/墙面预埋</td>
+</tr>
+<tr>
+<td>应急电源</td>
+<td>UPS覆盖中控+UWB+安防</td>
+<td>弱电间</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62">6.2 网络预埋</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>方案</th>
+<th>预埋要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wi-Fi 6 AP</td>
+<td>4个AP（1F/2F各2个），PoE供电</td>
+<td>天花板预埋PoE网线</td>
+</tr>
+<tr>
+<td>骨干光纤</td>
+<td>万兆光纤到中控机房</td>
+<td>弱电管预埋</td>
+</tr>
+<tr>
+<td>VLAN隔离</td>
+<td>机器人网络/访客网络/管理网络三网隔离</td>
+<td>交换机配置</td>
+</tr>
+<tr>
+<td>LED播控</td>
+<td>每块LED屏千兆有线连接</td>
+<td>天花板/墙面预埋网线</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-l3l4-ota">6.3 传感器预埋（为L3/L4 OTA升级预留）</h3>
+<table>
+<thead>
+<tr>
+<th>传感器</th>
+<th>数量</th>
+<th>安装位置</th>
+<th>预埋要求</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>UWB基站</strong></td>
+<td>4</td>
+<td>天花板四角</td>
+<td>PoE供电+安装支架</td>
+<td>多机统一定位</td>
+</tr>
+<tr>
+<td><strong>摄像头阵列</strong></td>
+<td>8</td>
+<td>天花板关键区域</td>
+<td>PoE供电+网线</td>
+<td>L3视觉感知（访客画像/行为识别）</td>
+</tr>
+<tr>
+<td><strong>麦克风阵列</strong></td>
+<td>4</td>
+<td>天花板拾音区</td>
+<td>PoE供电+音频线</td>
+<td>L3语音交互（远场语音识别）</td>
+</tr>
+<tr>
+<td><strong>温湿度传感器</strong></td>
+<td>4</td>
+<td>天花板</td>
+<td>PoE供电</td>
+<td>环境感知</td>
+</tr>
+<tr>
+<td><strong>红外人体感应</strong></td>
+<td>6</td>
+<td>入口/出口/走廊</td>
+<td>PoE供电</td>
+<td>人流计数/动线分析</td>
+</tr>
+<tr>
+<td><strong>RFID读写器</strong></td>
+<td>3</td>
+<td>签到台/包架/取餐口</td>
+<td>网线+电源</td>
+<td>L2触发器</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>关键原则</strong>：天花板预埋的PoE网线和安装位，是后期无法追加的。必须在Phase 0装修时完成。</p>
+</blockquote>
+<h3 id="64-ota">6.4 接口预留（为OTA升级预留）</h3>
+<table>
+<thead>
+<tr>
+<th>接口类型</th>
+<th>预留位置</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PoE网线口（天花板）</td>
+<td>每个传感器安装位</td>
+<td>即插即用扩展传感器</td>
+</tr>
+<tr>
+<td>光纤跳线架</td>
+<td>弱电间</td>
+<td>万兆骨干扩展</td>
+</tr>
+<tr>
+<td>机器人API网关</td>
+<td>中控服务器</td>
+<td>各厂家API统一接入</td>
+</tr>
+<tr>
+<td>OTA服务器</td>
+<td>中控/云端</td>
+<td>SesameX模型远程更新</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-l2l3l4-ota">第7章 · 空间智能演进路线（L2→L3→L4 OTA）</h2>
+<blockquote>
+<p><strong>展厅不是一堆机器人的集合，而是一台"空间级智能体"——像汽车自动驾驶一样，从L2逐步OTA升级到L4。</strong></p>
+</blockquote>
+<h3 id="71_1">7.1 智能等级定义</h3>
+<div class="mermaid">graph LR
+    L2["L2 辅助联动<br/>触发式DAG<br/>2026年8月"] -->|OTA| L3["L3 条件主动<br/>视觉感知+AI Agent<br/>2026年12月"]
+    L3 -->|OTA| L4["L4 全自主空间智能<br/>VLA+持续学习<br/>2027年Q1"]</div>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>名称</th>
+<th>感知方式</th>
+<th>决策方式</th>
+<th>对应Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L2</strong></td>
+<td>辅助联动</td>
+<td>RFID/按钮触发</td>
+<td>DAG预编程脚本</td>
+<td>Phase 1（8月开园）</td>
+</tr>
+<tr>
+<td><strong>L3</strong></td>
+<td>条件主动</td>
+<td>摄像头+麦克风持续感知</td>
+<td>AI Agent动态决策</td>
+<td>Phase 2-3（10-12月）</td>
+</tr>
+<tr>
+<td><strong>L4</strong></td>
+<td>全自主空间智能</td>
+<td>多模态全感知+世界模型</td>
+<td>SesameX VLA端侧推理+自进化</td>
+<td>Phase 4（2027Q1）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-l2">7.2 L2 · 辅助联动（当前方案）</h3>
+<ul>
+<li>触发方式：RFID手环/按钮/定时器</li>
+<li>决策方式：DAG预编程工作流</li>
+<li>执行方式：固定动作序列</li>
+<li><strong>依赖基建</strong>：UWB基站×4 + RFID读写器×3 + Wi-Fi 6 AP×4</li>
+<li><strong>OTA升级路径</strong>：DAG引擎可平滑升级为AI Agent</li>
+</ul>
+<h3 id="73-l3">7.3 L3 · 条件主动</h3>
+<ul>
+<li>感知方式：摄像头阵列（访客画像/行为识别）+ 麦克风阵列（远场语音）</li>
+<li>决策方式：AI Agent理解全局上下文→动态生成最优方案</li>
+<li>执行方式：根据访客画像灵活组合行为</li>
+<li><strong>依赖基建</strong>：Phase 0预埋的8个摄像头PoE口 + 4个麦克风阵列PoE口</li>
+<li><strong>OTA升级路径</strong>：SesameX VLA模型OTA下发</li>
+</ul>
+<h3 id="74-l4">7.4 L4 · 全自主空间智能</h3>
+<ul>
+<li>感知方式：全传感器融合+世界模型预测</li>
+<li>决策方式：SesameX端侧VLA推理（&lt;5ms）+ 持续学习闭环</li>
+<li>执行方式：机器人自主思考，不需要中控指令</li>
+<li><strong>依赖基建</strong>：边缘服务器（双路供电+万兆网络）+ OTA服务器</li>
+<li><strong>核心价值</strong>：SesameX Inside——断网也能主动思考</li>
+</ul>
+<h3 id="75-ota">7.5 OTA升级路径</h3>
+<div class="mermaid">graph TB
+    subgraph 基建层["基建层 Phase 0（装修时预埋，不可后期追加）"]
+        E1["UWB基站×4"]
+        E2["摄像头PoE口×8"]
+        E3["麦克风PoE口×4"]
+        E4["万兆光纤+VLAN"]
+    end
+    subgraph L2["L2 软件层（OTA可升级）"]
+        S1["DAG引擎→AI Agent"]
+        S2["RFID触发→视觉触发"]
+    end
+    subgraph L3L4["L3/L4 模型层（OTA可升级）"]
+        M1["SesameX VLA模型"]
+        M2["世界模型"]
+        M3["访客画像模型"]
+    end
+    基建层 --> L2
+    L2 --> L3L4</div>
+<blockquote>
+<p><strong>关键设计</strong>：硬件一次预埋到位，软件和模型通过OTA持续进化。就像汽车L2→L3→L4，硬件不变，软件升级。</p>
+</blockquote>
+<h3 id="76-ota">7.6 每个阶段的OTA内容</h3>
+<table>
+<thead>
+<tr>
+<th>OTA版本</th>
+<th>升级内容</th>
+<th>不需要改的</th>
+<th>需要改的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v1.0</strong>（8月）</td>
+<td>L2 DAG脚本</td>
+<td>硬件/基建</td>
+<td>部署初始联动脚本</td>
+</tr>
+<tr>
+<td><strong>v1.5</strong>（10月）</td>
+<td>视觉感知模块</td>
+<td>硬件（已预埋）</td>
+<td>激活摄像头阵列+条件触发</td>
+</tr>
+<tr>
+<td><strong>v2.0</strong>（12月）</td>
+<td>VLA模型+AI Agent</td>
+<td>硬件（已预埋）</td>
+<td>OTA下发VLA模型到SesameX</td>
+</tr>
+<tr>
+<td><strong>v2.5</strong>（2027Q1）</td>
+<td>持续学习闭环</td>
+<td>硬件（已预埋）</td>
+<td>激活数据采集+模型微调</td>
+</tr>
+</tbody>
+</table>
+<hr />
 <h2 id="8">第8章 · 展项清单汇总</h2>
 <h3 id="81-1f">8.1 1F展项统计</h3>
 <table>

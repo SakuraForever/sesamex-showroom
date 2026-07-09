@@ -1543,10 +1543,192 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 <td>安全事件</td>
 <td>0次/月</td>
 </tr>
+<tr>
+<td>---</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="ota">第七章 · 接口预留与OTA迁移路径</h2>
+<blockquote>
+<p><strong>DAG引擎可平滑升级为AI Agent——软件OTA进化，硬件不变。</strong></p>
+</blockquote>
+<h3 id="71">7.1 适配层接口预留</h3>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>当前L2</th>
+<th>OTA升级到L3</th>
+<th>OTA升级到L4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>感知输入</strong></td>
+<td>RFID/按钮事件</td>
+<td>摄像头画面流+麦克风音频流</td>
+<td>全传感器融合+世界模型</td>
+</tr>
+<tr>
+<td><strong>决策引擎</strong></td>
+<td>DAG预编程脚本</td>
+<td>AI Agent动态决策</td>
+<td>SesameX VLA端侧推理</td>
+</tr>
+<tr>
+<td><strong>任务下发</strong></td>
+<td>固定路径指令</td>
+<td>动态路径+个性化内容</td>
+<td>机器人自主决策</td>
+</tr>
+<tr>
+<td><strong>数据上传</strong></td>
+<td>只上传状态</td>
+<td>上传行为数据</td>
+<td>持续学习闭环</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-dagai-agent">7.2 DAG→AI Agent迁移路径</h3>
+<div class="mermaid">graph LR
+    subgraph L2["L2 当前"]
+        D["DAG引擎<br/>JSON工作流"]
+        T["触发器<br/>RFID/按钮"]
+    end
+    subgraph L3["L3 OTA升级"]
+        A["AI Agent<br/>动态决策"]
+        V["视觉感知<br/>摄像头阵列"]
+    end
+    subgraph L4["L4 OTA升级"]
+        S["SesameX VLA<br/>端侧推理"]
+        W["世界模型<br/>预测+规划"]
+    end
+    D -->|"OTA v1.5"| A
+    T -->|"OTA v1.5"| V
+    A -->|"OTA v2.0"| S
+    V -->|"OTA v2.0"| W</div>
+<h3 id="73">7.3 传感器数据接入规划</h3>
+<table>
+<thead>
+<tr>
+<th>传感器</th>
+<th>Phase 0预埋</th>
+<th>L2使用</th>
+<th>L3激活</th>
+<th>L4激活</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UWB基站×4</td>
+<td>天花板四角</td>
+<td>✅ 多机定位</td>
+<td>✅ +人流分析</td>
+<td>✅ +轨迹预测</td>
+</tr>
+<tr>
+<td>摄像头×8</td>
+<td>天花板PoE口</td>
+<td>❌ 待激活</td>
+<td>✅ 访客画像</td>
+<td>✅ +行为预测</td>
+</tr>
+<tr>
+<td>麦克风×4</td>
+<td>天花板PoE口</td>
+<td>❌ 待激活</td>
+<td>✅ 语音交互</td>
+<td>✅ +情感识别</td>
+</tr>
+<tr>
+<td>RFID×3</td>
+<td>签到台/包架</td>
+<td>✅ 触发器</td>
+<td>✅ +访客画像</td>
+<td>✅ +历史记录</td>
+</tr>
+<tr>
+<td>红外×6</td>
+<td>入口/走廊</td>
+<td>❌ 待激活</td>
+<td>✅ 人流计数</td>
+<td>✅ +拥堵预测</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>关键设计</strong>：所有传感器在Phase 0装修时预埋到位，L2阶段只使用部分（UWB+RFID），L3/L4通过OTA激活其余传感器，不需要重新布线。</p>
+</blockquote>
+<h3 id="74-ota">7.4 OTA升级不影响日常运营</h3>
+<pre><code>OTA升级流程：
+  1. 凌晨3点自动下载新版本模型/软件
+  2. 在数字孪生中预演验证
+  3. 热更新（不中断服务）
+  4. 如异常→自动回滚到上一版本
+  5. 每周OTA一次（像手机系统更新）
+</code></pre>
+<hr />
+<h2 id="_25">第八章 · 传感器接入与数据闭环</h2>
+<h3 id="81">8.1 传感器数据流架构</h3>
+<div class="mermaid">graph TB
+    subgraph 感知层["感知层（Phase 0预埋）"]
+        S1["UWB×4"] & S2["摄像头×8"] & S3["麦克风×4"] & S4["RFID×3"] & S5["红外×6"]
+    end
+    subgraph 边缘层["边缘层（中控机房）"]
+        E1["数据汇聚"]
+        E2["SesameX推理"]
+        E3["AI Agent决策"]
+    end
+    subgraph 云端["云端"]
+        C1["模型训练"]
+        C2["OTA下发"]
+    end
+    感知层 --> E1
+    E1 --> E2 --> E3
+    E3 -->|"执行指令"| R["7台机器人"]
+    E3 -->|"行为数据"| C1
+    C1 --> C2
+    C2 -->|"OTA"| E2</div>
+<h3 id="82">8.2 数据闭环（持续学习）</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>数据采集</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>采集</strong></td>
+<td>访客行为/停留时间/交互频次/流失点</td>
+<td>原始数据</td>
+</tr>
+<tr>
+<td><strong>分析</strong></td>
+<td>云端聚合分析→发现优化点</td>
+<td>如：下午采摘参与率更高</td>
+</tr>
+<tr>
+<td><strong>训练</strong></td>
+<td>微调VLA模型/优化Agent策略</td>
+<td>模型更新</td>
+</tr>
+<tr>
+<td><strong>OTA</strong></td>
+<td>凌晨OTA下发到SesameX芯片</td>
+<td>行为优化</td>
+</tr>
+<tr>
+<td><strong>验证</strong></td>
+<td>数字孪生预演→热更新</td>
+<td>确认效果</td>
+</tr>
 </tbody>
 </table>
 <hr />
-<h2 id="_25">附录</h2>
+<h2 id="_26">附录</h2>
 <h3 id="a">A. 行业参考</h3>
 <table>
 <thead>
@@ -1601,11 +1783,11 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 <p><strong>SesameX是整个联动的基石——每台机器人的实时智能都由SesameX芯片提供，脱离云端也能独立工作。</strong></p>
 </blockquote>
 <hr />
-<h2 id="_26">第七章 · 多机定位与调度方案研究</h2>
+<h2 id="_27">第七章 · 多机定位与调度方案研究</h2>
 <blockquote>
 <p>基于展厅实际约束的技术选型分析、潜在风险识别与优化建议</p>
 </blockquote>
-<h3 id="71">7.1 现状技术组合</h3>
+<h3 id="71_1">7.1 现状技术组合</h3>
 <p>展厅主要约束：623㎡（1F约323㎡为主功能区）、7台异构机器人（人形/四足/轮式/固定协作臂）、VIP导览与自由参观并发、人机混行。</p>
 <table>
 <thead>
@@ -1999,11 +2181,11 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 </tbody>
 </table>
 <hr />
-<h2 id="_27">第八章 · 主动式智能架构评估与改进</h2>
+<h2 id="_28">第八章 · 主动式智能架构评估与改进</h2>
 <blockquote>
 <p>当前方案以"触发-响应"为主，本章评估向主动式智能架构升级的路径与价值</p>
 </blockquote>
-<h3 id="81">8.1 当前架构定性：被动响应式</h3>
+<h3 id="81_1">8.1 当前架构定性：被动响应式</h3>
 <p>当前7台机器人的行为逻辑是：<strong>等待事件触发 → 执行预定义DAG → 返回待机</strong>。即使使用DAG编排，本质仍是预编程的流水线——机器人不会"思考"，只会"执行"。</p>
 <table>
 <thead>
@@ -2041,7 +2223,7 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 </tr>
 </tbody>
 </table>
-<h3 id="82">8.2 主动式升级的核心技术路径</h3>
+<h3 id="82_1">8.2 主动式升级的核心技术路径</h3>
 <h4 id="821-vla-">8.2.1 端侧VLA推理：感知-决策闭环</h4>
 <p>主动式架构的基础是SesameX芯片在端侧运行<strong>VLA（Vision-Language-Action）模型</strong>，机器人持续观察环境并自主生成行动意图，无需等待中控指令。</p>
 <div class="mermaid">graph LR
@@ -2253,7 +2435,7 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 <li><strong>访客冷场应对</strong>：展厅检测到5分钟无访客互动时，Walker自动走向中央位置开始面向摄像头表演自我介绍，重新吸引注意力</li>
 </ol>
 <hr />
-<h2 id="_28">第九章 · 展馆级主动式智能架构</h2>
+<h2 id="_29">第九章 · 展馆级主动式智能架构</h2>
 <blockquote>
 <p>从"机器人主动"到"展馆主动"——让整个623㎡空间成为一个会思考的智能体</p>
 </blockquote>
