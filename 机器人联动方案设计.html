@@ -13,7 +13,6 @@
 <li><a href="#第四章--6大联动场景工程方案">6大联动场景工程方案</a></li>
 <li><a href="#第五章--硬件清单">硬件清单</a></li>
 <li><a href="#第六章--故障降级与日常运营">故障降级与日常运营</a></li>
-<li><a href="#_26">多机定位与调度方案研究</a></li>
 </ol>
 <hr />
 <h2 id="-">第一章 · 端-边-云三层系统架构</h2>
@@ -1599,115 +1598,5 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 <blockquote>
 <p><strong>SesameX是整个联动的基石——每台机器人的实时智能都由SesameX芯片提供，脱离云端也能独立工作。</strong></p>
 </blockquote>
-<hr />
-<h2 id="_26">第七章 · 多机定位与调度方案研究</h2>
-<blockquote>
-<p>基于展厅实际约束的技术选型分析、潜在风险识别与优化建议</p>
-</blockquote>
-<h3 id="71">7.1 现状技术组合</h3>
-<p>展厅主要约束：623㎡（1F约323㎡为主功能区）、7台异构机器人（人形/四足/轮式/固定协作臂）、VIP导览与自由参观并发、人机混行。</p>
-<table>
-<thead>
-<tr><th>层</th><th>技术</th><th>参数</th><th>用途</th></tr>
-</thead>
-<tbody>
-<tr><td>定位</td><td>UWB（Decawave DWM1001）×4基站</td><td>±10cm，50Hz</td><td>全局绝对坐标</td></tr>
-<tr><td>建图</td><td>激光雷达（每台移动机器人）</td><td>—</td><td>局部障碍实时感知</td></tr>
-<tr><td>通信</td><td>ROS2 DDS + Wi-Fi 6（专用VLAN）</td><td>10Hz 状态/指令</td><td>机器人↔中控</td></tr>
-<tr><td>调度</td><td>DAG工作流引擎（边缘服务器）</td><td>&lt;50ms响应</td><td>任务编排</td></tr>
-<tr><td>孪生</td><td>数字孪生</td><td>位置50Hz</td><td>仿真预演+可视化</td></tr>
-</tbody>
-</table>
-<h3 id="72-uwb">7.2 UWB定位方案评估</h3>
-<h4 id="721">7.2.1 与场景的适配性</h4>
-<p>4个基站覆盖1F全域（UWB有效范围约50m），±10cm精度满足机器人冲突检测需求（触发距离3m，精度要求宽松）。50Hz更新率高于ROS2下发频率（10Hz），不构成瓶颈。Decawave DWM1001为成熟商用模块，Walker S3/M20 Pro等可直接挂载标签。</p>
-<h4 id="722">7.2.2 潜在风险</h4>
-<table>
-<thead>
-<tr><th>风险点</th><th>原因</th><th>建议</th></tr>
-</thead>
-<tbody>
-<tr><td>2F覆盖缺失</td><td>1F基站信号被楼板阻隔，2F无法定位</td><td>若2F引入移动机器人，预埋2个基站锚点</td></tr>
-<tr><td>世界树金属干扰</td><td>LED柱体+金属结构产生UWB多径反射，该区域精度下降</td><td>增加修正锚点，或依赖D435i局部坐标系</td></tr>
-<tr><td>遨博i5无需UWB</td><td>固定安装，不移动</td><td>末端D435i相机需独立坐标系标定，与UWB地图对齐</td></tr>
-</tbody>
-</table>
-<h4 id="723">7.2.3 UWB与激光SLAM的分工</h4>
-<p>当前方案为双层架构：<strong>UWB提供全局绝对坐标（我在展厅地图上的位置，不累积误差），激光SLAM提供局部实时感知（我前方0.8m有障碍物，精确避障）</strong>。两者融合后机器人既能定位自身也能实时绕障。</p>
-<p><strong>盲区问题</strong>：Walker S3（约1.4m高）与M20 Pro（约0.6m高）激光雷达扫描平面不同，低速近距离时存在互相"看不到"的高度盲区。</p>
-<p><strong>建议</strong>：在中控数字孪生层实现多机UWB坐标互播——每台机器人将自身UWB坐标广播到ROS2话题，其他机器人订阅后在路径规划时将同伴位置当作动态障碍物处理，弥补激光雷达感知盲区。</p>
-<h3 id="73-dag">7.3 DAG调度方案评估</h3>
-<h4 id="731">7.3.1 适用边界</h4>
-<table>
-<thead>
-<tr><th>场景类型</th><th>DAG适合度</th><th>原因</th></tr>
-</thead>
-<tbody>
-<tr><td>VIP导览全流程</td><td>✅ 完全适合</td><td>触发确定、路径确定、角色确定</td></tr>
-<tr><td>拍照接力</td><td>✅ 完全适合</td><td>步骤固定，数据流明确</td></tr>
-<tr><td>采摘互动</td><td>✅ 适合</td><td>机械臂行为确定，视觉定位结果作为参数传入</td></tr>
-<tr><td>洒漏自愈</td><td>⚠️ 部分适合</td><td>触发随机，需动态生成子DAG</td></tr>
-<tr><td>多VIP并发</td><td>⚠️ 需补充规则</td><td>静态优先级规则不覆盖所有组合</td></tr>
-</tbody>
-</table>
-<h4 id="732">7.3.2 并发盲区识别</h4>
-<p>现有并发规则存在一个未覆盖的组合：<strong>Walker VIP导览进行中（T+100s M20越障表演段）+ 洒漏事件同时触发</strong>。</p>
-<p>现有规则：M20中止表演处理洒漏 ✅。但未定义：M20中止后Walker是等待M20完成洒漏处理后继续表演段，还是跳过该节点继续后续流程？等待意味着VIP在展厅中间站立数十秒，体验严重中断。</p>
-<p><strong>建议</strong>：在DAG节点定义中增加 <code>optional: true</code> 标记。VIP导览中的M20越障表演节点标记为可选——M20被安全事件打断时，Walker直接跳到下一节点（T+120s触发咖啡），导览流程不中断。</p>
-<h4 id="733">7.3.3 高密度冲突点</h4>
-<table>
-<thead>
-<tr><th>位置</th><th>并发风险</th><th>建议</th></tr>
-</thead>
-<tbody>
-<tr><td>入口→品牌墙走廊</td><td>Walker + 访客 + Delivery三方叠加，通道可能&lt;3m</td><td>时间窗预约在此通道严格执行，Delivery低优先级等待</td></tr>
-<tr><td>咖啡站区域</td><td>Coffee固定 + UP底盘待机桩 + 访客取餐叠加，UP出桩方向与取餐路线冲突</td><td>增加软性互斥区：检测到访客在取餐屏前时，UP出桩延迟10s</td></tr>
-<tr><td>世界树区域</td><td>遨博i5采摘中 + 访客围观 + M20巡检路线穿越</td><td>M20巡检路线绕行，不穿越安全光幕前方区域</td></tr>
-</tbody>
-</table>
-<h3 id="74-walker-s3">7.4 Walker S3续航调度分析</h3>
-<table>
-<thead>
-<tr><th>参数</th><th>数值</th></tr>
-</thead>
-<tbody>
-<tr><td>额定续航</td><td>约90分钟（工作状态）</td></tr>
-<tr><td>每日工作时间</td><td>08:40—17:50 = 9h10min</td></tr>
-<tr><td>理论充电次数</td><td>9h10min ÷ 90min ≈ 6次</td></tr>
-<tr><td>当前方案充电次数</td><td>2次（10:10和13:30各30min）</td></tr>
-</tbody>
-</table>
-<p>当前方案依赖两个假设：①待机时功耗远低于工作状态，实际续航超过90min；②30min充电可补充足够电量（非完整充电周期）。两个假设均需在试运行期间验证，否则Walker可能在10:40—13:30的170min连续工作段（约12:10）耗尽电量。</p>
-<p><strong>建议</strong>：在中控调度层加入Walker电量预测模型——根据已执行任务类型和数量预估剩余续航，当预测剩余续航&lt;20min时，提前引导Walker至待机充电位执行半充（15min），避免在VIP导览中途强制中断。</p>
-<h3 id="75-sesamex">7.5 SesameX在调度中的决策分层</h3>
-<p>端侧智能是本方案的核心差异化——中控宕机只影响联动编排，单机智能不受影响：</p>
-<table>
-<thead>
-<tr><th>决策类型</th><th>处理位置</th><th>芯片</th><th>理由</th></tr>
-</thead>
-<tbody>
-<tr><td>洒漏检测→上报</td><td>端侧</td><td>Aura (M20)</td><td>&lt;0.5s响应，不能等待网络往返</td></tr>
-<tr><td>视觉定位苹果位姿</td><td>端侧</td><td>Aura (遨博i5)</td><td>&lt;200ms端侧推理，低延迟抓取</td></tr>
-<tr><td>Walker语音对话</td><td>端侧</td><td>Liora</td><td>自然对话需低延迟，不依赖云端</td></tr>
-<tr><td>Delivery实时导航</td><td>端侧</td><td>Kalos</td><td>走廊避障需实时，不经中控</td></tr>
-<tr><td>VIP导览路径规划</td><td>边缘（中控）</td><td>RTX A6000</td><td>需全局地图，跨机协调</td></tr>
-<tr><td>人像拉花图案生成</td><td>边缘（中控）</td><td>RTX A6000</td><td>StyleGAN模型过大，端侧不承载</td></tr>
-<tr><td>OTA模型更新</td><td>云端→端侧</td><td>全部</td><td>训练在云，推理在端</td></tr>
-</tbody>
-</table>
-<h3 id="76">7.6 关键缺口与优化建议汇总</h3>
-<table>
-<thead>
-<tr><th>#</th><th>缺口</th><th>影响</th><th>建议</th><th>优先级</th></tr>
-</thead>
-<tbody>
-<tr><td>1</td><td>Walker续航调度模型缺失</td><td>可能在VIP导览中途强制返充</td><td>加电量预测+提前半充策略</td><td>高</td></tr>
-<tr><td>2</td><td>DAG无optional节点机制</td><td>安全事件打断时VIP导览流程僵死</td><td>关键场景节点标记optional，安全事件触发时跳过</td><td>高</td></tr>
-<tr><td>3</td><td>咖啡站UP出桩与取餐访客冲突</td><td>访客体验差，存在安全隐患</td><td>加软性互斥区，人存在时延迟出桩10s</td><td>高</td></tr>
-<tr><td>4</td><td>Walker/M20激光雷达高度盲区</td><td>低速近距离时互相"看不到"</td><td>UWB坐标互播，同伴坐标作为动态障碍物</td><td>中</td></tr>
-<tr><td>5</td><td>世界树金属结构UWB多径干扰</td><td>采摘区域定位精度下降</td><td>增加修正锚点或依赖D435i局部坐标系</td><td>中</td></tr>
-<tr><td>6</td><td>2F无UWB覆盖规划</td><td>2F扩展移动机器人时无法定位</td><td>预埋2个基站锚点（当前不激活）</td><td>低</td></tr>
-</tbody>
-</table>
 <hr />
 <p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark"})</script></body></html>
