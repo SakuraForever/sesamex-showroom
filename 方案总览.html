@@ -216,4 +216,10 @@ function op(src,b){
   history.pushState({overlay:true,src:src},'');
 }
 </script>
+<script>
+var AU='sesamex',AP='showroom2026';
+if(sessionStorage.getItem('auth')!=='ok'){
+  document.body.innerHTML='<div style="position:fixed;inset:0;background:#000;display:flex;justify-content:center;align-items:center;z-index:9999"><div style="background:#1c1c1e;padding:40px;border-radius:16px;border:0.5px solid rgba(255,255,255,0.08);width:300px"><h2 style="color:#f5f5f7;font-size:18px;margin-bottom:20px;text-align:center;font-family:-apple-system,sans-serif">黑芝麻智能 · 前海展厅</h2><input id="lu" type="text" placeholder="用户名" style="width:100%;padding:10px;margin-bottom:10px;background:#2c2c2e;border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;color:#f5f5f7;font-size:14px;outline:none;box-sizing:border-box;font-family:-apple-system,sans-serif"><input id="lp" type="password" placeholder="密码" style="width:100%;padding:10px;margin-bottom:16px;background:#2c2c2e;border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;color:#f5f5f7;font-size:14px;outline:none;box-sizing:border-box;font-family:-apple-system,sans-serif"><button onclick="var u=document.getElementById(\'lu\').value,p=document.getElementById(\'lp\').value;if(u===AU&&p===AP){sessionStorage.setItem(\'auth\',\'ok\');location.reload()}else{document.getElementById(\'le\').style.display=\'block\'}" style="width:100%;padding:10px;background:#0a84ff;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:-apple-system,sans-serif">登录</button><p id="le" style="color:#ff375f;font-size:12px;text-align:center;margin-top:10px;display:none;font-family:-apple-system,sans-serif">用户名或密码错误</p></div></div>'+document.body.innerHTML;
+}
+</script>
 </body></html>
