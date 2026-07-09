@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>黑芝麻智能 · 前海展厅方案</title>
 <link rel="stylesheet" href="showroom-theme.css">
+<script src="theme-toggle.js"></script>
 <style>
 /* ═══ 页面级样式 ═══ */
 html{scroll-behavior:smooth}
@@ -158,7 +159,8 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
   </div>
   <div class="spacer"></div>
   <div class="meta">SesameX Inside · 前海623㎡</div>
-</div>
+    <button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button>
+  </div>
 
 <!-- 移动端抽屉 -->
 <div class="drawer" id="drawer">
@@ -169,6 +171,10 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
   <a href="#phase3" onclick="navScroll('phase3');toggleDrawer()">Phase 3 · L4空间智能</a>
   <a href="#led" onclick="navScroll('led');toggleDrawer()">LED屏画廊</a>
   <a href="#assets" onclick="navScroll('assets');toggleDrawer()">制作素材</a>
+  <div style="display:flex;align-items:center;gap:10px;padding:10px 12px">
+    <span style="font-size:14px;color:var(--text)">主题</span>
+    <button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button>
+  </div>
 </div>
 
 <!-- ═══ HERO ═══ -->

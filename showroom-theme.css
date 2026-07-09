@@ -51,6 +51,37 @@
   --phase3: var(--purple);   /* L4 空间智能 — 紫 */
 }
 
+
+/* ═══ 明亮模式（Apple官网风格） ═══ */
+[data-theme="light"] {
+  --bg: #fbfbfd;
+  --bg2: #f5f5f7;
+  --bg3: #e8e8ed;
+  --bg4: #d1d1d6;
+  --text: #1d1d1f;
+  --sub: #6e6e73;
+  --sub2: #86868b;
+  --acc: #0071e3;
+  --green: #34c759;
+  --orange: #ff9500;
+  --purple: #af52de;
+  --pink: #ff2d55;
+  --yellow: #ffcc00;
+  --cyan: #32ade6;
+  --neon-green: #34c759;
+  --neon-orange: #ff9500;
+  --neon-purple: #af52de;
+  --nav: rgba(245, 245, 247, 0.8);
+  --bd: rgba(0, 0, 0, 0.1);
+  --bd2: rgba(0, 0, 0, 0.06);
+  --sh: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --sh-sm: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --phase0: #86868b;
+  --phase1: #34c759;
+  --phase2: #ff9500;
+  --phase3: #af52de;
+}
+
 /* ── Reset ── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -105,6 +136,25 @@ body {
   -webkit-backdrop-filter: blur(var(--blur));
   border-bottom: 0.5px solid var(--bd);
 }
+
+
+/* ═══ 主题切换按钮 ═══ */
+.smx-theme-toggle {
+  background: var(--bg3);
+  border: 0.5px solid var(--bd);
+  border-radius: 20px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+.smx-theme-toggle:hover { transform: scale(1.1); }
 
 /* ── 响应式断点工具 ── */
 @media (max-width: 768px) {

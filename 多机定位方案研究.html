@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>多机定位与调度方案研究</title><style>
 :root{--bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--bd:rgba(255,255,255,0.08);--font:-apple-system,'SF Pro Display','Microsoft YaHei','PingFang SC',sans-serif;--mono:'SF Mono','Consolas',monospace}
+[data-theme="light"]{--bg:#fbfbfd;--bg2:#f5f5f7;--bg3:#e8e8ed;--text:#1d1d1f;--sub:#6e6e73;--acc:#0071e3;--green:#34c759;--orange:#ff9500;--purple:#af52de;--bd:rgba(0,0,0,0.1)}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.8;-webkit-font-smoothing:antialiased}
 .doc-nav{position:fixed;top:0;left:0;right:0;height:48px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(28,28,30,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--bd)}
@@ -11,6 +12,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:
 .doc-nav .dn-chap{display:flex;gap:6px;flex-shrink:0}
 .doc-nav .dn-chap a{font-size:11px;color:var(--sub);text-decoration:none;padding:4px 10px;border-radius:8px;border:0.5px solid var(--bd);transition:all .15s;white-space:nowrap}
 .doc-nav .dn-chap a:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
+.smx-theme-toggle{background:var(--bg3);border:0.5px solid var(--bd);border-radius:20px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:6px}
 .doc{max-width:880px;margin:0 auto;padding:72px 24px 80px}
 h1{font-size:30px;font-weight:700;margin:36px 0 20px;letter-spacing:-0.5px;border-bottom:1px solid var(--bd);padding-bottom:12px}
 h2{font-size:22px;font-weight:600;margin:36px 0 16px;padding-left:14px;border-left:3px solid var(--acc)}
@@ -48,7 +50,7 @@ a:hover{text-decoration:underline}
   .doc-footer{flex-direction:column}
   .doc-footer a{min-width:auto}
 }
-</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">多机定位与调度方案研究</div><div class="dn-crumb">Phase 1 · 技术深挖</div></div><div class="dn-chap"><a href="前海展厅软件架构方案.html">‹ 软件架构方案</a><a href="主动式智能架构方案.html">主动式智能架构方案 ›</a></div></div><div class="doc"><h1 id="_1">黑芝麻智能 · 多机定位与调度方案研究</h1>
+</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">多机定位与调度方案研究</div><div class="dn-crumb">Phase 1 · 技术深挖</div></div><div class="dn-chap"><a href="前海展厅软件架构方案.html">‹ 软件架构方案</a><a href="主动式智能架构方案.html">主动式智能架构方案 ›</a></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="_1">黑芝麻智能 · 多机定位与调度方案研究</h1>
 <blockquote>
 <p>7台不同品牌机器人 · 统一定位 · API调度 · 数字孪生</p>
 <p>前海展厅1F具身智能区 · 323㎡</p>
@@ -709,4 +711,4 @@ a:hover{text-decoration:underline}
 </table>
 <hr />
 <p><em>本文档分析7台不同品牌机器人的统一定位与调度方案，推荐UWB外挂式定位+API适配层架构。</em></p>
-<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><div class="doc-footer"><a href="前海展厅软件架构方案.html" class="df-prev">‹ 软件架构方案</a><a href="index.html">返回首页</a><a href="主动式智能架构方案.html" class="df-next">主动式智能架构方案 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark",themeVariables:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"}})</script><script src="auth.js"></script></body></html>
+<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><div class="doc-footer"><a href="前海展厅软件架构方案.html" class="df-prev">‹ 软件架构方案</a><a href="index.html">返回首页</a><a href="主动式智能架构方案.html" class="df-next">主动式智能架构方案 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark",themeVariables:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"}})</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙'});</script><script src="auth.js"></script></body></html>
