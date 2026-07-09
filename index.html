@@ -372,12 +372,39 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
     通过 OTA 升级，展厅从"固定规则联动"进化为"主动式智能"。端侧 VLA 模型让机器人理解访客意图，
     多智能体协商让系统自主决策。这是 L3 级——能思考、会预判、可协商。
   </p>
-  <div class="grid grid-2">
-    <div class="card card-wide" onclick="openDoc('主动式智能架构方案.html')">
-      <div class="card-icon">🧠</div>
-      <h3>主动式智能架构方案</h3>
-      <p>从固定响应到主动思考 · 端侧VLA推理 · 多智能体协商 · 访客意图预测 · 展馆级AI大脑 · 28周实施路线图</p>
-      <span class="smx-tag smx-tag-orange">L3 架构</span>
+
+  <!-- 五大主动式能力 -->
+  <div style="margin:0 0 14px;font-size:15px;font-weight:600">五大主动式能力 · OTA升级后获得</div>
+  <div class="grid grid-3">
+    <div class="card" onclick="openDoc('主动式智能架构方案.html')">
+      <div class="card-icon">👁</div>
+      <h3>主动感知</h3>
+      <p>不再等待指令，主动扫描访客状态·情绪·位置，构建实时空间认知地图</p>
+      <span class="smx-tag smx-tag-orange">VLA</span>
+    </div>
+    <div class="card" onclick="openDoc('主动式智能架构方案.html')">
+      <div class="card-icon">🎯</div>
+      <h3>主动决策</h3>
+      <p>多智能体协商 · 无需中枢轮询 · 机器人之间直接协调任务分配</p>
+      <span class="smx-tag smx-tag-orange">Agent</span>
+    </div>
+    <div class="card" onclick="openDoc('主动式智能架构方案.html')">
+      <div class="card-icon">💬</div>
+      <h3>主动交互</h3>
+      <p>访客靠近时主动问候·根据画像个性化推荐·多模态自然语言对话</p>
+      <span class="smx-tag smx-tag-orange">对话</span>
+    </div>
+    <div class="card" onclick="openDoc('主动式智能架构方案.html')">
+      <div class="card-icon">🔮</div>
+      <h3>意图预测</h3>
+      <p>基于历史数据预测访客行为 · 提前调度资源 · "您可能想看世界树"</p>
+      <span class="smx-tag smx-tag-orange">预测</span>
+    </div>
+    <div class="card" onclick="openDoc('主动式智能架构方案.html')">
+      <div class="card-icon">📚</div>
+      <h3>持续学习</h3>
+      <p>运营数据→云端微调→OTA下发→芯片更新 · 越用越聪明的闭环</p>
+      <span class="smx-tag smx-tag-orange">学习</span>
     </div>
     <div class="card" onclick="openDoc('多机定位方案研究.html')">
       <div class="card-icon">📍</div>
@@ -385,6 +412,48 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
       <p>7台异构机器人统一定位 · UWB外挂 · API适配层 · 14周路线</p>
       <span class="smx-tag smx-tag-purple">技术深挖</span>
     </div>
+  </div>
+
+  <!-- V1 vs V2 场景对比 -->
+  <div style="margin:28px 0 14px;font-size:15px;font-weight:600">L2 → L3 场景升级对比</div>
+  <div class="grid grid-2">
+    <div class="card" onclick="openDoc('主动式智能架构方案.html')">
+      <h3>🤖 迎宾导览</h3>
+      <p><strong style="color:var(--sub)">L2：</strong>VIP刷卡触发固定流程<br><strong style="color:var(--orange)">L3：</strong>视觉识别访客身份+情绪 → 个性化问候 → 动态调整路线</p>
+    </div>
+    <div class="card" onclick="openDoc('主动式智能架构方案.html')">
+      <h3>☕ 咖啡服务</h3>
+      <p><strong style="color:var(--sub)">L2：</strong>访客主动触发拍照<br><strong style="color:var(--orange)">L3：</strong>预测访客可能想喝咖啡 → 主动推荐 → 无需排队</p>
+    </div>
+    <div class="card" onclick="openDoc('主动式智能架构方案.html')">
+      <h3>🧹 洒漏自愈</h3>
+      <p><strong style="color:var(--sub)">L2：</strong>M20定时巡检发现 → 派单<br><strong style="color:var(--orange)">L3：</strong>持续监控高风险区域 → 预判风险 → 提前部署</p>
+    </div>
+    <div class="card" onclick="openDoc('主动式智能架构方案.html')">
+      <h3>🍎 采摘互动</h3>
+      <p><strong style="color:var(--sub)">L2：</strong>固定槽位抓取<br><strong style="color:var(--orange)">L3：</strong>观察访客反应 → 调整节奏 → 对话讲解技术原理</p>
+    </div>
+  </div>
+
+  <!-- 端侧VLA大脑 + OTA闭环 -->
+  <div style="margin:28px 0 14px;font-size:15px;font-weight:600">SesameX 端侧大脑 · 越用越聪明</div>
+  <div class="grid grid-2">
+    <div class="card card-wide" onclick="openDoc('主动式智能架构方案.html')">
+      <div class="card-icon">🧠</div>
+      <h3>端侧 VLA 推理引擎</h3>
+      <p>视觉+语言+环境 → SesameX芯片 &lt;5ms推理 → 动作+语言输出。对标特斯拉FSD V12、Figure 01、Atlas。无需云端往返，隐私不出芯片。</p>
+      <span class="smx-tag smx-tag-orange">&lt;5ms 端侧推理</span>
+    </div>
+    <div class="card" onclick="openDoc('主动式智能架构方案.html')">
+      <div class="card-icon">🔄</div>
+      <h3>OTA 持续升级闭环</h3>
+      <p>每日运营数据 → 云端微调 → OTA下发 → 芯片模型更新<br>28周分阶段：V1→V1.5→V2→V2.5</p>
+      <span class="smx-tag smx-tag-orange">28周路线图</span>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
+    <a class="cta" onclick="openDoc('主动式智能架构方案.html')">主动式智能完整方案 ↗</a>
   </div>
 </div>
 
@@ -400,13 +469,96 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
     全感知、自进化、自修复。空间本身成为一个会思考的生命体。
   </p>
 
+  <!-- L4 三大能力 -->
+  <div style="margin:0 0 14px;font-size:15px;font-weight:600">L4 空间智能的三个标志</div>
+  <div class="grid grid-3">
+    <div class="card">
+      <div class="card-icon">🌐</div>
+      <h3>全感知空间</h3>
+      <p>UWB+红外+毫米波+摄像头 = 空间级感知网络。每个角落、每个人、每个物体都被实时理解。不再依赖机器人本体传感器。</p>
+      <span class="smx-tag smx-tag-purple">空间级感知</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧬</div>
+      <h3>自进化闭环</h3>
+      <p>运营数据→模式发现→策略优化→OTA下发→行为进化。展厅每天比昨天更聪明，每周自动发现新的优化路径。</p>
+      <span class="smx-tag smx-tag-purple">持续进化</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔧</div>
+      <h3>自修复空间</h3>
+      <p>设备故障→自动降级→备用方案→修复确认。LED坏点自动切换、机器人故障自动补位、洒漏无需人工。</p>
+      <span class="smx-tag smx-tag-purple">零干预运营</span>
+    </div>
+  </div>
+
+  <!-- L2→L3→L4 对比表 -->
+  <div style="margin:28px 0 14px;font-size:15px;font-weight:600">演进路线全景</div>
+  <div class="card" style="padding:20px">
+    <table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr style="border-bottom:1px solid var(--bd)">
+        <th style="text-align:left;padding:10px;color:var(--sub)">维度</th>
+        <th style="text-align:center;padding:10px;color:var(--green)">L2 · 现在</th>
+        <th style="text-align:center;padding:10px;color:var(--orange)">L3 · OTA升级</th>
+        <th style="text-align:center;padding:10px;color:var(--purple)">L4 · 未来</th>
+      </tr>
+      <tr style="border-bottom:0.5px solid var(--bd2)">
+        <td style="padding:8px 10px;color:var(--sub)">感知</td>
+        <td style="text-align:center;padding:8px">机器人本体传感器</td>
+        <td style="text-align:center;padding:8px">+ 端侧VLA理解</td>
+        <td style="text-align:center;padding:8px;color:var(--purple)">空间级感知网络</td>
+      </tr>
+      <tr style="border-bottom:0.5px solid var(--bd2)">
+        <td style="padding:8px 10px;color:var(--sub)">决策</td>
+        <td style="text-align:center;padding:8px">DAG规则编排</td>
+        <td style="text-align:center;padding:8px">+ 多智能体协商</td>
+        <td style="text-align:center;padding:8px;color:var(--purple)">空间自主决策</td>
+      </tr>
+      <tr style="border-bottom:0.5px solid var(--bd2)">
+        <td style="padding:8px 10px;color:var(--sub)">交互</td>
+        <td style="text-align:center;padding:8px">触发→响应</td>
+        <td style="text-align:center;padding:8px">+ 主动推荐</td>
+        <td style="text-align:center;padding:8px;color:var(--purple)">预判→沉浸</td>
+      </tr>
+      <tr style="border-bottom:0.5px solid var(--bd2)">
+        <td style="padding:8px 10px;color:var(--sub)">进化</td>
+        <td style="text-align:center;padding:8px">人工更新</td>
+        <td style="text-align:center;padding:8px">+ OTA定期升级</td>
+        <td style="text-align:center;padding:8px;color:var(--purple)">每日自动进化</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 10px;color:var(--sub)">类比</td>
+        <td style="text-align:center;padding:8px">定速巡航</td>
+        <td style="text-align:center;padding:8px">辅助驾驶</td>
+        <td style="text-align:center;padding:8px;color:var(--purple)">自动驾驶</td>
+      </tr>
+    </table>
+  </div>
+
   <!-- 嵌入：3D展厅 -->
+  <div style="margin:28px 0 14px;font-size:15px;font-weight:600">3D展厅漫游 · 空间全览</div>
   <div class="embed-wrap">
     <div class="embed-hd">
-      <div class="et"><span class="edot" style="background:var(--purple)"></span>3D展厅漫游 · 空间全览</div>
+      <div class="et"><span class="edot" style="background:var(--purple)"></span>3D展厅 · 漫游体验</div>
       <a class="eb" onclick="openDoc('展厅3D效果.html')">全屏查看 ↗</a>
     </div>
     <iframe src="展厅3D效果.html" loading="lazy" class="embed-3d"></iframe>
+  </div>
+
+  <!-- 更多3D体验 -->
+  <div class="grid grid-2" style="margin-top:14px">
+    <div class="card" onclick="openDoc('一楼展厅3D漫游.html')">
+      <div class="card-icon">🗺</div>
+      <h3>一楼展厅3D漫游</h3>
+      <p>1F机器人星球的完整3D空间漫游 · 展区布局 · 机器人位置</p>
+      <span class="smx-tag smx-tag-purple">1F 漫游</span>
+    </div>
+    <div class="card" onclick="openDoc('展厅3D交互体验.html')">
+      <div class="card-icon">🎮</div>
+      <h3>展厅3D交互体验</h3>
+      <p>可交互的3D展厅 · 自由视角 · 展项详情</p>
+      <span class="smx-tag smx-tag-purple">交互体验</span>
+    </div>
   </div>
 </div>
 
@@ -536,7 +688,7 @@ var LED_LIST=[
   {file:'led_screen1_brand.html',name:'屏1 · 品牌墙',desc:'粒子汇聚·品牌标语·BEST TECH'},
   {file:'led_screen2_tree.html',name:'屏2 · 世界树',desc:'六面展开·芯片觉醒·数据流'},
   {file:'led_screen3_dashboard.html',name:'屏3 · 调度大屏',desc:'中枢调度·俯视图·场景触发'},
-  {file:'led_screen4_sesamex.html',name:'屏4 · SesameX',desc:'Kalos·Aura·Liora 平台展示'},
+  {file:'led_screen4_sesamex.html',name:'屏4 · SesameX',desc:'Liora·Aura·Kalos 三平台架构'},
   {file:'led_screen5_oled.html',name:'屏5 · OLED看板',desc:'透明OLED·机器人状态实时'},
   {file:'led_screen6_coffee.html',name:'屏6 · 咖啡屏',desc:'取餐提示·拉花展示·订单'},
   {file:'led_screen7_future.html',name:'屏7 · 第五世界',desc:'人机共生·弧幕沉浸·未来'},

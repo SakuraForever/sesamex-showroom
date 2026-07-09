@@ -1,38 +1,57 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><title>LED屏5 · 透明OLED ×7</title>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>LED屏5 · 透明OLED ×7机器人状态</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{background:rgba(0,0,0,0.3);overflow:hidden;font-family:-apple-system,'SF Pro Display','Microsoft YaHei',sans-serif}canvas{display:block}</style>
 </head><body><canvas id="c"></canvas><script>
-// Pause when not visible (performance)
-var _raf=requestAnimationFrame;
-var _paused=false;
+var _raf=requestAnimationFrame,_paused=false;
 document.addEventListener('visibilitychange',function(){_paused=document.hidden});
 window.requestAnimationFrame=function(cb){if(_paused)return setTimeout(function(){requestAnimationFrame(cb)},100);return _raf(cb)};
-
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 const W=1400,H=1080;cv.width=W;cv.height=H;
 let t=0;const FPS=30;
 const robots=[
-{n:'Walker S3',b:'优必选',c:'#00FF99',st:'迎宾中',ic:'+',chip:'SesameX Liora',data:[['今日迎宾',47],['拍照',23]],bat:87,next:'2分15秒后'},
-{n:'M20 Pro',b:'云深处',c:'#00CCFF',st:'巡检中',ic:'+',chip:'SesameX Aura',data:[['今日巡检',8],['越障',12]],bat:72,next:'1分30秒后'},
-{n:'咖啡机器人',b:'TBD',c:'#FF9944',st:'制作中',ic:'-',chip:'SesameX Aura',data:[['今日咖啡',15],['排队',2]],bat:95,next:'45秒'},
-{n:'云迹送餐',b:'云迹',c:'#4488FF',st:'待命',ic:'-',chip:'SesameX Kalos',data:[['今日送物',8],['准时率','100%']],bat:91,next:'-'},
-{n:'云迹UP',b:'云迹',c:'#AA66FF',st:'待命',ic:'-',chip:'SesameX Kalos',data:[['今日清洁',3],['面积','45㎡']],bat:85,next:'-'},
-{n:'遨博臂',b:'遨博',c:'#FFCC00',st:'演示中',ic:'+',chip:'SesameX Aura',data:[['今日演示',12],['成功率','99%']],bat:100,next:'-'},
-{n:'遨博海纳',b:'遨博',c:'#FF6699',st:'待命',ic:'-',chip:'SesameX Aura',data:[['今日任务',5],['导航','100%']],bat:76,next:'-'}
+{n:'Walker S3',b:'优必选',c:'#00FF99',st:'迎宾中',chip:'Liora',data:[['今日迎宾',47],['拍照',23]],bat:87,next:'2分15秒后'},
+{n:'M20 Pro',b:'云深处',c:'#00CCFF',st:'巡检中',chip:'Aura',data:[['今日巡检',8],['越障',12]],bat:72,next:'1分30秒后'},
+{n:'咖啡机器人',b:'TBD',c:'#FF9944',st:'制作中',chip:'Aura',data:[['今日咖啡',15],['排队',2]],bat:95,next:'45秒'},
+{n:'云迹送餐',b:'云迹',c:'#4488FF',st:'待命',chip:'Kalos',data:[['今日送物',8],['准时率','100%']],bat:91,next:'-'},
+{n:'云迹UP',b:'云迹',c:'#AA66FF',st:'待命',chip:'Kalos',data:[['今日清洁',3],['面积','45㎡']],bat:85,next:'-'},
+{n:'遨博i5',b:'遨博',c:'#FFCC00',st:'演示中',chip:'Aura',data:[['今日演示',12],['成功率','99%']],bat:100,next:'-'},
+{n:'遨博海纳',b:'遨博',c:'#FF6699',st:'待命',chip:'Aura',data:[['今日任务',5],['导航','100%']],bat:76,next:'-'}
 ];
+var dataFlows=[];
+for(var i=0;i<30;i++){dataFlows.push({x:Math.random()*W,y:Math.random()*H,vy:Math.random()*0.5+0.2,life:Math.random(),c:robots[i%7].c})}
 function drawCard(r,x,y,w,h){
-ctx.strokeStyle=r.c+'60';ctx.lineWidth=1;ctx.strokeRect(x,y,w,h);
-ctx.fillStyle=r.c;ctx.font='bold 14px Microsoft YaHei';ctx.textAlign='left';ctx.fillText(r.n,x+15,y+30);
-ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='12px Microsoft YaHei';ctx.fillText(r.b,x+15,y+48);
-ctx.fillStyle=r.c;ctx.font='11px Microsoft YaHei';ctx.fillText(r.ic+' '+r.st,x+15,y+75);
-ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='12px Microsoft YaHei';ctx.fillText('SesameX: '+r.chip.replace('SesameX ',''),x+15,y+100);
-r.data.forEach((d,i)=>{ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='10px Microsoft YaHei';ctx.fillText(d[0]+': ',x+15,y+130+i*25);ctx.fillStyle=r.c;ctx.font='bold 11px Microsoft YaHei';ctx.fillText(d[1],x+80,y+130+i*25);});
-const batPulse=0.7+Math.sin(t*0.1)*0.3;ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='12px Microsoft YaHei';ctx.fillText('电量: ',x+15,y+h-40);
-ctx.fillStyle=r.bat>50?'#00FF88':'#FF9900';ctx.globalAlpha=batPulse;ctx.fillRect(x+60,y+h-48,r.bat*1.5,12);ctx.globalAlpha=1;ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.strokeRect(x+60,y+h-48,150,12);
-ctx.fillStyle=r.bat>50?'#00FF88':'#FF9900';ctx.font='bold 12px monospace';ctx.fillText(r.bat+'%',x+220,y+h-38);
-if(r.next!=='-'){ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='11px Microsoft YaHei';ctx.fillText('下次: '+r.next,x+15,y+h-15);}}
+  var isActive=r.st!=='待命';
+  if(isActive){var glow=ctx.createRadialGradient(x+w/2,y+h/2,0,x+w/2,y+h/2,w*0.6);glow.addColorStop(0,r.c+'08');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.fillRect(x,y,w,h)}
+  var ba=isActive?(0.3+Math.sin(t*0.08)*0.1):0.15;
+  ctx.strokeStyle=r.c+Math.floor(ba*255).toString(16).padStart(2,'0');ctx.lineWidth=1;ctx.strokeRect(x,y,w,h);
+  ctx.fillStyle=r.c;ctx.fillRect(x,y,w,2);
+  ctx.fillStyle=r.c;ctx.font='bold 14px Microsoft YaHei';ctx.textAlign='left';ctx.fillText(r.n,x+15,y+30);
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='12px Microsoft YaHei';ctx.fillText(r.b,x+15,y+48);
+  var sp=isActive?(0.5+Math.sin(t*0.15)*0.5):0.3;ctx.fillStyle=r.c;ctx.globalAlpha=sp;ctx.beginPath();ctx.arc(x+w-20,y+25,4,0,7);ctx.fill();ctx.globalAlpha=1;
+  ctx.fillStyle=r.c;ctx.font='11px Microsoft YaHei';ctx.fillText(r.st,x+15,y+75);
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='12px Microsoft YaHei';ctx.fillText('SesameX '+r.chip,x+15,y+100);
+  r.data.forEach(function(d,j){ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='10px Microsoft YaHei';ctx.fillText(d[0]+': ',x+15,y+130+j*25);ctx.fillStyle=r.c;ctx.font='bold 11px Microsoft YaHei';ctx.fillText(String(d[1]),x+80,y+130+j*25)});
+  var bp=0.7+Math.sin(t*0.1+r.bat)*0.3;ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='12px Microsoft YaHei';ctx.fillText('电量: ',x+15,y+h-40);
+  var bc=r.bat>50?'#00FF88':'#FF9900';ctx.fillStyle=bc;ctx.globalAlpha=bp;ctx.fillRect(x+60,y+h-48,r.bat*1.5,12);ctx.globalAlpha=1;
+  ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.strokeRect(x+60,y+h-48,150,12);ctx.fillStyle=bc;ctx.font='bold 12px monospace';ctx.fillText(r.bat+'%',x+220,y+h-38);
+  if(r.next!=='-'){ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='11px Microsoft YaHei';ctx.fillText('下次: '+r.next,x+15,y+h-15)}
+}
+function drawHeader(){
+  ctx.fillStyle='rgba(255,255,255,0.03)';ctx.fillRect(0,0,W,60);
+  ctx.fillStyle='#00D4FF';ctx.font='bold 18px Microsoft YaHei';ctx.textAlign='left';ctx.fillText('🤖 中枢调度 · 7台机器人实时状态',20,35);
+  var n=new Date(),ts=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='14px monospace';ctx.textAlign='right';ctx.fillText(ts,W-20,35);
+  var act=robots.filter(function(r){return r.st!=='待命'}).length;
+  ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='12px Microsoft YaHei';ctx.textAlign='center';
+  ctx.fillText('活跃 '+act+'/7 · 在线 7/7 · 平均电量 '+Math.round(robots.reduce(function(s,r){return s+r.bat},0)/7)+'%',W/2,35);
+}
+function drawDataFlow(){
+  dataFlows.forEach(function(f){f.y-=f.vy;f.life-=0.005;if(f.y<60||f.life<=0){f.y=H;f.x=Math.random()*W;f.life=1;f.c=robots[Math.floor(Math.random()*7)].c}ctx.fillStyle=f.c+Math.floor(f.life*40).toString(16).padStart(2,'0');ctx.beginPath();ctx.arc(f.x,f.y,1.5,0,7);ctx.fill()})
+}
 function draw(){
-ctx.clearRect(0,0,W,H);
-const cw=440,ch=250,gx=20,gy=20;
-robots.forEach((r,i)=>{const col=i%2,row=Math.floor(i/2);drawCard(r,gx+col*(cw+gx),gy+row*(ch+gy),cw,ch);});
-t++;requestAnimationFrame(draw);}draw();
+  ctx.clearRect(0,0,W,H);drawDataFlow();drawHeader();
+  var cw=660,ch=290,gx=30,gy=80;
+  robots.forEach(function(r,i){var col=i%2,row=Math.floor(i/2);drawCard(r,gx+col*(cw+gx),gy+row*(ch+gy),cw,ch)});
+  t++;requestAnimationFrame(draw)
+}
+draw();
 </script></body></html>

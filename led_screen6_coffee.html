@@ -1,36 +1,131 @@
 <!DOCTYPE html><html><head><meta charset="UTF-8"><title>LED屏6 · 咖啡取餐屏</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000;overflow:hidden;font-family:-apple-system,'SF Pro Display','Microsoft YaHei',sans-serif}canvas{display:block}</style>
 </head><body><canvas id="c"></canvas><script>
-// Pause when not visible (performance)
-var _raf=requestAnimationFrame;
-var _paused=false;
+var _raf=requestAnimationFrame,_paused=false;
 document.addEventListener('visibilitychange',function(){_paused=document.hidden});
 window.requestAnimationFrame=function(cb){if(_paused)return setTimeout(function(){requestAnimationFrame(cb)},100);return _raf(cb)};
-
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 const W=1280,H=400;cv.width=W;cv.height=H;
 let t=0;const FPS=30;
-const states=['空闲','拍照中','制作中','取餐'];
-let st=2;
+var queue=['张总 #047','李董 #048','VIP #049','王总 #050'];
+var states=[
+  {name:'空闲',dur:3,col:'#888'},
+  {name:'拍照中',dur:3,col:'#00FF99'},
+  {name:'AI拉花生成',dur:4,col:'#AA66FF'},
+  {name:'制作中',dur:8,col:'#FF9944'},
+  {name:'请取餐',dur:5,col:'#00CCFF'}
+];
+function getCycleSec(){var s=0;states.forEach(function(e){s+=e.dur});return s}
+function getState(){
+  var sec=(t/FPS)%getCycleSec(),a=0;
+  for(var i=0;i<states.length;i++){if(sec<a+states[i].dur)return{s:i,lt:(sec-a)/states[i].dur};a+=states[i].dur}
+  return{s:0,lt:0}
+}
+function drawLatte(x,y,r,progress,col){
+  // 咖啡杯
+  ctx.fillStyle='rgba(80,50,30,0.8)';ctx.beginPath();ctx.ellipse(x,y,r,r*0.8,0,0,7);ctx.fill();
+  // 拉花图案（随progress逐渐显现）
+  ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.globalAlpha=progress;
+  // 心形拉花
+  var s=r*0.6*progress;
+  ctx.beginPath();
+  ctx.moveTo(x,y-s*0.3);
+  ctx.bezierCurveTo(x-s,y-s*1.2,x-s*1.2,y+s*0.2,x,y+s*0.8);
+  ctx.bezierCurveTo(x+s*1.2,y+s*0.2,x+s,y-s*1.2,x,y-s*0.3);
+  ctx.stroke();
+  // 螺旋纹
+  ctx.beginPath();ctx.arc(x,y,r*0.3*progress,0,7);ctx.stroke();
+  ctx.globalAlpha=1;
+}
+function drawCamera(x,y,w,h,lt){
+  // 拍照框
+  ctx.strokeStyle='#00FF99';ctx.lineWidth=1.5;
+  ctx.setLineDash([5,3]);ctx.strokeRect(x,y,w,h);ctx.setLineDash([]);
+  // 人脸检测框
+  var fy=y+h*0.2+Math.sin(t*0.1)*5;
+  ctx.strokeStyle='#00FF99'+Math.floor(0.6*255).toString(16).padStart(2,'0');
+  ctx.strokeRect(x+w*0.3,fy,w*0.4,h*0.5);
+  // 扫描线
+  var scanY=y+lt*h;
+  ctx.strokeStyle='#00FF99';ctx.lineWidth=2;ctx.globalAlpha=0.5;
+  ctx.beginPath();ctx.moveTo(x,scanY);ctx.lineTo(x+w,scanY);ctx.stroke();ctx.globalAlpha=1;
+  // 文字
+  ctx.font='10px monospace';ctx.fillStyle='#00FF99';ctx.textAlign='left';
+  ctx.fillText('FACE DETECTED',x+5,y+15);
+  ctx.fillText('STYLEGAN PROCESSING...',x+5,y+h-5);
+  // 四角
+  var cl=8;
+  ctx.lineWidth=2;
+  [[x,y],[x+w-cl,y],[x,y+h-cl],[x+w-cl,y+h-cl]].forEach(function(p,i){
+    ctx.beginPath();
+    if(i===0){ctx.moveTo(p[0],p[1]+cl);ctx.lineTo(p[0],p[1]);ctx.lineTo(p[0]+cl,p[1])}
+    if(i===1){ctx.moveTo(p[0],p[1]);ctx.lineTo(p[0]+cl,p[1]);ctx.lineTo(p[0]+cl,p[1]+cl)}
+    if(i===2){ctx.moveTo(p[0],p[1]);ctx.lineTo(p[0],p[1]+cl);ctx.lineTo(p[0]+cl,p[1]+cl)}
+    if(i===3){ctx.moveTo(p[0]+cl,p[1]);ctx.lineTo(p[0]+cl,p[1]+cl);ctx.lineTo(p[0],p[1]+cl)}
+    ctx.stroke()
+  })
+}
 function draw(){
-ctx.fillStyle='#FFF5E8';ctx.fillRect(0,0,W,H);
-ctx.fillStyle='#FF9944';ctx.fillRect(0,0,W,50);
-ctx.font='bold 22px Microsoft YaHei';ctx.textAlign='left';ctx.fillStyle='#fff';ctx.fillText(' SesameX 智能咖啡站',20,35);
-const sec=t/FPS;if(sec>10)st=3;if(sec>15)st=0;if(sec>20){st=2;t=0;}
-if(st===0){ctx.font='bold 28px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='#FF9944';ctx.fillText('请面向摄像头拍照 ',W/2,H/2);}
-else if(st===2){
-ctx.font='bold 20px Microsoft YaHei';ctx.textAlign='left';ctx.fillStyle='#333';ctx.fillText('正在制作 ',40,90);
-ctx.fillStyle='#FF994420';ctx.fillRect(40,100,W-80,80);
-ctx.fillStyle='#FF9944';ctx.beginPath();ctx.arc(80,140,25,0,7);ctx.fill();
-ctx.fillStyle='#333';ctx.font='16px Microsoft YaHei';ctx.fillText('订单 #023',120,130);
-const prog=0.3+Math.sin(t*0.1)*0.3+0.3;ctx.fillStyle='#FF994440';ctx.fillRect(120,145,400,12);ctx.fillStyle='#FF9944';ctx.fillRect(120,145,400*prog,12);
-ctx.fillStyle='#666';ctx.font='12px Microsoft YaHei';ctx.fillText('剩余 '+Math.ceil(45-prog*45)+'秒',540,156);
-ctx.font='bold 16px Microsoft YaHei';ctx.fillStyle='#333';ctx.fillText('排队等候 ',40,230);
-['#024 预计3分钟','#025 预计6分钟'].forEach((o,i)=>{ctx.fillStyle='#999';ctx.font='14px Microsoft YaHei';ctx.fillText(o,40,260+i*25);});
-ctx.fillStyle='#999';ctx.font='13px Microsoft YaHei';ctx.fillText('今日已制作：15杯 ',40,H-20);}
-else if(st===3){
-const pulse=0.5+Math.sin(t*0.2)*0.5;ctx.globalAlpha=pulse;
-ctx.font='bold 36px Microsoft YaHei';ctx.textAlign='center';ctx.fillStyle='#FF6600';ctx.fillText('咖啡已就绪！',W/2,H/2-20);
-ctx.font='20px Microsoft YaHei';ctx.fillStyle='#FF9944';ctx.fillText('请凭脸取餐',W/2,H/2+30);ctx.globalAlpha=1;}
-t++;requestAnimationFrame(draw);}draw();
+  ctx.fillStyle='rgba(0,0,0,0.2)';ctx.fillRect(0,0,W,H);
+  var st=getState(),cur=states[st.s];
+  // 顶部色条
+  ctx.fillStyle=cur.col;ctx.fillRect(0,0,W,4);
+  // 标题
+  ctx.font='bold 24px Microsoft YaHei';ctx.fillStyle=cur.col;ctx.textAlign='center';
+  ctx.fillText(cur.name,W/2,40);
+  // 状态描述
+  ctx.font='14px Microsoft YaHei';ctx.fillStyle='rgba(255,255,255,0.5)';
+  var desc=['等待下一位访客触发','Walker拍照 · 隐私保护 · 用完即删','SesameX Aura 端侧StyleGAN推理','咖啡机器人制作中 · 请稍候','您的专属拉花咖啡已完成'];
+  ctx.fillText(desc[st.s],W/2,65);
+
+  if(st.s===1){
+    // 拍照状态
+    drawCamera(W/2-80,90,160,180,st.lt);
+    ctx.font='12px monospace';ctx.fillStyle='#00FF99';ctx.textAlign='center';
+    ctx.fillText(Math.round(st.lt*100)+'%',W/2,290);
+  }else if(st.s===2){
+    // AI拉花生成
+    ctx.font='12px monospace';ctx.fillStyle='#AA66FF';ctx.textAlign='center';
+    ctx.fillText('生成图案...',W/2,100);
+    drawLatte(W/2,200,50,st.lt,'#FFFFFF');
+    // 进度
+    var pw=200,px=W/2-pw/2;
+    ctx.fillStyle='rgba(255,255,255,0.1)';ctx.fillRect(px,280,pw,4);
+    ctx.fillStyle='#AA66FF';ctx.fillRect(px,280,pw*st.lt,4);
+  }else if(st.s===3){
+    // 制作中
+    drawLatte(W/2,180,50,1,'#FFFFFF');
+    // 咖啡滴落动画
+    for(var i=0;i<5;i++){
+      var dy=120+((t*3+i*20)%80);
+      ctx.fillStyle='rgba(120,80,40,0.4)';
+      ctx.beginPath();ctx.arc(W/2+i*3-6,dy,2,0,7);ctx.fill();
+    }
+    ctx.font='12px monospace';ctx.fillStyle='#FF9944';ctx.textAlign='center';
+    ctx.fillText('制作进度 '+Math.round(st.lt*100)+'%',W/2,280);
+  }else if(st.s===4){
+    // 取餐
+    drawLatte(W/2,180,50,1,'#FFFFFF');
+    ctx.font='bold 20px Microsoft YaHei';ctx.fillStyle='#00CCFF';ctx.textAlign='center';
+    var pulse=0.7+Math.sin(t*0.2)*0.3;ctx.globalAlpha=pulse;
+    ctx.fillText(' ☕ 请取餐 #047 ',W/2,270);
+    ctx.globalAlpha=1;
+    ctx.font='12px Microsoft YaHei';ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.fillText('凭脸取餐 · 无需小票',W/2,295);
+  }
+
+  // 底部排队列表
+  ctx.font='11px Microsoft YaHei';ctx.fillStyle='rgba(255,255,255,0.3)';ctx.textAlign='left';
+  ctx.fillText('排队:',20,H-15);
+  queue.forEach(function(q,i){
+    ctx.fillStyle=i===0?'rgba(255,255,255,0.6)':'rgba(255,255,255,0.2)';
+    ctx.fillText(q,70+i*100,H-15)
+  });
+  // 右下角品牌
+  ctx.font='10px monospace';ctx.fillStyle='rgba(255,255,255,0.15)';ctx.textAlign='right';
+  ctx.fillText('SesameX Inside · 咖啡机器人',W-20,H-15);
+
+  t++;requestAnimationFrame(draw)
+}
+draw();
 </script></body></html>
