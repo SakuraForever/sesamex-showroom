@@ -1,0 +1,553 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>主动式智能架构方案</title><style>:root{--bg:#ffffff;--bg2:#f6f8fa;--text:#1f2328;--sub:#656d76;--acc:#0969da;--bd:#d0d7de}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif;line-height:1.8;padding:40px 20px}.doc{max-width:900px;margin:0 auto}h1{font-size:28px;margin:32px 0 16px;color:#1f2328;border-bottom:1px solid var(--bd);padding-bottom:8px}h2{font-size:22px;margin:28px 0 12px;color:#1f2328;border-left:3px solid var(--acc);padding-left:12px}h3{font-size:18px;margin:24px 0 8px;color:#1f2328}p{font-size:15px;margin-bottom:12px}ul,ol{font-size:15px;margin-bottom:12px;padding-left:24px}li{margin-bottom:6px}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}th{background:var(--bg2);color:var(--acc);padding:10px 14px;border:1px solid var(--bd)}td{padding:10px 14px;border:1px solid var(--bd)}tr:nth-child(even) td{background:var(--bg2)}code{background:var(--bg2);padding:2px 8px;border-radius:4px;font-size:13px;color:#1f2328}pre{background:var(--bg2);padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0;border:1px solid var(--bd)}blockquote{border-left:3px solid var(--acc);padding:8px 20px;margin:16px 0;color:var(--sub);background:var(--bg2);border-radius:0 8px 8px 0}hr{border:none;border-top:1px solid var(--bd);margin:32px 0}a{color:#58a6ff}strong{color:#1f2328}.mermaid{background:var(--bg2);padding:16px;border-radius:8px;margin:16px 0;text-align:center}</style></head><body><div class="doc"><h1 id="_1">黑芝麻智能 · 主动式智能架构方案</h1>
+<blockquote>
+<p>从"固定响应"到"主动思考" · SesameX驱动的具身智能进化</p>
+<p>前海展厅机器人场景展馆</p>
+</blockquote>
+<hr />
+<h2 id="_2">目录</h2>
+<ol>
+<li><a href="#一核心问题">核心问题：固定响应 vs 主动式智能</a></li>
+<li><a href="#二sesamex如何实现主动式智能">SesameX如何实现主动式智能</a></li>
+<li><a href="#三展厅主动式智能场景设计">展厅主动式智能场景设计</a></li>
+<li><a href="#四技术架构升级">技术架构升级</a></li>
+<li><a href="#五实施路线图">实施路线图</a></li>
+</ol>
+<hr />
+<h2 id="_3">一、核心问题</h2>
+<h3 id="11">1.1 当前方案的本质</h3>
+<p>当前联动方案是<strong>"触发→响应"的if-then规则</strong>，即使使用DAG编排，本质仍是预编程的流水线：</p>
+<pre><code>当前：固定脚本式
+  访客签到 → Walker迎宾 → M20表演 → 咖啡制作 → 送包
+
+问题：
+  - 每次执行相同步骤，缺乏灵活性
+  - 任何环节出错就全链路中断
+  - 机器人不会&quot;思考&quot;，只会&quot;执行&quot;
+  - 无法应对未预料的情况
+</code></pre>
+<h3 id="12-vs">1.2 固定响应 vs 主动式智能</h3>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>固定响应（当前）</th>
+<th>主动式智能（目标）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>感知</strong></td>
+<td>RFID触发/按钮</td>
+<td>多模态持续感知（视觉+听觉+环境）</td>
+</tr>
+<tr>
+<td><strong>决策</strong></td>
+<td>预编程DAG脚本</td>
+<td>VLA模型实时推理，动态规划</td>
+</tr>
+<tr>
+<td><strong>执行</strong></td>
+<td>固定动作序列</td>
+<td>根据上下文灵活组合行为</td>
+</tr>
+<tr>
+<td><strong>学习</strong></td>
+<td>无</td>
+<td>访客行为数据→持续优化策略</td>
+</tr>
+<tr>
+<td><strong>预测</strong></td>
+<td>无</td>
+<td>预测访客需求，提前行动</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sesamex">二、SesameX如何实现主动式智能</h2>
+<h3 id="21-vla">2.1 核心能力：端侧VLA推理</h3>
+<div class="mermaid">graph LR
+    V["视觉输入<br/>摄像头/深度相机"] --> S["SesameX芯片<br/>VLA模型推理 <5ms"]
+    L["语言输入<br/>语音识别"] --> S
+    E["环境输入<br/>UWB/传感器"] --> S
+    S --> A["动作输出<br/>自主决策"]
+    S --> T["语言输出<br/>主动交互"]</div>
+<blockquote>
+<p><strong>关键区别</strong>：传统方案是"中控发指令→机器人执行"，主动式智能是"机器人自己感知→SesameX推理→自主决策"。</p>
+</blockquote>
+<h3 id="22">2.2 五大主动式能力</h3>
+<h4 id="1">能力1：自主感知与发现</h4>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>固定响应</th>
+<th>SesameX主动式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地面有水</td>
+<td>等洒漏触发按钮</td>
+<td>M20巡检时视觉+红外主动发现，立即处理</td>
+</tr>
+<tr>
+<td>访客在看展品</td>
+<td>无响应</td>
+<td>Walker看到访客停留→主动走过去讲解</td>
+</tr>
+<tr>
+<td>咖啡杯空了</td>
+<td>等访客按钮</td>
+<td>咖啡机视觉识别空杯→主动询问续杯</td>
+</tr>
+<tr>
+<td>访客迷路</td>
+<td>无响应</td>
+<td>Walker观察访客行为→主动靠近引导</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2">能力2：动态决策</h4>
+<pre><code>AI Agent理解全局上下文 → 动态生成最优方案
+
+示例：
+  场景：访客A在看芯片展品 + 访客B在拍照 + M20在巡检
+
+  固定响应：按预设流程走，不管实际情况
+  主动式Agent决策：
+    1. 判断A停留时间长→Walker先去给A讲解
+    2. 预判A讲解完会想喝咖啡→咖啡机预热
+    3. B在拍照→不打扰，等B拍完再引导
+    4. M20继续巡检→不打扰访客体验
+</code></pre>
+<h4 id="3">能力3：个性化交互</h4>
+<pre><code>访客画像生成：
+  摄像头识别 → 年龄/性别/穿着/表情/停留位置 → 实时画像
+
+个性化行为：
+  年轻技术男 → Walker用技术术语讲解芯片架构
+  政府领导 → Walker用产业价值角度讲解
+  小朋友 → Walker蹲下打招呼，用简单语言
+  外宾 → Walker切换英语，调整内容权重
+</code></pre>
+<h4 id="4">能力4：行为预测</h4>
+<table>
+<thead>
+<tr>
+<th>预测</th>
+<th>依据</th>
+<th>主动行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>访客想喝咖啡</td>
+<td>在咖啡站附近停留&gt;30秒</td>
+<td>咖啡机主动启动</td>
+</tr>
+<tr>
+<td>访客对采摘感兴趣</td>
+<td>在世界树前停留&gt;15秒</td>
+<td>机械臂准备启动</td>
+</tr>
+<tr>
+<td>访客要离开</td>
+<td>向出口方向移动</td>
+<td>Walker主动送别</td>
+</tr>
+<tr>
+<td>人流即将拥挤</td>
+<td>入口人流计数&gt;阈值</td>
+<td>Walker引导分流</td>
+</tr>
+<tr>
+<td>Walker电量不足</td>
+<td>电量&lt;25%且有访客</td>
+<td>完成当前导览再回充</td>
+</tr>
+</tbody>
+</table>
+<h4 id="5">能力5：持续学习</h4>
+<div class="mermaid">graph LR
+    D["日常运营数据<br/>访客行为/交互频次/流失点"] --> C["云端模型微调"]
+    C --> O["OTA下发到SesameX芯片"]
+    O --> B["机器人行为持续优化"]
+    B --> D</div>
+<pre><code>示例：持续学习闭环
+  第1周：采摘互动参与率30%
+  数据分析：发现下午参与率更高（访客更放松）
+  → 第2周：Walker下午主动推荐采摘互动
+  → 参与率提升到50%
+</code></pre>
+<hr />
+<h2 id="_4">三、展厅主动式智能场景设计</h2>
+<h3 id="31">3.1 场景对比表</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>固定响应（V1）</th>
+<th>主动式智能（V2）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>迎宾</strong></td>
+<td>RFID触发→固定欢迎词</td>
+<td>视觉识别访客特征→个性化问候</td>
+</tr>
+<tr>
+<td><strong>导览</strong></td>
+<td>按预设路线走</td>
+<td>根据停留时间→动态调整讲解重点</td>
+</tr>
+<tr>
+<td><strong>洒漏</strong></td>
+<td>人为触发演示</td>
+<td>M20巡检主动发现→自主处理</td>
+</tr>
+<tr>
+<td><strong>咖啡</strong></td>
+<td>按钮下单</td>
+<td>视觉识别持杯状态→主动续杯</td>
+</tr>
+<tr>
+<td><strong>送物</strong></td>
+<td>RFID触发</td>
+<td>视觉识别放包动作→自动识别目的地</td>
+</tr>
+<tr>
+<td><strong>采摘</strong></td>
+<td>定时演示</td>
+<td>访客靠近→自动启动互动</td>
+</tr>
+<tr>
+<td><strong>未来区</strong></td>
+<td>定时播放</td>
+<td>弧幕内容根据访客画像定制</td>
+</tr>
+<tr>
+<td><strong>巡检</strong></td>
+<td>每30分钟定时</td>
+<td>根据人流密度动态调整巡检频率</td>
+</tr>
+<tr>
+<td><strong>充电</strong></td>
+<td>固定时间回充</td>
+<td>根据访客流量选择最佳充电时机</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 主动式迎宾全流程（详细）</h3>
+<pre><code>传统流程：
+  RFID签到 → Walker说&quot;欢迎光临&quot; → 按路线导览
+
+主动式流程：
+  1. 访客进入展厅入口（无RFID，纯视觉感知）
+  2. Walker S3摄像头识别：
+     - 人数：1人/2人/团体
+     - 特征：年龄/性别/穿着/表情
+     - 行为：走快/走慢/东张西望
+  3. SesameX Liora VLA推理（&lt;5ms）：
+     - 判断：这是VIP？普通访客？技术型？商务型？
+     - 生成个性化问候语
+  4. Walker主动行为：
+     - VIP（西装+证件）：&quot;张总您好，我是Walker S3，今天由我为您导览&quot;
+     - 技术型（格子衫+背包）：&quot;欢迎！您对哪方面的技术最感兴趣？我可以重点讲解&quot;
+     - 小朋友：蹲下&quot;你好呀！想不想看机器狗翻跟头？&quot;
+     - 团体：自动规划分流路线，避免拥挤
+  5. 持续观察访客反应：
+     - 访客走快→Walker加快节奏，少讲多看
+     - 访客停留→Walker详细讲解当前展品
+     - 访客提问→实时语音理解→SesameX推理→回答
+</code></pre>
+<h3 id="33">3.3 主动式洒漏自愈（无需人为触发）</h3>
+<pre><code>传统流程：
+  人为洒水 → 按触发按钮 → M20检测 → 中枢派单 → UP清洁
+
+主动式流程：
+  1. M20 Pro每30分钟巡检（持续感知，不等触发）
+  2. 红外热成像+视觉检测地面异常：
+     - SesameX Aura实时分析：温差&gt;2°C + 面积&gt;100cm²
+     - 连续3帧确认（排除误报）
+  3. M20自主决策：
+     - 判断严重程度（小水渍/大面积/危险液体）
+     - 小水渍→M20自己绕开，通知UP
+     - 大面积→M20封锁区域，紧急通知UP+工作人员
+  4. 中枢AI Agent编排：
+     - 根据当前展厅人流→选择最优清洁路径
+     - 如果有VIP导览正在进行→先引导VIP绕行
+  5. UP清洁完成→拍照确认→M20复核→闭环
+</code></pre>
+<hr />
+<h2 id="_5">四、技术架构升级</h2>
+<h3 id="41">4.1 架构对比</h3>
+<div class="mermaid">graph TB
+    subgraph V1["当前架构（固定响应）"]
+        T1["触发器<br/>RFID/按钮/定时器"] --> D1["DAG预编程脚本"]
+        D1 --> R1["机器人执行<br/>固定动作序列"]
+    end</div>
+<div class="mermaid">graph TB
+    subgraph V2["主动式架构"]
+        S1["多模态持续感知<br/>视觉/听觉/UWB/环境"] --> V1["SesameX VLA<br/>端侧推理 <5ms"]
+        V1 --> A1["中枢AI Agent<br/>动态决策引擎"]
+        A1 --> R2["灵活行为组合"]
+        R2 --> L1["行为数据上传"]
+        L1 --> C1["云端模型微调"]
+        C1 --> OTA["OTA→SesameX"]
+        OTA --> V1
+    end</div>
+<h3 id="42">4.2 技术升级清单</h3>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>V1（当前）</th>
+<th>V2（主动式）</th>
+<th>依赖</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>感知</strong></td>
+<td>RFID/按钮</td>
+<td>摄像头阵列+麦克风阵列+UWB</td>
+<td>硬件部署</td>
+</tr>
+<tr>
+<td><strong>决策</strong></td>
+<td>DAG脚本</td>
+<td>VLA模型+AI Agent</td>
+<td>SesameX芯片+云端训练</td>
+</tr>
+<tr>
+<td><strong>语言</strong></td>
+<td>预录语音</td>
+<td>实时语音理解+生成</td>
+<td>SesameX Liora</td>
+</tr>
+<tr>
+<td><strong>视觉</strong></td>
+<td>简单检测</td>
+<td>多目标跟踪+行为识别+表情分析</td>
+<td>SesameX Aura</td>
+</tr>
+<tr>
+<td><strong>记忆</strong></td>
+<td>无</td>
+<td>短期记忆（当前访客）+长期记忆（历史数据）</td>
+<td>边缘服务器</td>
+</tr>
+<tr>
+<td><strong>学习</strong></td>
+<td>无</td>
+<td>在线学习+OTA更新</td>
+<td>云端训练平台</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-sesamex">4.3 SesameX在主动式智能中的价值</h3>
+<pre><code>端侧实时推理（&lt;5ms延迟）：
+  - VLA模型：视觉→语言→动作 三通道并行推理
+  - 世界模型：预测环境变化，提前规划行动
+  - 多模态融合：视觉+听觉+触觉+环境感知
+
+脱离云端也能主动思考：
+  - Walker S3断网时仍能自主迎宾/避障/个性化交互
+  - M20 Pro断网时仍能巡检/检测异常/自主决策
+  - 这就是&quot;SesameX Inside&quot;的核心价值——端侧智能不依赖云端
+</code></pre>
+<hr />
+<h2 id="_6">五、实施路线图</h2>
+<h3 id="51">5.1 分阶段实施</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>时间</th>
+<th>目标</th>
+<th>关键交付</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>V1 固定响应</strong></td>
+<td>8月31日</td>
+<td>基础联动演示</td>
+<td>DAG脚本+RFID触发+预设流程</td>
+</tr>
+<tr>
+<td><strong>V1.5 半主动</strong></td>
+<td>10月</td>
+<td>增加视觉感知</td>
+<td>关键场景增加摄像头检测→条件触发</td>
+</tr>
+<tr>
+<td><strong>V2 主动式</strong></td>
+<td>12月</td>
+<td>VLA推理上线</td>
+<td>SesameX VLA模型部署+AI Agent</td>
+</tr>
+<tr>
+<td><strong>V2.5 持续学习</strong></td>
+<td>2027年Q1</td>
+<td>学习闭环</td>
+<td>数据采集→模型微调→OTA更新</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-v1v2">5.2 V1→V2升级路径</h3>
+<table>
+<thead>
+<tr>
+<th>升级项</th>
+<th>V1实现</th>
+<th>V2实现</th>
+<th>难度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>迎宾触发</td>
+<td>RFID手环</td>
+<td>视觉识别（人脸+行为）</td>
+<td>⚠️ 中</td>
+</tr>
+<tr>
+<td>导览路线</td>
+<td>固定路线</td>
+<td>动态路线（根据停留时间）</td>
+<td>⚠️ 中</td>
+</tr>
+<tr>
+<td>洒漏检测</td>
+<td>人为触发</td>
+<td>M20自主巡检发现</td>
+<td>✅ 低</td>
+</tr>
+<tr>
+<td>咖啡续杯</td>
+<td>按钮下单</td>
+<td>视觉识别空杯→主动询问</td>
+<td>⚠️ 中</td>
+</tr>
+<tr>
+<td>个性化</td>
+<td>无</td>
+<td>访客画像→个性化内容</td>
+<td>🔴 高</td>
+</tr>
+<tr>
+<td>持续学习</td>
+<td>无</td>
+<td>数据闭环→模型优化</td>
+<td>🔴 高</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-v2">5.3 V2核心开发工作</h3>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>工作量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VLA模型部署</td>
+<td>8周</td>
+<td>SesameX芯片上部署VLA推理框架</td>
+</tr>
+<tr>
+<td>AI Agent引擎</td>
+<td>6周</td>
+<td>替代纯DAG，支持动态决策</td>
+</tr>
+<tr>
+<td>多模态感知</td>
+<td>4周</td>
+<td>摄像头阵列+语音阵列部署</td>
+</tr>
+<tr>
+<td>访客画像</td>
+<td>4周</td>
+<td>实时画像生成+个性化推荐</td>
+</tr>
+<tr>
+<td>学习闭环</td>
+<td>6周</td>
+<td>数据采集+模型微调+OTA</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td><strong>约28周</strong></td>
+<td>4-5人团队</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_7">附录</h2>
+<h3 id="a-sesamex">A. 主动式智能与SesameX芯片的关系</h3>
+<pre><code>SesameX是实现主动式智能的基石：
+  - Kalos：移动底盘的实时导航+环境感知
+  - Aura：机械臂的视觉+力控+多模态融合
+  - Liora：人形机器人的语音+视觉+导览决策
+
+没有SesameX → 机器人只能执行云端指令（延迟高、断网失效）
+有了SesameX → 机器人端侧自主思考（&lt;5ms、断网可用、持续学习）
+</code></pre>
+<h3 id="b">B. 主动式智能的行业参考</h3>
+<table>
+<thead>
+<tr>
+<th>参考</th>
+<th>启发</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>特斯拉FSD V12</td>
+<td>端到端VLA，从感知直接到动作</td>
+</tr>
+<tr>
+<td>Figure 01机器人</td>
+<td>视觉理解→语言推理→动作执行</td>
+</tr>
+<tr>
+<td>波士顿动力Atlas</td>
+<td>自主平衡+动态环境适应</td>
+</tr>
+<tr>
+<td>1X NEO</td>
+<td>家庭场景主动式交互</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c-ai-agent">C. 中枢AI Agent接口示例</h3>
+<pre><code class="language-json">{
+  &quot;agent_decision&quot;: {
+    &quot;context&quot;: {
+      &quot;visitors&quot;: [
+        {&quot;id&quot;: &quot;V001&quot;, &quot;location&quot;: &quot;chip_area&quot;, &quot;dwell_time&quot;: 45, &quot;profile&quot;: &quot;tech_male_30&quot;},
+        {&quot;id&quot;: &quot;V002&quot;, &quot;location&quot;: &quot;coffee_station&quot;, &quot;dwell_time&quot;: 12, &quot;profile&quot;: &quot;business_female_40&quot;}
+      ],
+      &quot;robots&quot;: {
+        &quot;walker_s3&quot;: {&quot;status&quot;: &quot;idle&quot;, &quot;battery&quot;: 0.85},
+        &quot;m20_pro&quot;: {&quot;status&quot;: &quot;patrolling&quot;, &quot;battery&quot;: 0.72}
+      }
+    },
+    &quot;decision&quot;: {
+      &quot;priority&quot;: &quot;V001&quot;,
+      &quot;action&quot;: &quot;walker_goto_and_explain&quot;,
+      &quot;target&quot;: &quot;chip_area&quot;,
+      &quot;personalized_content&quot;: &quot;tech_focused_deep_dive&quot;,
+      &quot;predicted_next&quot;: &quot;V001 will want coffee after explanation → preheat coffee_machine&quot;
+    }
+  }
+}
+</code></pre>
+<hr />
+<p><em>本方案定义从固定响应到主动式智能的升级路径，SesameX端侧VLA推理是核心驱动力。</em></p>
+<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark"})</script></body></html>
