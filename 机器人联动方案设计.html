@@ -13,8 +13,8 @@
 <li><a href="#第四章--6大联动场景工程方案">6大联动场景工程方案</a></li>
 <li><a href="#第五章--硬件清单">硬件清单</a></li>
 <li><a href="#第六章--故障降级与日常运营">故障降级与日常运营</a></li>
-<li><a href="#_26">多机定位与调度方案研究</a></li>
-<li><a href="#_27">主动式智能架构评估与改进</a></li>
+<li><a href="#第七章--多机定位与调度方案研究">多机定位与调度方案研究</a></li>
+<li><a href="#第八章--主动式智能架构评估与改进">主动式智能架构评估与改进</a></li>
 </ol>
 <hr />
 <h2 id="-">第一章 · 端-边-云三层系统架构</h2>
@@ -1608,13 +1608,45 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 <h3 id="71">7.1 现状技术组合</h3>
 <p>展厅主要约束：623㎡（1F约323㎡为主功能区）、7台异构机器人（人形/四足/轮式/固定协作臂）、VIP导览与自由参观并发、人机混行。</p>
 <table>
-<thead><tr><th>层</th><th>技术</th><th>参数</th><th>用途</th></tr></thead>
+<thead>
+<tr>
+<th>层</th>
+<th>技术</th>
+<th>参数</th>
+<th>用途</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>定位</td><td>UWB（Decawave DWM1001）×4基站</td><td>±10cm，50Hz</td><td>全局绝对坐标</td></tr>
-<tr><td>建图</td><td>激光雷达（每台移动机器人）</td><td>—</td><td>局部障碍实时感知</td></tr>
-<tr><td>通信</td><td>ROS2 DDS + Wi-Fi 6（专用VLAN）</td><td>10Hz 状态/指令</td><td>机器人↔中控</td></tr>
-<tr><td>调度</td><td>DAG工作流引擎（边缘服务器）</td><td>&lt;50ms响应</td><td>任务编排</td></tr>
-<tr><td>孪生</td><td>数字孪生</td><td>位置50Hz</td><td>仿真预演+可视化</td></tr>
+<tr>
+<td>定位</td>
+<td>UWB（Decawave DWM1001）×4基站</td>
+<td>±10cm，50Hz</td>
+<td>全局绝对坐标</td>
+</tr>
+<tr>
+<td>建图</td>
+<td>激光雷达（每台移动机器人）</td>
+<td>—</td>
+<td>局部障碍实时感知</td>
+</tr>
+<tr>
+<td>通信</td>
+<td>ROS2 DDS + Wi-Fi 6（专用VLAN）</td>
+<td>10Hz 状态/指令</td>
+<td>机器人↔中控</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>DAG工作流引擎（边缘服务器）</td>
+<td>&lt;50ms响应</td>
+<td>任务编排</td>
+</tr>
+<tr>
+<td>孪生</td>
+<td>数字孪生</td>
+<td>位置50Hz</td>
+<td>仿真预演+可视化</td>
+</tr>
 </tbody>
 </table>
 <h3 id="72-uwb">7.2 UWB定位方案评估</h3>
@@ -1622,74 +1654,348 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 <p>4个基站覆盖1F全域（UWB有效范围约50m），±10cm精度满足机器人冲突检测需求（触发距离3m，精度要求宽松）。50Hz更新率高于ROS2下发频率（10Hz），不构成瓶颈。Decawave DWM1001为成熟商用模块，Walker S3/M20 Pro等可直接挂载标签。</p>
 <h4 id="722">7.2.2 潜在风险</h4>
 <table>
-<thead><tr><th>风险点</th><th>原因</th><th>建议</th></tr></thead>
+<thead>
+<tr>
+<th>风险点</th>
+<th>原因</th>
+<th>建议</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>2F覆盖缺失</td><td>1F基站信号被楼板阻隔，2F无法定位</td><td>若2F引入移动机器人，预埋2个基站锚点</td></tr>
-<tr><td>世界树金属干扰</td><td>LED柱体+金属结构产生UWB多径反射，该区域精度下降</td><td>增加修正锚点，或依赖D435i局部坐标系</td></tr>
-<tr><td>遨博i5无需UWB</td><td>固定安装，不移动</td><td>末端D435i相机需独立坐标系标定，与UWB地图对齐</td></tr>
+<tr>
+<td>2F覆盖缺失</td>
+<td>1F基站信号被楼板阻隔，2F无法定位</td>
+<td>若2F引入移动机器人，预埋2个基站锚点</td>
+</tr>
+<tr>
+<td>世界树金属干扰</td>
+<td>LED柱体+金属结构产生UWB多径反射，该区域精度下降</td>
+<td>增加修正锚点，或依赖D435i局部坐标系</td>
+</tr>
+<tr>
+<td>遨博i5无需UWB</td>
+<td>固定安装，不移动</td>
+<td>末端D435i相机需独立坐标系标定，与UWB地图对齐</td>
+</tr>
 </tbody>
 </table>
-<h4 id="723">7.2.3 UWB与激光SLAM的分工</h4>
-<p><strong>UWB</strong>提供全局绝对坐标（不累积误差），<strong>激光SLAM</strong>提供局部实时感知（精确避障）。两者融合后机器人既能定位自身也能实时绕障，是业界标准双层架构。</p>
+<h4 id="723-uwbslam">7.2.3 UWB与激光SLAM的分工</h4>
+<p><strong>UWB</strong> 提供全局绝对坐标（不累积误差），<strong>激光SLAM</strong> 提供局部实时感知（精确避障）。两者融合后机器人既能定位自身也能实时绕障，是业界标准双层架构。</p>
 <p><strong>盲区问题</strong>：Walker S3（约1.4m高）与M20 Pro（约0.6m高）激光雷达扫描平面不同，低速近距离时存在互相"看不到"的高度盲区。建议在中控实现多机UWB坐标互播，每台机器人将同伴UWB坐标当作动态障碍物处理。</p>
+<h4 id="724">7.2.4 多机器人品牌的定位统一方案</h4>
+<p>7台机器人来自不同厂家，各有自己的里程计坐标系，无法直接互通。推荐"UWB外挂+API适配"方案：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>精度</th>
+<th>依赖厂家</th>
+<th>工程量</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. UWB外挂+API调度</strong></td>
+<td>±10cm</td>
+<td>否</td>
+<td>14周</td>
+<td>✅ 推荐</td>
+</tr>
+<tr>
+<td>B. UWB+SLAM深度融合</td>
+<td>±2cm</td>
+<td>是（高）</td>
+<td>20周+</td>
+<td>⚠️ 备选</td>
+</tr>
+<tr>
+<td>C. 纯SLAM地图融合</td>
+<td>±5cm</td>
+<td>是（中）</td>
+<td>18周</td>
+<td>❌ 不推荐</td>
+</tr>
+</tbody>
+</table>
+<p>UWB外挂方案的核心优势：每台机器人贴一个UWB标签（外挂，机器人无感知），中控侧做坐标变换对齐，<strong>不需要厂家修改固件</strong>。</p>
+<div class="mermaid">graph TB
+    subgraph 定位层["定位层（不依赖厂家）"]
+        U1["UWB基站×4"] --> UWB_SERVER["UWB定位服务器 ±10cm 50Hz"]
+    end
+    subgraph 调度层["调度层（API适配）"]
+        DAG["DAG任务编排引擎"]
+        A1["优必选Adapter"]
+        A2["云深处Adapter"]
+        A3["云迹Adapter"]
+        A4["遨博Adapter"]
+    end
+    subgraph 可视化["可视化层"]
+        DT["数字孪生大屏 UWB位置+CAD底图"]
+    end
+    UWB_SERVER --> DT
+    DAG --> A1 & A2 & A3 & A4
+    UWB_SERVER --> DAG</div>
 <h3 id="73-dag">7.3 DAG调度方案评估</h3>
 <h4 id="731">7.3.1 适用边界</h4>
 <table>
-<thead><tr><th>场景类型</th><th>DAG适合度</th><th>原因</th></tr></thead>
+<thead>
+<tr>
+<th>场景类型</th>
+<th>DAG适合度</th>
+<th>原因</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>VIP导览全流程</td><td>✅ 完全适合</td><td>触发确定、路径确定、角色确定</td></tr>
-<tr><td>拍照接力</td><td>✅ 完全适合</td><td>步骤固定，数据流明确</td></tr>
-<tr><td>采摘互动</td><td>✅ 适合</td><td>机械臂行为确定，视觉定位结果作为参数传入</td></tr>
-<tr><td>洒漏自愈</td><td>⚠️ 部分适合</td><td>触发随机，需动态生成子DAG</td></tr>
-<tr><td>多VIP并发</td><td>⚠️ 需补充规则</td><td>静态优先级规则不覆盖所有组合</td></tr>
+<tr>
+<td>VIP导览全流程</td>
+<td>✅ 完全适合</td>
+<td>触发确定、路径确定、角色确定</td>
+</tr>
+<tr>
+<td>拍照接力</td>
+<td>✅ 完全适合</td>
+<td>步骤固定，数据流明确</td>
+</tr>
+<tr>
+<td>采摘互动</td>
+<td>✅ 适合</td>
+<td>机械臂行为确定，视觉定位结果作为参数传入</td>
+</tr>
+<tr>
+<td>洒漏自愈</td>
+<td>⚠️ 部分适合</td>
+<td>触发随机，需动态生成子DAG</td>
+</tr>
+<tr>
+<td>多VIP并发</td>
+<td>⚠️ 需补充规则</td>
+<td>静态优先级规则不覆盖所有组合</td>
+</tr>
 </tbody>
 </table>
-<h4 id="732">7.3.2 并发盲区与建议</h4>
-<p>未覆盖的典型组合：<strong>Walker VIP导览中（T+100s M20越障表演段）+ 洒漏事件同时触发</strong>。M20中止后Walker等待还是跳过？等待导致VIP在展厅中间站立数十秒。</p>
+<h4 id="732">7.3.2 并发盲区识别</h4>
+<p>未覆盖的典型组合：<strong>Walker VIP导览中（T+100s M20越障表演段）+ 洒漏事件同时触发</strong>。</p>
+<p>现有规则：M20中止表演处理洒漏 ✅。但未定义：M20中止后Walker是等待还是跳过越障表演节点继续后续流程？等待意味着VIP在展厅中间站立数十秒，体验严重中断。</p>
 <p><strong>建议</strong>：DAG节点定义中增加 <code>optional: true</code> 标记，VIP导览中M20越障表演标记为可选——M20被安全事件打断时Walker直接跳到下一节点，导览不中断。</p>
 <h4 id="733">7.3.3 高密度冲突点</h4>
 <table>
-<thead><tr><th>位置</th><th>并发风险</th><th>建议</th></tr></thead>
+<thead>
+<tr>
+<th>位置</th>
+<th>并发风险</th>
+<th>建议</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>入口→品牌墙走廊</td><td>Walker + 访客 + Delivery三方叠加，通道可能&lt;3m</td><td>Delivery低优先级等待时间窗</td></tr>
-<tr><td>咖啡站区域</td><td>Coffee固定 + UP底盘待机桩 + 访客取餐，UP出桩方向与取餐路线冲突</td><td>检测到访客在取餐屏前时，UP出桩延迟10s</td></tr>
-<tr><td>世界树区域</td><td>遨博i5采摘中 + 访客围观 + M20巡检穿越</td><td>M20巡检路线绕行，不穿越安全光幕前方区域</td></tr>
+<tr>
+<td>入口→品牌墙走廊</td>
+<td>Walker + 访客 + Delivery三方叠加，通道可能&lt;3m</td>
+<td>Delivery低优先级等待时间窗</td>
+</tr>
+<tr>
+<td>咖啡站区域</td>
+<td>Coffee固定 + UP底盘待机桩 + 访客取餐，UP出桩方向与取餐路线冲突</td>
+<td>检测到访客在取餐屏前时，UP出桩延迟10s</td>
+</tr>
+<tr>
+<td>世界树区域</td>
+<td>遨博i5采摘中 + 访客围观 + M20巡检穿越</td>
+<td>M20巡检路线绕行，不穿越安全光幕前方区域</td>
+</tr>
+</tbody>
+</table>
+<h4 id="734">7.3.4 适配层开发工作量</h4>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>工作量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优必选Adapter</td>
+<td>2周</td>
+<td>HTTP REST API封装</td>
+</tr>
+<tr>
+<td>云深处Adapter</td>
+<td>3周</td>
+<td>MQTT私有协议解析，难度最高</td>
+</tr>
+<tr>
+<td>云迹Adapter</td>
+<td>1周</td>
+<td>开放平台API较成熟</td>
+</tr>
+<tr>
+<td>遨博Adapter</td>
+<td>1周</td>
+<td>ROS2 DDS标准接口</td>
+</tr>
+<tr>
+<td>咖啡机Adapter</td>
+<td>1周</td>
+<td>HTTP API</td>
+</tr>
+<tr>
+<td>DAG调度引擎</td>
+<td>4周</td>
+<td>核心编排逻辑</td>
+</tr>
+<tr>
+<td>数字孪生可视化</td>
+<td>2周</td>
+<td>WebGL/Three.js</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td><strong>约14周</strong></td>
+<td>2-3人团队</td>
+</tr>
 </tbody>
 </table>
 <h3 id="74-walker-s3">7.4 Walker S3续航调度分析</h3>
 <table>
-<thead><tr><th>参数</th><th>数值</th></tr></thead>
+<thead>
+<tr>
+<th>参数</th>
+<th>数值</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>额定续航</td><td>约90分钟（工作状态）</td></tr>
-<tr><td>每日工作时间</td><td>08:40—17:50 = 9h10min</td></tr>
-<tr><td>理论充电次数</td><td>9h10min ÷ 90min ≈ 6次</td></tr>
-<tr><td>当前方案充电次数</td><td>2次（10:10和13:30各30min）</td></tr>
+<tr>
+<td>额定续航</td>
+<td>约90分钟（工作状态）</td>
+</tr>
+<tr>
+<td>每日工作时间</td>
+<td>08:40—17:50 = 9h10min</td>
+</tr>
+<tr>
+<td>理论充电次数</td>
+<td>9h10min ÷ 90min ≈ 6次</td>
+</tr>
+<tr>
+<td>当前方案充电次数</td>
+<td>2次（10:10和13:30各30min）</td>
+</tr>
 </tbody>
 </table>
-<p>当前方案依赖两个假设：①待机时功耗远低于工作状态；②30min充电可补充足够电量。两者均需试运行验证，否则Walker在10:40—13:30的170min连续工作段约12:10耗尽电量。<strong>建议</strong>：加入电量预测模型，剩余续航&lt;20min时提前半充（15min），避免VIP导览中途中断。</p>
+<p>当前方案依赖两个假设：①待机时功耗远低于工作状态；②30min充电可补充足够电量。两者均需试运行验证，否则Walker在10:40—13:30的170min连续工作段约12:10耗尽电量。</p>
+<p><strong>建议</strong>：加入电量预测模型，当预测剩余续航&lt;20min时，提前引导Walker至待机充电位执行半充（15min），避免VIP导览中途强制中断。</p>
 <h3 id="75-sesamex">7.5 SesameX决策分层</h3>
+<p>端侧智能是本方案的核心差异化——中控宕机只影响联动编排，单机智能不受影响：</p>
 <table>
-<thead><tr><th>决策类型</th><th>处理位置</th><th>芯片</th><th>理由</th></tr></thead>
+<thead>
+<tr>
+<th>决策类型</th>
+<th>处理位置</th>
+<th>芯片</th>
+<th>理由</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>洒漏检测→上报</td><td>端侧</td><td>Aura (M20)</td><td>&lt;0.5s响应，不能等待网络</td></tr>
-<tr><td>视觉定位苹果位姿</td><td>端侧</td><td>Aura (遨博i5)</td><td>&lt;200ms端侧推理</td></tr>
-<tr><td>Walker语音对话</td><td>端侧</td><td>Liora</td><td>低延迟，不依赖云端</td></tr>
-<tr><td>Delivery实时导航</td><td>端侧</td><td>Kalos</td><td>走廊避障实时性要求高</td></tr>
-<tr><td>VIP导览路径规划</td><td>边缘（中控）</td><td>RTX A6000</td><td>需全局地图，跨机协调</td></tr>
-<tr><td>人像拉花图案生成</td><td>边缘（中控）</td><td>RTX A6000</td><td>StyleGAN模型过大</td></tr>
-<tr><td>OTA模型更新</td><td>云端→端侧</td><td>全部</td><td>训练在云，推理在端</td></tr>
+<tr>
+<td>洒漏检测→上报</td>
+<td>端侧</td>
+<td>Aura (M20)</td>
+<td>&lt;0.5s响应，不能等待网络</td>
+</tr>
+<tr>
+<td>视觉定位苹果位姿</td>
+<td>端侧</td>
+<td>Aura (遨博i5)</td>
+<td>&lt;200ms端侧推理</td>
+</tr>
+<tr>
+<td>Walker语音对话</td>
+<td>端侧</td>
+<td>Liora</td>
+<td>低延迟，不依赖云端</td>
+</tr>
+<tr>
+<td>Delivery实时导航</td>
+<td>端侧</td>
+<td>Kalos</td>
+<td>走廊避障实时性要求高</td>
+</tr>
+<tr>
+<td>VIP导览路径规划</td>
+<td>边缘（中控）</td>
+<td>RTX A6000</td>
+<td>需全局地图，跨机协调</td>
+</tr>
+<tr>
+<td>人像拉花图案生成</td>
+<td>边缘（中控）</td>
+<td>RTX A6000</td>
+<td>StyleGAN模型过大</td>
+</tr>
+<tr>
+<td>OTA模型更新</td>
+<td>云端→端侧</td>
+<td>全部</td>
+<td>训练在云，推理在端</td>
+</tr>
 </tbody>
 </table>
-<h3 id="76">7.6 关键缺口汇总</h3>
+<h3 id="76">7.6 关键缺口与优化建议汇总</h3>
 <table>
-<thead><tr><th>#</th><th>缺口</th><th>影响</th><th>建议</th><th>优先级</th></tr></thead>
+<thead>
+<tr>
+<th>#</th>
+<th>缺口</th>
+<th>影响</th>
+<th>建议</th>
+<th>优先级</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>1</td><td>Walker续航调度模型缺失</td><td>VIP导览中途强制返充</td><td>电量预测+提前半充</td><td>高</td></tr>
-<tr><td>2</td><td>DAG无optional节点</td><td>安全事件打断时导览僵死</td><td>关键节点标记optional</td><td>高</td></tr>
-<tr><td>3</td><td>咖啡站UP出桩冲突</td><td>访客体验差/安全隐患</td><td>软性互斥区，延迟10s出桩</td><td>高</td></tr>
-<tr><td>4</td><td>激光雷达高度盲区</td><td>Walker/M20近距离互看不到</td><td>UWB坐标互播作动态障碍物</td><td>中</td></tr>
-<tr><td>5</td><td>世界树UWB多径干扰</td><td>采摘区定位精度下降</td><td>增加修正锚点</td><td>中</td></tr>
-<tr><td>6</td><td>2F无UWB覆盖</td><td>2F扩展时无法定位</td><td>预埋2个锚点备用</td><td>低</td></tr>
+<tr>
+<td>1</td>
+<td>Walker续航调度模型缺失</td>
+<td>VIP导览中途强制返充</td>
+<td>电量预测+提前半充</td>
+<td>高</td>
+</tr>
+<tr>
+<td>2</td>
+<td>DAG无optional节点</td>
+<td>安全事件打断时导览僵死</td>
+<td>关键节点标记optional</td>
+<td>高</td>
+</tr>
+<tr>
+<td>3</td>
+<td>咖啡站UP出桩冲突</td>
+<td>访客体验差/安全隐患</td>
+<td>软性互斥区，延迟10s出桩</td>
+<td>高</td>
+</tr>
+<tr>
+<td>4</td>
+<td>激光雷达高度盲区</td>
+<td>Walker/M20近距离互看不到</td>
+<td>UWB坐标互播作动态障碍物</td>
+<td>中</td>
+</tr>
+<tr>
+<td>5</td>
+<td>世界树UWB多径干扰</td>
+<td>采摘区定位精度下降</td>
+<td>增加修正锚点</td>
+<td>中</td>
+</tr>
+<tr>
+<td>6</td>
+<td>2F无UWB覆盖</td>
+<td>2F扩展时无法定位</td>
+<td>预埋2个锚点备用</td>
+<td>低</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -1698,103 +2004,253 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 <p>当前方案以"触发-响应"为主，本章评估向主动式智能架构升级的路径与价值</p>
 </blockquote>
 <h3 id="81">8.1 当前架构定性：被动响应式</h3>
-<p>当前7台机器人的行为逻辑是：<strong>等待事件触发 → 执行预定义DAG → 返回待机</strong>。这是一种被动响应架构，优点是行为可预测、易调试，缺点是机器人在无触发时纯等待，无法感知环境变化主动介入。</p>
+<p>当前7台机器人的行为逻辑是：<strong>等待事件触发 → 执行预定义DAG → 返回待机</strong>。即使使用DAG编排，本质仍是预编程的流水线——机器人不会"思考"，只会"执行"。</p>
 <table>
-<thead><tr><th>特征</th><th>当前方案（被动响应式）</th><th>主动式智能架构</th></tr></thead>
+<thead>
+<tr>
+<th>特征</th>
+<th>当前方案（被动响应式）</th>
+<th>主动式智能架构</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>行为发起</td>
+<tr>
+<td>行为发起</td>
 <td>外部触发（RFID/传感器/定时器）</td>
-<td>机器人自主感知环境，自主发起行为</td></tr>
-<tr><td>决策位置</td>
+<td>机器人自主感知环境，自主发起行为</td>
+</tr>
+<tr>
+<td>决策位置</td>
 <td>中控DAG引擎统一下发</td>
-<td>端侧芯片自主决策，中控协调冲突</td></tr>
-<tr><td>环境感知</td>
+<td>端侧芯片自主决策，中控协调冲突</td>
+</tr>
+<tr>
+<td>环境感知</td>
 <td>特定传感器点位触发</td>
-<td>持续全域感知，识别机会与异常</td></tr>
-<tr><td>协作模式</td>
+<td>持续全域感知，识别机会与异常</td>
+</tr>
+<tr>
+<td>协作模式</td>
 <td>中控广播指令</td>
-<td>机器人间点对点协商（多智能体）</td></tr>
-<tr><td>展示价值</td>
+<td>机器人间点对点协商（多智能体）</td>
+</tr>
+<tr>
+<td>展示价值</td>
 <td>展示"芯片让机器人听从指令"</td>
-<td>展示"芯片让机器人主动思考"</td></tr>
+<td>展示"芯片让机器人主动思考"</td>
+</tr>
 </tbody>
 </table>
 <h3 id="82">8.2 主动式升级的核心技术路径</h3>
-<h4 id="821-vla">8.2.1 端侧VLA推理：感知-决策闭环</h4>
+<h4 id="821-vla-">8.2.1 端侧VLA推理：感知-决策闭环</h4>
 <p>主动式架构的基础是SesameX芯片在端侧运行<strong>VLA（Vision-Language-Action）模型</strong>，机器人持续观察环境并自主生成行动意图，无需等待中控指令。</p>
+<div class="mermaid">graph LR
+    V["视觉输入 摄像头/深度相机"] --> S["SesameX芯片 VLA模型推理 <5ms"]
+    L["语言输入 语音识别"] --> S
+    E["环境输入 UWB/传感器"] --> S
+    S --> A["动作输出 自主决策"]
+    S --> T["语言输出 主动交互"]</div>
 <table>
-<thead><tr><th>机器人</th><th>主动行为示例</th><th>触发条件（自主感知）</th><th>芯片</th></tr></thead>
+<thead>
+<tr>
+<th>机器人</th>
+<th>主动行为示例</th>
+<th>触发条件（自主感知）</th>
+<th>芯片</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>Walker S3</td><td>发现有人在世界树前驻足超过30s，主动走过去打招呼</td><td>视觉检测：人体停留时长 &gt;30s，距离 &lt;5m</td><td>Liora</td></tr>
-<tr><td>M20 Pro</td><td>巡检时发现地面有纸屑，主动通知UP底盘前来清洁</td><td>视觉检测：地面异常物体识别</td><td>Aura</td></tr>
-<tr><td>Walker S3</td><td>感知访客群体注意力聚焦在某台机器人上，主动切换讲解内容</td><td>注视方向检测：多人视线方向统计</td><td>Liora</td></tr>
-<tr><td>遨博海纳</td><td>检测到货架上某件展品被频繁拿起，主动补货或推荐</td><td>触碰传感器+视觉：拿取行为识别</td><td>Aura</td></tr>
+<tr>
+<td>Walker S3</td>
+<td>发现访客在世界树前驻足&gt;30s，主动走过去打招呼</td>
+<td>视觉：人体停留时长&gt;30s，距离&lt;5m</td>
+<td>Liora</td>
+</tr>
+<tr>
+<td>M20 Pro</td>
+<td>巡检时发现地面有纸屑，主动通知UP前来清洁</td>
+<td>视觉：地面异常物体识别</td>
+<td>Aura</td>
+</tr>
+<tr>
+<td>Walker S3</td>
+<td>感知访客群体注意力聚焦某台机器人，主动切换讲解内容</td>
+<td>注视方向检测：多人视线方向统计</td>
+<td>Liora</td>
+</tr>
+<tr>
+<td>遨博海纳</td>
+<td>检测到货架某展品被频繁拿起，主动推荐</td>
+<td>触碰传感器+视觉：拿取行为识别</td>
+<td>Aura</td>
+</tr>
 </tbody>
 </table>
 <h4 id="822">8.2.2 多智能体协商：去中心化协调</h4>
-<p>当前方案所有协调都经过中控，属于<strong>中心化调度</strong>。主动式架构引入机器人间直接协商，中控只处理冲突仲裁：</p>
+<p>当前所有协调都经过中控（中心化调度）。主动式架构引入机器人间直接协商，中控只处理冲突仲裁：</p>
 <pre><code>当前（中心化）：
-  Walker → 中控："我要去世界树区域"
-  中控 → Walker："路径清晰，可以前往"
-  中控 → M20："Walker要过来，你让路"
+  Walker → 中控：&quot;我要去世界树区域&quot;
+  中控 → Walker：&quot;路径清晰，可以前往&quot;
+  中控 → M20：&quot;Walker要过来，你让路&quot;
 
 主动式（去中心化）：
-  Walker广播："我将在T+5s经过世界树走廊"
-  M20收到："我在该区域，T+5s前完成当前动作"
-  Walker确认："收到，继续执行"
-  中控只介入：两者无法自行协商时</code></pre>
-<p>去中心化的优势：<strong>中控宕机时联动仍可部分运行</strong>（机器人间点对点协商），而非全部停摆。</p>
+  Walker广播：&quot;我将在T+5s经过世界树走廊&quot;
+  M20收到：&quot;我在该区域，T+5s前完成当前动作&quot;
+  Walker确认：&quot;收到，继续执行&quot;
+  中控只介入：两者无法自行协商时
+</code></pre>
+<p>去中心化的核心价值：<strong>中控宕机时联动仍可部分运行</strong>，而非全部停摆。</p>
 <h4 id="823">8.2.3 意图预测：访客行为建模</h4>
-<p>主动式架构在边缘侧持续运行访客行为预测模型，提前15-30s预判访客下一步行动，提前部署机器人：</p>
+<p>边缘侧持续运行访客行为预测模型，提前15-30s预判访客下一步行动，提前部署机器人：</p>
 <table>
-<thead><tr><th>访客行为信号</th><th>预测意图</th><th>提前响应</th></tr></thead>
+<thead>
+<tr>
+<th>访客行为信号</th>
+<th>预测意图</th>
+<th>提前响应</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>VIP进入门厅，签到台方向移动</td><td>即将签到，触发VIP导览</td><td>Walker提前10s从待机位出发，到达时间窗吻合</td></tr>
-<tr><td>访客在咖啡站附近停留，看取餐屏</td><td>想喝咖啡但不知如何触发</td><td>Walker主动走过去引导，或大屏显示操作引导</td></tr>
-<tr><td>访客群体聚集在世界树前超过2min</td><td>对采摘互动感兴趣</td><td>遨博i5自动进入"待采摘"状态，LED切换引导界面</td></tr>
-<tr><td>下午4点后访客减少，展厅变冷清</td><td>进入低峰期</td><td>调度切换为"自动巡逻演示"模式，机器人自主展示</td></tr>
+<tr>
+<td>VIP进入门厅，向签到台移动</td>
+<td>即将签到，触发VIP导览</td>
+<td>Walker提前10s出发，到达时间窗吻合</td>
+</tr>
+<tr>
+<td>访客在咖啡站附近停留&gt;30s</td>
+<td>想喝咖啡但不知如何触发</td>
+<td>Walker主动走过去引导</td>
+</tr>
+<tr>
+<td>访客群体聚集世界树前&gt;2min</td>
+<td>对采摘互动感兴趣</td>
+<td>遨博i5进入"待采摘"状态，LED切换引导界面</td>
+</tr>
+<tr>
+<td>下午4点后访客减少</td>
+<td>进入低峰期</td>
+<td>切换"自动巡逻演示"模式，机器人自主展示</td>
+</tr>
 </tbody>
 </table>
-<h3 id="83">8.3 SesameX芯片的主动式能力支撑</h3>
-<p>主动式架构对芯片提出更高要求，也正是SesameX平台的核心价值所在：</p>
+<h3 id="83-sesamex">8.3 SesameX芯片的主动式能力支撑</h3>
 <table>
-<thead><tr><th>能力需求</th><th>SesameX支撑</th><th>芯片</th></tr></thead>
+<thead>
+<tr>
+<th>能力需求</th>
+<th>SesameX支撑</th>
+<th>芯片</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>持续视觉感知（不休眠）</td><td>低功耗常驻推理，待机功耗&lt;2W</td><td>Liora / Aura</td></tr>
-<tr><td>自然语言意图理解</td><td>端侧LLM推理（&lt;1B参数轻量模型）</td><td>Liora</td></tr>
-<tr><td>多模态融合决策</td><td>视觉+语音+触觉同步处理</td><td>Aura</td></tr>
-<tr><td>VLA端侧执行</td><td>视觉-语言-动作一体化推理</td><td>Aura</td></tr>
-<tr><td>实时导航+感知并行</td><td>多核异构计算，导航与感知不互抢资源</td><td>Kalos</td></tr>
-<tr><td>OTA能力迭代</td><td>云端训练→边缘量化→端侧热更新</td><td>全部</td></tr>
+<tr>
+<td>持续视觉感知（不休眠）</td>
+<td>低功耗常驻推理，待机功耗&lt;2W</td>
+<td>Liora / Aura</td>
+</tr>
+<tr>
+<td>自然语言意图理解</td>
+<td>端侧LLM推理（&lt;1B参数轻量模型）</td>
+<td>Liora</td>
+</tr>
+<tr>
+<td>多模态融合决策</td>
+<td>视觉+语音+触觉同步处理</td>
+<td>Aura</td>
+</tr>
+<tr>
+<td>VLA端侧执行</td>
+<td>视觉-语言-动作一体化推理</td>
+<td>Aura</td>
+</tr>
+<tr>
+<td>实时导航+感知并行</td>
+<td>多核异构计算，导航与感知不互抢资源</td>
+<td>Kalos</td>
+</tr>
+<tr>
+<td>OTA能力迭代</td>
+<td>云端训练→边缘量化→端侧热更新</td>
+<td>全部</td>
+</tr>
 </tbody>
 </table>
-<h3 id="84">8.4 展厅落地：渐进式升级路径</h3>
-<p>主动式架构不必一步到位，建议按三个阶段渐进升级：</p>
+<h3 id="84">8.4 渐进式升级路径</h3>
 <table>
-<thead><tr><th>阶段</th><th>时间</th><th>升级内容</th><th>展示价值</th></tr></thead>
+<thead>
+<tr>
+<th>阶段</th>
+<th>时间</th>
+<th>升级内容</th>
+<th>展示价值</th>
+</tr>
+</thead>
 <tbody>
-<tr><td><strong>Phase 1</strong>（开馆）</td><td>当前方案</td><td>被动响应式，DAG触发，稳定可靠</td><td>展示"多机联动"</td></tr>
-<tr><td><strong>Phase 2</strong>（开馆后3个月）</td><td>+端侧主动感知</td><td>Walker/M20增加主动感知逻辑，VLA端侧推理上线</td><td>展示"机器人主动思考"</td></tr>
-<tr><td><strong>Phase 3</strong>（开馆后6个月）</td><td>+多智能体协商</td><td>机器人间点对点协商上线，中控降级为仲裁者</td><td>展示"自组织AI集群"</td></tr>
+<tr>
+<td><strong>Phase 1</strong>（开馆，8月31日）</td>
+<td>当前方案</td>
+<td>被动响应式，DAG触发，稳定可靠</td>
+<td>展示"多机联动"</td>
+</tr>
+<tr>
+<td><strong>Phase 2</strong>（开馆后3个月）</td>
+<td>+端侧主动感知</td>
+<td>Walker/M20增加主动感知逻辑，VLA端侧推理上线</td>
+<td>展示"机器人主动思考"</td>
+</tr>
+<tr>
+<td><strong>Phase 3</strong>（开馆后6个月）</td>
+<td>+多智能体协商</td>
+<td>机器人间点对点协商上线，中控降级为仲裁者</td>
+<td>展示"自组织AI集群"</td>
+</tr>
+<tr>
+<td><strong>V2.5</strong>（2027年Q1）</td>
+<td>+持续学习</td>
+<td>数据采集→模型微调→OTA更新闭环</td>
+<td>展示"越用越聪明"</td>
+</tr>
 </tbody>
 </table>
 <h3 id="85">8.5 主动式架构的风险与对冲</h3>
 <table>
-<thead><tr><th>风险</th><th>表现</th><th>对冲措施</th></tr></thead>
+<thead>
+<tr>
+<th>风险</th>
+<th>表现</th>
+<th>对冲措施</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>行为不可预测</td><td>机器人主动行为与访客期望不符，产生困惑</td><td>主动行为前播放语音预告；设置"主动模式"开关，工作人员可随时切换回被动模式</td></tr>
-<tr><td>误判访客意图</td><td>访客只是路过被Walker"截停"，体验负面</td><td>主动接触阈值设高（停留&gt;30s + 视线接触 + 面向机器人），三重条件同时满足才触发</td></tr>
-<tr><td>多机同时主动，资源冲突</td><td>两台机器人同时判断"我去接待那个访客"</td><td>中控维护"意图注册"机制：第一个上报意图的机器人锁定目标，其他机器人收到后取消</td></tr>
-<tr><td>端侧模型推理错误</td><td>VLA生成危险动作指令</td><td>动作执行前经安全检查层过滤（速度/力矩/禁区边界），不合规指令直接丢弃</td></tr>
+<tr>
+<td>行为不可预测</td>
+<td>机器人主动行为与访客期望不符</td>
+<td>主动行为前播放语音预告；设置"主动模式"开关，随时切回被动模式</td>
+</tr>
+<tr>
+<td>误判访客意图</td>
+<td>访客只是路过被Walker"截停"</td>
+<td>主动接触阈值设高：停留&gt;30s + 视线接触 + 面向机器人，三重条件同时满足才触发</td>
+</tr>
+<tr>
+<td>多机同时主动，资源冲突</td>
+<td>两台机器人同时判断"我去接待那个访客"</td>
+<td>中控维护"意图注册"机制：第一个上报意图的机器人锁定目标，其他机器人收到后取消</td>
+</tr>
+<tr>
+<td>端侧模型推理错误</td>
+<td>VLA生成危险动作指令</td>
+<td>动作执行前经安全检查层过滤（速度/力矩/禁区边界），不合规指令直接丢弃</td>
+</tr>
 </tbody>
 </table>
-<h3 id="86">8.6 Phase 1现方案的主动式增强（立即可做）</h3>
+<h3 id="86-phase-1">8.6 Phase 1现方案的主动式增强（立即可做）</h3>
 <p>不改变整体架构，在当前DAG框架内增加以下主动逻辑，即可在开馆时展示主动式能力：</p>
 <ol>
-<li><strong>Walker主动招呼</strong>：在待机循环中增加"视野内有人停留&gt;20s则主动问好"逻辑，无需VIP触发，日常即可演示</li>
-<li><strong>M20主动汇报</strong>：巡检发现异常时，M20不仅上报中控，同时在大屏上显示"我发现了异常，正在处理"，让访客实时看到AI决策过程</li>
-<li><strong>遨博i5状态播报</strong>：采摘动作的每一步，LED大屏实时显示端侧推理过程（HSV分割框/位姿估计/规划路径），把"黑盒"变成"玻璃盒"</li>
-<li><strong>访客冷场应对</strong>：展厅检测到5分钟无访客互动时，Walker自动走向中央位置，开始面向摄像头表演一段自我介绍，重新吸引注意力</li>
+<li><strong>Walker主动招呼</strong>：待机循环中增加"视野内有人停留&gt;20s则主动问好"逻辑，无需VIP触发，日常即可演示</li>
+<li><strong>M20主动汇报</strong>：巡检发现异常时，M20不仅上报中控，同时在大屏显示"我发现了异常，正在处理"，让访客实时看到AI决策过程</li>
+<li><strong>遨博i5状态播报</strong>：采摘动作每一步，LED大屏实时显示端侧推理过程（HSV分割框/位姿估计/规划路径），把"黑盒"变成"玻璃盒"</li>
+<li><strong>访客冷场应对</strong>：展厅检测到5分钟无访客互动时，Walker自动走向中央位置开始面向摄像头表演自我介绍，重新吸引注意力</li>
 </ol>
 <hr />
 <p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark"})</script></body></html>
