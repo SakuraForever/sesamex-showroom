@@ -1,458 +1,595 @@
 <!DOCTYPE html>
-<html lang="zh-CN"><head><meta charset="UTF-8">
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>黑芝麻智能 · 前海展厅方案</title>
+<link rel="stylesheet" href="showroom-theme.css">
 <style>
-:root{--bg:#000;--card:#1c1c1e;--card2:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--pink:#ff375f;--yellow:#ffd60a;--nav:rgba(28,28,30,0.85);--sh:0 8px 32px rgba(0,0,0,0.5)}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,'SF Pro Display','Microsoft YaHei',sans-serif;height:100vh;overflow:hidden}
+/* ═══ 页面级样式 ═══ */
+html{scroll-behavior:smooth}
+body{height:auto;overflow-y:auto;overflow-x:hidden}
 
-/* ── 顶栏 ── */
-.topbar{position:fixed;top:0;left:0;right:0;height:48px;background:var(--nav);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;padding:0 20px;z-index:100;border-bottom:0.5px solid rgba(255,255,255,0.08)}
-.topbar .logo{font-size:14px;font-weight:600;letter-spacing:-0.3px}
+/* ── 顶部导航 ── */
+.topbar{position:fixed;top:0;left:0;right:0;height:48px;z-index:100;display:flex;align-items:center;padding:0 20px}
+.topbar .logo{font-size:14px;font-weight:600;letter-spacing:-0.3px;white-space:nowrap}
 .topbar .logo span{color:var(--acc)}
+.topbar .nav-links{display:flex;gap:4px;margin-left:28px}
+.topbar .nav-links a{font-size:12px;color:var(--sub);text-decoration:none;padding:6px 12px;border-radius:8px;transition:all .15s;white-space:nowrap}
+.topbar .nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.06)}
+.topbar .nav-links a.act{color:var(--text);background:var(--bg3)}
 .topbar .spacer{flex:1}
-.topbar .meta{font-size:11px;color:var(--sub)}
+.topbar .meta{font-size:11px;color:var(--sub2);white-space:nowrap}
+.topbar .hamb{display:none;background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;padding:4px 8px}
 
-/* ── 侧边栏 ── */
-.side{position:fixed;top:48px;left:0;bottom:0;width:188px;background:var(--nav);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:8px 6px;z-index:90;overflow-y:auto;border-right:0.5px solid rgba(255,255,255,0.06)}
-.side::-webkit-scrollbar{width:3px}.side::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
-.side input{width:100%;padding:6px 10px;margin-bottom:8px;background:var(--card2);border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--text);font-size:12px;outline:none}
-.side .grp{font-size:10px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:0.6px;padding:10px 8px 4px;display:flex;align-items:center;gap:6px}
-.side .grp-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.side .item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:12px;transition:background .15s;margin-bottom:1px;color:var(--text)}
-.side .item:hover{background:rgba(255,255,255,0.07)}
-.side .item.act{background:var(--acc);color:#fff}
-.side .item .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-
-/* ── 主内容 ── */
-.main{margin-left:188px;margin-top:48px;height:calc(100vh - 48px);overflow-y:auto;padding:28px 32px}
-.main::-webkit-scrollbar{width:6px}.main::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
-
-/* ── 页面切换 ── */
-.page{display:none}.page.act{display:block;animation:fd .25s ease}
-@keyframes fd{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+/* ── 通用布局 ── */
+.section{padding:60px 32px 40px;max-width:1100px;margin:0 auto;scroll-margin-top:60px}
+.section-hero{padding-top:80px;text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+.section-hd{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.section-hd .phase-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px;letter-spacing:0.5px;white-space:nowrap}
+.section-hd h2{font-size:24px;font-weight:700;letter-spacing:-0.5px}
+.section-hd .line{flex:1;height:1px;background:var(--bd)}
+.section-desc{font-size:14px;color:var(--sub);line-height:1.7;margin-bottom:28px;max-width:700px}
 
 /* ── Hero ── */
-.hero{text-align:center;padding:24px 0 20px}
-.hero h1{font-size:32px;font-weight:700;letter-spacing:-1px;margin-bottom:6px}
-.hero p{font-size:14px;color:var(--sub)}
-.stats{display:flex;justify-content:center;gap:28px;margin-bottom:28px;flex-wrap:wrap;padding:20px;background:var(--card);border-radius:16px;border:0.5px solid rgba(255,255,255,0.06)}
-.stat{text-align:center}
+.hero-title{font-size:40px;font-weight:700;letter-spacing:-1.5px;margin-bottom:12px;line-height:1.1}
+.hero-sub{font-size:16px;color:var(--sub);margin-bottom:36px;line-height:1.6}
+.hero-quote{font-size:15px;color:var(--sub);max-width:640px;margin:0 auto 36px;line-height:1.8;padding:20px 28px;background:var(--bg2);border-radius:var(--r);border:0.5px solid var(--bd)}
+.hero-quote .accent{color:var(--acc)}
+
+/* ── 演进时间轴 ── */
+.timeline{display:flex;gap:0;margin:0 auto 36px;max-width:800px;position:relative;padding:28px 0}
+.timeline::before{content:'';position:absolute;top:50%;left:5%;right:5%;height:2px;background:linear-gradient(90deg,var(--phase0),var(--phase1),var(--phase2),var(--phase3));border-radius:1px}
+.tl-node{flex:1;text-align:center;position:relative;z-index:1}
+.tl-node .dot{width:14px;height:14px;border-radius:50%;margin:0 auto 8px;border:3px solid var(--bg);box-shadow:0 0 12px currentColor}
+.tl-node .label{font-size:11px;font-weight:600;margin-bottom:2px}
+.tl-node .desc{font-size:10px;color:var(--sub2);line-height:1.4;max-width:120px;margin:0 auto}
+
+/* ── 统计 ── */
+.stats{display:flex;justify-content:center;gap:0;margin-bottom:0;flex-wrap:wrap;padding:20px;background:var(--bg2);border-radius:var(--r);border:0.5px solid var(--bd)}
+.stat{text-align:center;padding:0 20px}
 .stat .num{font-size:26px;font-weight:700}
 .stat .lbl{font-size:11px;color:var(--sub);margin-top:2px}
-.divider{width:1px;background:rgba(255,255,255,0.08);align-self:stretch}
-
-/* ── 分区标题 ── */
-.section-hd{display:flex;align-items:center;gap:10px;margin:28px 0 14px}
-.section-hd h2{font-size:16px;font-weight:600}
-.section-hd .line{flex:1;height:1px;background:rgba(255,255,255,0.07)}
-.section-hd .badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500}
+.stat-div{width:1px;background:var(--bd);align-self:stretch}
 
 /* ── 卡片网格 ── */
 .grid{display:grid;gap:14px;margin-bottom:8px}
+.grid-2{grid-template-columns:repeat(2,1fr)}
 .grid-3{grid-template-columns:repeat(3,1fr)}
 .grid-4{grid-template-columns:repeat(4,1fr)}
-.grid-2{grid-template-columns:repeat(2,1fr)}
-.card{background:var(--card);border-radius:14px;padding:18px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.06);transition:transform .2s cubic-bezier(0.4,0,0.2,1),box-shadow .2s,border-color .2s}
+.card{background:var(--bg2);border-radius:var(--r);padding:18px;cursor:pointer;border:0.5px solid var(--bd);transition:transform .2s cubic-bezier(0.4,0,0.2,1),box-shadow .2s,border-color .2s}
 .card:hover{transform:translateY(-2px);box-shadow:var(--sh);border-color:rgba(255,255,255,0.12)}
 .card:active{transform:scale(0.98)}
 .card .card-icon{font-size:22px;margin-bottom:10px}
 .card h3{font-size:14px;font-weight:600;margin-bottom:4px}
 .card p{font-size:12px;color:var(--sub);line-height:1.5}
 .card-wide{grid-column:span 2}
-.tag{display:inline-block;margin-top:8px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500}
-.tg{background:rgba(48,209,88,.15);color:var(--green)}
-.tb{background:rgba(10,132,255,.15);color:var(--acc)}
-.to{background:rgba(255,159,10,.15);color:var(--orange)}
-.tp{background:rgba(191,90,242,.15);color:var(--purple)}
-.tpi{background:rgba(255,55,95,.15);color:var(--pink)}
-.ts{background:rgba(152,152,157,.15);color:var(--sub)}
 
-/* ── 页内标题 ── */
-.pg-title{font-size:22px;font-weight:700;margin-bottom:4px}
-.pg-sub{font-size:13px;color:var(--sub);margin-bottom:20px}
+/* ── 嵌入iframe ── */
+.embed-wrap{background:var(--bg2);border-radius:var(--r);border:0.5px solid var(--bd);overflow:hidden;margin-bottom:14px;position:relative}
+.embed-wrap .embed-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:0.5px solid var(--bd2)}
+.embed-wrap .embed-hd .et{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.embed-wrap .embed-hd .et .edot{width:6px;height:6px;border-radius:50%}
+.embed-wrap .embed-hd .eb{font-size:11px;color:var(--sub);background:var(--bg3);border:0.5px solid var(--bd);padding:4px 12px;border-radius:8px;cursor:pointer;transition:all .15s;text-decoration:none}
+.embed-wrap .embed-hd .eb:hover{color:var(--text);background:var(--bg4)}
+.embed-wrap iframe{width:100%;border:none;display:block}
+.embed-pick{height:360px}
+.embed-vis{height:520px}
+.embed-3d{height:480px}
+
+/* ── LED画廊 ── */
+.led-gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.led-thumb{background:var(--bg2);border-radius:var(--r-md);border:0.5px solid var(--bd);overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s}
+.led-thumb:hover{transform:translateY(-3px);border-color:var(--acc)}
+.led-thumb iframe{width:100%;height:90px;border:none;pointer-events:none;display:block}
+.led-thumb .led-info{padding:8px 12px}
+.led-thumb .led-info h4{font-size:12px;font-weight:600}
+.led-thumb .led-info p{font-size:10px;color:var(--sub)}
 
 /* ── overlay ── */
 .overlay{position:fixed;inset:0;background:var(--bg);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s ease}
 .overlay.open{opacity:1;pointer-events:auto}
-.overlay .obar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--nav);backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(255,255,255,0.08)}
+.overlay .obar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.overlay .obar-mid{display:flex;align-items:center;gap:12px}
 .overlay .otitle{font-size:14px;font-weight:600}
-.overlay .oback{background:none;border:none;color:var(--acc);font-size:14px;cursor:pointer;padding:6px 12px;border-radius:8px}
+.overlay .obreadcrumb{font-size:11px;color:var(--sub)}
+.overlay .oback{background:none;border:none;color:var(--acc);font-size:14px;cursor:pointer;padding:6px 12px;border-radius:8px;text-decoration:none}
 .overlay .oback:hover{background:rgba(10,132,255,.1)}
+.overlay .o-nav{display:flex;gap:8px}
+.overlay .o-nav a{font-size:12px;color:var(--sub);text-decoration:none;padding:4px 12px;border-radius:8px;border:0.5px solid var(--bd);transition:all .15s}
+.overlay .o-nav a:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
 .overlay iframe{width:100%;height:calc(100vh - 48px);border:none}
+.overlay .oloader{display:none;position:absolute;top:48px;left:0;right:0;bottom:0;justify-content:center;align-items:center;font-size:14px;color:var(--sub)}
 
-/* ── 汉堡 ── */
-.hamb{display:none;background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;padding:4px 8px;margin-right:8px}
+/* ── 移动端抽屉 ── */
+.drawer{position:fixed;top:48px;left:0;right:0;background:var(--nav);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));z-index:95;padding:12px 20px;border-bottom:0.5px solid var(--bd);display:none;flex-direction:column;gap:2px}
+.drawer.show{display:flex}
+.drawer a{font-size:14px;color:var(--text);text-decoration:none;padding:10px 12px;border-radius:8px}
+.drawer a:hover{background:rgba(255,255,255,0.06)}
+
+/* ── CTA按钮 ── */
+.cta{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--acc);background:rgba(10,132,255,0.1);border:0.5px solid rgba(10,132,255,0.2);padding:8px 16px;border-radius:var(--r-sm);cursor:pointer;transition:all .15s;text-decoration:none}
+.cta:hover{background:rgba(10,132,255,0.15);border-color:rgba(10,132,255,0.3)}
+
+/* ── Footer ── */
+.footer{padding:40px 32px;text-align:center;color:var(--sub2);font-size:12px;line-height:1.8;border-top:0.5px solid var(--bd);margin-top:40px}
+
+/* ── 响应式 ── */
 @media(max-width:768px){
-  .side{transform:translateX(-100%);transition:transform .3s ease;width:200px}
-  .side.show{transform:translateX(0)}
-  .main{margin-left:0;padding:16px}
-  .hamb{display:block}
+  .topbar .nav-links{display:none}
+  .topbar .meta{display:none}
+  .topbar .hamb{display:block}
+  .section{padding:40px 16px}
+  .hero-title{font-size:28px}
+  .hero-sub{font-size:14px}
+  .hero-quote{font-size:13px;padding:16px}
+  .timeline{flex-direction:column;gap:16px;max-width:300px}
+  .timeline::before{display:none}
+  .tl-node{display:flex;align-items:center;gap:10px;text-align:left}
+  .tl-node .dot{margin:0}
+  .tl-node .desc{max-width:none}
+  .stats{flex-direction:column;gap:12px;padding:16px}
+  .stat-div{width:auto;height:1px}
   .grid-3,.grid-4{grid-template-columns:1fr}
   .grid-2{grid-template-columns:1fr}
   .card-wide{grid-column:span 1}
-  .hero h1{font-size:24px}
+  .led-gallery{grid-template-columns:repeat(2,1fr)}
+  .embed-pick{height:280px}
+  .embed-vis{height:400px}
+  .embed-3d{height:360px}
+  .section-hd h2{font-size:20px}
 }
-</style></head>
+</style>
+</head>
 <body>
 
-<!-- 顶栏 -->
-<div class="topbar">
-  <button class="hamb" onclick="toggleSide()">≡</button>
+<!-- ═══ 顶部导航 ═══ -->
+<div class="topbar smx-glass">
+  <button class="hamb" onclick="toggleDrawer()">≡</button>
   <div class="logo">黑芝麻智能 · <span>前海展厅</span></div>
+  <div class="nav-links" id="navLinks">
+    <a href="#hero" class="act" onclick="navScroll('hero',this)">愿景</a>
+    <a href="#phase0" onclick="navScroll('phase0',this)">Phase 0 · 基建</a>
+    <a href="#phase1" onclick="navScroll('phase1',this)">Phase 1 · L2联动</a>
+    <a href="#phase2" onclick="navScroll('phase2',this)">Phase 2 · L3智能</a>
+    <a href="#phase3" onclick="navScroll('phase3',this)">Phase 3 · L4空间</a>
+    <a href="#led" onclick="navScroll('led',this)">LED屏</a>
+    <a href="#assets" onclick="navScroll('assets',this)">素材</a>
+  </div>
   <div class="spacer"></div>
   <div class="meta">SesameX Inside · 前海623㎡</div>
 </div>
 
-<!-- 侧边栏 -->
-<div class="side" id="side">
-  <input type="text" placeholder="搜索..." oninput="filterSide(this.value)">
-
-  <div class="grp"><span class="grp-dot" style="background:var(--acc)"></span>概览</div>
-  <div class="item act" onclick="pg('home',this)"><span class="dot" style="background:var(--acc)"></span>总览</div>
-
-  <div class="grp"><span class="grp-dot" style="background:var(--green)"></span>空间方案</div>
-  <div class="item" onclick="op('黑芝麻智能_展厅设计最终方案.html',this)"><span class="dot" style="background:var(--green)"></span>展厅总体方案</div>
-
-  <div class="grp"><span class="grp-dot" style="background:var(--acc)"></span>机器人系统</div>
-  <div class="item" onclick="pg('robot',this)"><span class="dot" style="background:var(--acc)"></span>7台机器人</div>
-  <div class="item" onclick="pg('scene',this)"><span class="dot" style="background:var(--acc)"></span>6大联动场景</div>
-  <div class="item" onclick="op('机器人联动方案设计.html',this)"><span class="dot" style="background:var(--acc)"></span>联动方案设计</div>
-  <div class="item" onclick="op('联动方案可视化.html',this)"><span class="dot" style="background:var(--purple)"></span>联动可视化</div>
-  <div class="item" onclick="op('采摘互动动画.html',this)"><span class="dot" style="background:var(--green)"></span>采摘互动动画</div>
-
-  <div class="grp"><span class="grp-dot" style="background:var(--purple)"></span>智能架构研究</div>
-  <div class="item" onclick="op('多机定位方案研究.html',this)"><span class="dot" style="background:var(--purple)"></span>多机定位与调度</div>
-  <div class="item" onclick="op('主动式智能架构方案.html',this)"><span class="dot" style="background:var(--purple)"></span>主动式智能架构</div>
-
-  <div class="grp"><span class="grp-dot" style="background:var(--orange)"></span>LED屏内容</div>
-  <div class="item" onclick="op('led_screen1_brand.html',this)"><span class="dot" style="background:var(--acc)"></span>屏1 · 品牌墙</div>
-  <div class="item" onclick="op('led_screen2_tree.html',this)"><span class="dot" style="background:var(--purple)"></span>屏2 · 世界树</div>
-  <div class="item" onclick="op('led_screen3_dashboard.html',this)"><span class="dot" style="background:var(--green)"></span>屏3 · 调度大屏</div>
-  <div class="item" onclick="op('led_screen4_sesamex.html',this)"><span class="dot" style="background:var(--acc)"></span>屏4 · SesameX</div>
-  <div class="item" onclick="op('led_screen5_oled.html',this)"><span class="dot" style="background:var(--sub)"></span>屏5 · OLED看板</div>
-  <div class="item" onclick="op('led_screen6_coffee.html',this)"><span class="dot" style="background:var(--orange)"></span>屏6 · 咖啡屏</div>
-  <div class="item" onclick="op('led_screen7_future.html',this)"><span class="dot" style="background:var(--purple)"></span>屏7 · 第五世界</div>
-
-  <div class="grp"><span class="grp-dot" style="background:var(--yellow)"></span>制作素材</div>
-  <div class="item" onclick="op('机器人区域LED播放内容脚本.html',this)"><span class="dot" style="background:var(--yellow)"></span>LED脚本</div>
-  <div class="item" onclick="op('LED脚本_Veo_Seedance专用Prompt.html',this)"><span class="dot" style="background:var(--yellow)"></span>Veo Prompt</div>
-  <div class="item" onclick="op('展厅效果图_AI生成Prompt.html',this)"><span class="dot" style="background:var(--yellow)"></span>效果图Prompt</div>
-
-  <div class="grp"><span class="grp-dot" style="background:var(--orange)"></span>3D体验</div>
-  <div class="item" onclick="op('展厅3D效果.html',this)"><span class="dot" style="background:var(--orange)"></span>3D展厅漫游</div>
+<!-- 移动端抽屉 -->
+<div class="drawer" id="drawer">
+  <a href="#hero" onclick="navScroll('hero');toggleDrawer()">愿景</a>
+  <a href="#phase0" onclick="navScroll('phase0');toggleDrawer()">Phase 0 · 基建预埋</a>
+  <a href="#phase1" onclick="navScroll('phase1');toggleDrawer()">Phase 1 · L2联动工程</a>
+  <a href="#phase2" onclick="navScroll('phase2');toggleDrawer()">Phase 2 · L3主动式智能</a>
+  <a href="#phase3" onclick="navScroll('phase3');toggleDrawer()">Phase 3 · L4空间智能</a>
+  <a href="#led" onclick="navScroll('led');toggleDrawer()">LED屏画廊</a>
+  <a href="#assets" onclick="navScroll('assets');toggleDrawer()">制作素材</a>
 </div>
 
-<!-- 主内容 -->
-<div class="main">
-
-<!-- 首页 -->
-<div class="page act" id="home">
-  <div class="hero">
-    <h1>前海展厅方案</h1>
-    <p>一颗芯片 · 千万形态 · 人机共生 · SesameX Inside</p>
+<!-- ═══ HERO ═══ -->
+<div class="section section-hero" id="hero">
+  <h1 class="hero-title">一台会进化的智能体</h1>
+  <p class="hero-sub">前海展厅不是一堆机器人的集合，而是通过 OTA 持续升级的空间智能体</p>
+  
+  <div class="hero-quote">
+    像汽车自动驾驶 <span class="accent">L2→L3→L4</span> 一样，展厅从"遥控联动"演进到"主动思考"，再到"空间自进化"。<br>
+    <strong style="color:var(--text)">前期基建预埋（传感器位/接口/布线布网）决定了后期升级的天花板。</strong>
   </div>
 
+  <!-- 演进时间轴 -->
+  <div class="timeline">
+    <div class="tl-node">
+      <div class="dot" style="background:var(--phase0);color:var(--phase0)"></div>
+      <div class="label" style="color:var(--phase0)">Phase 0</div>
+      <div class="desc">基建预埋<br>传感器/接口/布线</div>
+    </div>
+    <div class="tl-node">
+      <div class="dot" style="background:var(--phase1);color:var(--phase1)"></div>
+      <div class="label" style="color:var(--phase1)">L2 · 现在</div>
+      <div class="desc">联动工程<br>DAG调度·6场景</div>
+    </div>
+    <div class="tl-node">
+      <div class="dot" style="background:var(--phase2);color:var(--phase2)"></div>
+      <div class="label" style="color:var(--phase2)">L3 · OTA升级</div>
+      <div class="desc">主动式智能<br>VLA·AI Agent</div>
+    </div>
+    <div class="tl-node">
+      <div class="dot" style="background:var(--phase3);color:var(--phase3)"></div>
+      <div class="label" style="color:var(--phase3)">L4 · 未来</div>
+      <div class="desc">空间智能<br>全感知·自进化</div>
+    </div>
+  </div>
+
+  <!-- 统计 -->
   <div class="stats">
     <div class="stat"><div class="num" style="color:var(--acc)">623</div><div class="lbl">平方米</div></div>
-    <div class="divider"></div>
+    <div class="stat-div"></div>
     <div class="stat"><div class="num" style="color:var(--green)">7</div><div class="lbl">台机器人</div></div>
-    <div class="divider"></div>
+    <div class="stat-div"></div>
     <div class="stat"><div class="num" style="color:var(--orange)">7</div><div class="lbl">块LED屏</div></div>
-    <div class="divider"></div>
+    <div class="stat-div"></div>
     <div class="stat"><div class="num" style="color:var(--purple)">6</div><div class="lbl">大联动场景</div></div>
-    <div class="divider"></div>
+    <div class="stat-div"></div>
     <div class="stat"><div class="num" style="color:var(--pink)">8</div><div class="lbl">大展区</div></div>
-    <div class="divider"></div>
-    <div class="stat"><div class="num" style="color:var(--yellow)">2</div><div class="lbl">楼层</div></div>
-  </div>
-
-  <!-- 空间方案 -->
-  <div class="section-hd">
-    <h2>空间方案</h2><div class="line"></div>
-    <span class="badge" style="background:rgba(48,209,88,.15);color:var(--green)">策展规划</span>
-  </div>
-  <div class="grid grid-2">
-    <div class="card card-wide" onclick="op('黑芝麻智能_展厅设计最终方案.html')">
-      <div class="card-icon">🏛</div>
-      <h3>展厅总体方案</h3>
-      <p>623㎡ · 1F+2F · 8大展区权重分配 · 芯片世界树核心装置 · 智能座舱体验舱 · 完整策展逻辑</p>
-      <span class="tag tg">完整文档</span>
-    </div>
-    <div class="card" onclick="op('展厅3D效果.html')">
-      <div class="card-icon">🗺</div>
-      <h3>3D展厅漫游</h3>
-      <p>三维空间模型 · 交互体验 · 展区布局全览</p>
-      <span class="tag to">3D交互</span>
-    </div>
-  </div>
-
-  <!-- 机器人系统 -->
-  <div class="section-hd">
-    <h2>机器人系统</h2><div class="line"></div>
-    <span class="badge" style="background:rgba(10,132,255,.15);color:var(--acc)">7台 · 端-边-云</span>
-  </div>
-  <div class="grid grid-3">
-    <div class="card" onclick="op('机器人联动方案设计.html')">
-      <div class="card-icon">⚙</div>
-      <h3>联动方案设计</h3>
-      <p>端-边-云架构 · DAG调度引擎 · 7台机器人行为定义 · 6大场景工程方案 · 多机定位研究 · 主动式智能</p>
-      <span class="tag tb">9章完整方案</span>
-    </div>
-    <div class="card" onclick="op('联动方案可视化.html')">
-      <div class="card-icon">📡</div>
-      <h3>联动可视化</h3>
-      <p>俯视图 · 系统架构图 · 6大场景时序 · 硬件清单 · KPI指标</p>
-      <span class="tag tp">交互演示</span>
-    </div>
-    <div class="card" onclick="op('采摘互动动画.html')">
-      <div class="card-icon">🤖</div>
-      <h3>采摘互动动画</h3>
-      <p>随机位置视觉寻找 · 真空吸盘 · 7步完整流程 · SesameX Aura实时推理</p>
-      <span class="tag tg">实时动画</span>
-    </div>
-  </div>
-
-  <!-- 智能架构研究 -->
-  <div class="section-hd">
-    <h2>智能架构研究</h2><div class="line"></div>
-    <span class="badge" style="background:rgba(191,90,242,.15);color:var(--purple)">技术深度</span>
-  </div>
-  <div class="grid grid-2">
-    <div class="card" onclick="op('多机定位方案研究.html')">
-      <div class="card-icon">📍</div>
-      <h3>多机定位与调度方案研究</h3>
-      <p>7台异构机器人统一定位 · UWB外挂方案 · API适配层架构 · 供应商配合需求 · 14周开发路线</p>
-      <span class="tag tp">技术研究</span>
-    </div>
-    <div class="card" onclick="op('主动式智能架构方案.html')">
-      <div class="card-icon">🧠</div>
-      <h3>主动式智能架构方案</h3>
-      <p>从固定响应到主动思考 · 端侧VLA推理 · 多智能体协商 · 访客意图预测 · 展馆级AI大脑</p>
-      <span class="tag tp">技术研究</span>
-    </div>
-  </div>
-
-  <!-- LED屏内容 -->
-  <div class="section-hd">
-    <h2>LED屏内容</h2><div class="line"></div>
-    <span class="badge" style="background:rgba(255,159,10,.15);color:var(--orange)">7块屏</span>
-  </div>
-  <div class="grid grid-4">
-    <div class="card" onclick="op('led_screen1_brand.html')">
-      <h3>屏1 · 品牌墙</h3>
-      <p>粒子汇聚 · 品牌标语 · BEST TECH</p>
-      <span class="tag tb">120s循环</span>
-    </div>
-    <div class="card" onclick="op('led_screen2_tree.html')">
-      <h3>屏2 · 世界树</h3>
-      <p>六面展开 · 芯片觉醒 · 数据流</p>
-      <span class="tag tb">60s循环</span>
-    </div>
-    <div class="card" onclick="op('led_screen3_dashboard.html')">
-      <h3>屏3 · 调度大屏</h3>
-      <p>中枢调度 · 俯视图 · 场景触发</p>
-      <span class="tag tg">实时+触发</span>
-    </div>
-    <div class="card" onclick="op('led_screen4_sesamex.html')">
-      <h3>屏4 · SesameX</h3>
-      <p>Kalos · Aura · Liora 平台展示</p>
-      <span class="tag tb">90s循环</span>
-    </div>
-    <div class="card" onclick="op('led_screen5_oled.html')">
-      <h3>屏5 · OLED看板</h3>
-      <p>透明OLED · 机器人状态实时数据</p>
-      <span class="tag ts">实时</span>
-    </div>
-    <div class="card" onclick="op('led_screen6_coffee.html')">
-      <h3>屏6 · 咖啡屏</h3>
-      <p>取餐提示 · 拉花展示 · 订单状态</p>
-      <span class="tag to">按需触发</span>
-    </div>
-    <div class="card" onclick="op('led_screen7_future.html')">
-      <h3>屏7 · 第五世界</h3>
-      <p>人机共生 · 弧幕沉浸 · 未来区</p>
-      <span class="tag tp">90s循环</span>
-    </div>
-    <div class="card" onclick="op('机器人区域LED播放内容脚本.html')">
-      <h3>LED内容脚本</h3>
-      <p>7块屏分镜脚本 · 画面描述 · 时序</p>
-      <span class="tag ts">文档</span>
-    </div>
-  </div>
-
-  <!-- 制作素材 -->
-  <div class="section-hd">
-    <h2>制作素材</h2><div class="line"></div>
-    <span class="badge" style="background:rgba(255,214,10,.15);color:var(--yellow)">AI生成</span>
-  </div>
-  <div class="grid grid-2">
-    <div class="card" onclick="op('LED脚本_Veo_Seedance专用Prompt.html')">
-      <div class="card-icon">🎬</div>
-      <h3>Veo / Seedance AI视频 Prompt</h3>
-      <p>7块屏逐条Prompt · Midjourney参考帧 · Negative Prompt · 品牌色规范</p>
-      <span class="tag ts">AI制作指导</span>
-    </div>
-    <div class="card" onclick="op('展厅效果图_AI生成Prompt.html')">
-      <div class="card-icon">🎨</div>
-      <h3>展厅效果图 AI Prompt</h3>
-      <p>8大展区效果图生成提示词 · Midjourney参数 · 场景描述</p>
-      <span class="tag ts">AI制作指导</span>
-    </div>
-  </div>
-</div><!-- /home -->
-
-<!-- 7台机器人页 -->
-<div class="page" id="robot">
-  <div class="pg-title">7台机器人</div>
-  <div class="pg-sub">每台由SesameX芯片驱动 · 端侧AI实时感知与决策</div>
-  <div class="grid grid-3">
-    <div class="card" onclick="op('机器人联动方案设计.html')">
-      <h3>Walker S3</h3>
-      <p>迎宾/导览/拍照/讲解<br>SesameX Liora · 0.5m/s · 续航90min</p>
-      <span class="tag tg">优必选 · Liora</span>
-    </div>
-    <div class="card" onclick="op('机器人联动方案设计.html')">
-      <h3>M20 Pro</h3>
-      <p>巡检/越障/红外洒漏检测/引路<br>SesameX Aura · 1.2m/s · FLIR红外</p>
-      <span class="tag tb">云深处 · Aura</span>
-    </div>
-    <div class="card" onclick="op('机器人联动方案设计.html')">
-      <h3>咖啡机器人</h3>
-      <p>肖像拉花 · StyleGAN边缘推理<br>SesameX Aura · 60杯/天</p>
-      <span class="tag to">Aura</span>
-    </div>
-    <div class="card" onclick="op('机器人联动方案设计.html')">
-      <h3>云迹送餐</h3>
-      <p>送包到会议室 · UWB+SLAM<br>SesameX Kalos · 0.8m/s</p>
-      <span class="tag tb">云迹 · Kalos</span>
-    </div>
-    <div class="card" onclick="op('机器人联动方案设计.html')">
-      <h3>云迹UP底盘</h3>
-      <p>送水/清洁/洒漏处理<br>SesameX Kalos · 洒漏8秒到达</p>
-      <span class="tag tp">云迹 · Kalos</span>
-    </div>
-    <div class="card" onclick="op('采摘互动动画.html')">
-      <h3>遨博i5协作臂</h3>
-      <p>世界树采摘 · 真空吸盘 · 随机6槽位<br>SesameX Aura · 臂展886mm</p>
-      <span class="tag to">遨博 · Aura</span>
-    </div>
-    <div class="card" onclick="op('机器人联动方案设计.html')">
-      <h3>遨博海纳</h3>
-      <p>移动抓取/超市拿零食<br>SesameX Aura · 麦轮全向 · 5kg</p>
-      <span class="tag tpi">遨博 · Aura</span>
-    </div>
   </div>
 </div>
 
-<!-- 6大联动场景页 -->
-<div class="page" id="scene">
-  <div class="pg-title">6大联动场景</div>
-  <div class="pg-sub">端-边-云协同 · DAG任务编排 · 数字孪生</div>
+<!-- ═══ Phase 0 · 基建预埋 ═══ -->
+<div class="section" id="phase0">
+  <div class="section-hd">
+    <span class="phase-badge smx-tag-gray">PHASE 0</span>
+    <h2>基建预埋 — 决定升级天花板</h2>
+    <div class="line"></div>
+  </div>
+  <p class="section-desc">
+    在展厅装修阶段同步预埋传感器安装位、网络接口、供电布线，为后续 L2→L4 的 OTA 升级奠定物理基础。
+    一颗传感器位的预留，就是未来一个智能场景的可能性。
+  </p>
   <div class="grid grid-3">
-    <div class="card" onclick="op('联动方案可视化.html')">
+    <div class="card" onclick="openDoc('黑芝麻智能_展厅设计最终方案.html')">
+      <div class="card-icon">📡</div>
+      <h3>传感器预埋位</h3>
+      <p>UWB基站·红外阵列·毫米波雷达·摄像头位 — 预装底盒与穿线管</p>
+      <span class="smx-tag smx-tag-gray">装修期同步</span>
+    </div>
+    <div class="card" onclick="openDoc('黑芝麻智能_展厅设计最终方案.html')">
+      <div class="card-icon">🔌</div>
+      <h3>接口与布线</h3>
+      <p>强弱电分离·光纤骨干网·边缘计算节点位 — 每个接口预留升级余量</p>
+      <span class="smx-tag smx-tag-gray">一次施工</span>
+    </div>
+    <div class="card" onclick="openDoc('黑芝麻智能_展厅设计最终方案.html')">
+      <div class="card-icon">🏗</div>
+      <h3>空间总体规划</h3>
+      <p>623㎡·1F+2F·8大展区权重 — 芯片世界树为核心装置，具身智能占48%</p>
+      <span class="smx-tag smx-tag-green">完整方案</span>
+    </div>
+  </div>
+  <div style="margin-top:16px">
+    <a class="cta" onclick="openDoc('黑芝麻智能_展厅设计最终方案.html')">阅读展厅总体方案 ↗</a>
+  </div>
+</div>
+
+<!-- ═══ Phase 1 · L2 联动工程 ═══ -->
+<div class="section" id="phase1">
+  <div class="section-hd">
+    <span class="phase-badge smx-tag-green">PHASE 1 · L2 · 现在</span>
+    <h2>联动工程 — 端-边-云协同</h2>
+    <div class="line"></div>
+  </div>
+  <p class="section-desc">
+    7台异构机器人通过 DAG 任务编排引擎实现确定性联动，覆盖 VIP 导览、拍照接力、洒漏自愈、采摘互动等 6 大场景。
+    这是展厅的"L2级辅助联动"——规则驱动、精确可控。
+  </p>
+
+  <!-- 嵌入：联动方案可视化 -->
+  <div class="embed-wrap">
+    <div class="embed-hd">
+      <div class="et"><span class="edot" style="background:var(--green)"></span>联动方案 · 系统架构与场景可视化</div>
+      <a class="eb" onclick="openDoc('联动方案可视化.html')">全屏查看 ↗</a>
+    </div>
+    <iframe src="联动方案可视化.html" loading="lazy" class="embed-vis"></iframe>
+  </div>
+
+  <!-- 7台机器人 -->
+  <div style="margin:28px 0 14px;font-size:15px;font-weight:600">7台机器人 · 每台由 SesameX 芯片驱动</div>
+  <div class="grid grid-4">
+    <div class="card" onclick="openDoc('机器人联动方案设计.html')">
+      <h3>Walker S3</h3>
+      <p>迎宾/导览/拍照/讲解<br>0.5m/s · 续航90min</p>
+      <span class="smx-tag smx-tag-green">Liora</span>
+    </div>
+    <div class="card" onclick="openDoc('机器人联动方案设计.html')">
+      <h3>M20 Pro</h3>
+      <p>巡检/越障/红外检测<br>1.2m/s · FLIR红外</p>
+      <span class="smx-tag smx-tag-blue">Aura</span>
+    </div>
+    <div class="card" onclick="openDoc('机器人联动方案设计.html')">
+      <h3>咖啡机器人</h3>
+      <p>肖像拉花 · StyleGAN<br>60杯/天</p>
+      <span class="smx-tag smx-tag-orange">Aura</span>
+    </div>
+    <div class="card" onclick="openDoc('机器人联动方案设计.html')">
+      <h3>云迹送餐</h3>
+      <p>送包到会议室<br>UWB+SLAM · 0.8m/s</p>
+      <span class="smx-tag smx-tag-blue">Kalos</span>
+    </div>
+    <div class="card" onclick="openDoc('机器人联动方案设计.html')">
+      <h3>云迹UP底盘</h3>
+      <p>送水/清洁/洒漏处理<br>洒漏8秒到达</p>
+      <span class="smx-tag smx-tag-purple">Kalos</span>
+    </div>
+    <div class="card" onclick="openDoc('采摘互动动画.html')">
+      <h3>遨博i5协作臂</h3>
+      <p>世界树采摘 · 真空吸盘<br>随机6槽位 · 臂展886mm</p>
+      <span class="smx-tag smx-tag-orange">Aura</span>
+    </div>
+    <div class="card" onclick="openDoc('机器人联动方案设计.html')">
+      <h3>遨博海纳</h3>
+      <p>移动抓取/超市拿零食<br>麦轮全向 · 5kg</p>
+      <span class="smx-tag smx-tag-pink">Aura</span>
+    </div>
+  </div>
+
+  <!-- 嵌入：采摘互动动画 -->
+  <div style="margin:28px 0 14px;font-size:15px;font-weight:600">采摘互动 · SesameX Aura 实时视觉推理</div>
+  <div class="embed-wrap">
+    <div class="embed-hd">
+      <div class="et"><span class="edot" style="background:var(--orange)"></span>采摘互动 · 完整动画演示</div>
+      <a class="eb" onclick="openDoc('采摘互动动画.html')">全屏查看 ↗</a>
+    </div>
+    <iframe src="采摘互动动画.html" loading="lazy" class="embed-pick"></iframe>
+  </div>
+
+  <!-- 6大场景 -->
+  <div style="margin:28px 0 14px;font-size:15px;font-weight:600">6大联动场景 · DAG 任务编排</div>
+  <div class="grid grid-3">
+    <div class="card" onclick="openDoc('联动方案可视化.html')">
       <h3>VIP迎宾导览</h3>
-      <p>T+330秒全流程：签到→Walker迎宾→M20表演→咖啡→送包→未来区</p>
-      <span class="tag tg">Walker+M20+Coffee+Delivery</span>
+      <p>T+330秒全流程：签到→迎宾→表演→咖啡→送包→未来区</p>
     </div>
-    <div class="card" onclick="op('联动方案可视化.html')">
+    <div class="card" onclick="openDoc('联动方案可视化.html')">
       <h3>拍照接力</h3>
-      <p>Walker拍照→StyleGAN拉花→咖啡→凭脸取餐 · 隐私保护全流程</p>
-      <span class="tag tb">Walker+Coffee</span>
+      <p>Walker拍照→StyleGAN拉花→凭脸取餐 · 隐私全流程</p>
     </div>
-    <div class="card" onclick="op('联动方案可视化.html')">
+    <div class="card" onclick="openDoc('联动方案可视化.html')">
       <h3>洒漏自愈</h3>
-      <p>M20红外检测→中枢派单→UP清洁 · 31秒全程无人干预</p>
-      <span class="tag to">M20+UP</span>
+      <p>红外检测→中枢派单→UP清洁 · 31秒无人干预</p>
     </div>
-    <div class="card" onclick="op('联动方案可视化.html')">
+    <div class="card" onclick="openDoc('联动方案可视化.html')">
       <h3>送物接力</h3>
       <p>包架RFID触发→走廊导航→会议室送达</p>
-      <span class="tag tb">Delivery</span>
     </div>
-    <div class="card" onclick="op('采摘互动动画.html')">
+    <div class="card" onclick="openDoc('采摘互动动画.html')">
       <h3>采摘互动</h3>
-      <p>随机位置→Aura视觉寻找→真空吸盘→重力脱离→递给访客</p>
-      <span class="tag tg">Aubo i5+Aura</span>
+      <p>随机位置→视觉寻找→真空吸盘→递给访客</p>
     </div>
-    <div class="card" onclick="op('联动方案可视化.html')">
+    <div class="card" onclick="openDoc('联动方案可视化.html')">
       <h3>日常巡检</h3>
-      <p>每30分钟自动巡检 · LED坏点/地面/装置状态检测</p>
-      <span class="tag tp">M20 Pro</span>
+      <p>每30分钟自动巡检 · LED坏点/地面/装置检测</p>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
+    <a class="cta" onclick="openDoc('机器人联动方案设计.html')">联动方案完整文档 ↗</a>
+    <a class="cta" onclick="openDoc('多机定位方案研究.html')">多机定位方案研究 ↗</a>
+  </div>
+</div>
+
+<!-- ═══ Phase 2 · L3 主动式智能 ═══ -->
+<div class="section" id="phase2">
+  <div class="section-hd">
+    <span class="phase-badge smx-tag-orange">PHASE 2 · L3 · OTA升级</span>
+    <h2>主动式智能 — 从"遥控"到"思考"</h2>
+    <div class="line"></div>
+  </div>
+  <p class="section-desc">
+    通过 OTA 升级，展厅从"固定规则联动"进化为"主动式智能"。端侧 VLA 模型让机器人理解访客意图，
+    多智能体协商让系统自主决策。这是 L3 级——能思考、会预判、可协商。
+  </p>
+  <div class="grid grid-2">
+    <div class="card card-wide" onclick="openDoc('主动式智能架构方案.html')">
+      <div class="card-icon">🧠</div>
+      <h3>主动式智能架构方案</h3>
+      <p>从固定响应到主动思考 · 端侧VLA推理 · 多智能体协商 · 访客意图预测 · 展馆级AI大脑 · 28周实施路线图</p>
+      <span class="smx-tag smx-tag-orange">L3 架构</span>
+    </div>
+    <div class="card" onclick="openDoc('多机定位方案研究.html')">
+      <div class="card-icon">📍</div>
+      <h3>多机定位与调度</h3>
+      <p>7台异构机器人统一定位 · UWB外挂 · API适配层 · 14周路线</p>
+      <span class="smx-tag smx-tag-purple">技术深挖</span>
     </div>
   </div>
 </div>
 
-</div><!-- /main -->
-
-<!-- overlay -->
-<div class="overlay" id="ov">
-  <div class="obar">
-    <button class="oback" onclick="cl()">‹ 返回</button>
-    <div class="otitle" id="ot">预览</div>
-    <div style="width:60px"></div>
+<!-- ═══ Phase 3 · L4 空间智能 ═══ -->
+<div class="section" id="phase3">
+  <div class="section-hd">
+    <span class="phase-badge smx-tag-purple">PHASE 3 · L4 · 未来</span>
+    <h2>空间智能 — 展厅即智能体</h2>
+    <div class="line"></div>
   </div>
-  <iframe id="of" src="" onload="document.getElementById('ld').style.display='none'"></iframe>
-  <div id="ld" style="display:none;position:absolute;top:48px;left:0;right:0;bottom:0;justify-content:center;align-items:center;font-size:14px;color:var(--sub)">加载中...</div>
+  <p class="section-desc">
+    当基建预埋的传感器全部激活，当 L3 的 AI Agent 持续学习，展厅将进化为 L4 级空间智能——
+    全感知、自进化、自修复。空间本身成为一个会思考的生命体。
+  </p>
+
+  <!-- 嵌入：3D展厅 -->
+  <div class="embed-wrap">
+    <div class="embed-hd">
+      <div class="et"><span class="edot" style="background:var(--purple)"></span>3D展厅漫游 · 空间全览</div>
+      <a class="eb" onclick="openDoc('展厅3D效果.html')">全屏查看 ↗</a>
+    </div>
+    <iframe src="展厅3D效果.html" loading="lazy" class="embed-3d"></iframe>
+  </div>
+</div>
+
+<!-- ═══ LED屏画廊 ═══ -->
+<div class="section" id="led">
+  <div class="section-hd">
+    <span class="phase-badge smx-tag-yellow">LED SCREENS</span>
+    <h2>7块LED屏 · 内容画廊</h2>
+    <div class="line"></div>
+  </div>
+  <p class="section-desc">
+    每块屏都是展厅叙事的一个章节——从入口品牌墙到第五世界弧幕，7块屏构成完整的视觉叙事链。
+    点击任意屏查看完整动画。
+  </p>
+  <div class="led-gallery" id="ledGallery"></div>
+  <div style="margin-top:16px">
+    <a class="cta" onclick="openDoc('机器人区域LED播放内容脚本.html')">LED内容脚本（7块屏分镜）↗</a>
+  </div>
+</div>
+
+<!-- ═══ 制作素材 ═══ -->
+<div class="section" id="assets">
+  <div class="section-hd">
+    <span class="phase-badge smx-tag-gray">ASSETS</span>
+    <h2>制作素材 · AI生成指导</h2>
+    <div class="line"></div>
+  </div>
+  <div class="grid grid-3">
+    <div class="card" onclick="openDoc('LED脚本_Veo_Seedance专用Prompt.html')">
+      <div class="card-icon">🎬</div>
+      <h3>Veo / Seedance Prompt</h3>
+      <p>7块屏逐条Prompt · Midjourney参考帧 · Negative Prompt · 品牌色规范</p>
+      <span class="smx-tag smx-tag-gray">AI视频</span>
+    </div>
+    <div class="card" onclick="openDoc('展厅效果图_AI生成Prompt.html')">
+      <div class="card-icon">🎨</div>
+      <h3>效果图 AI Prompt</h3>
+      <p>8大展区效果图生成提示词 · Midjourney参数 · 场景描述</p>
+      <span class="smx-tag smx-tag-gray">AI图像</span>
+    </div>
+    <div class="card" onclick="openDoc('机器人区域LED播放内容脚本.html')">
+      <div class="card-icon">📋</div>
+      <h3>LED内容脚本</h3>
+      <p>7块屏分镜脚本 · 画面描述 · 时序设计</p>
+      <span class="smx-tag smx-tag-gray">文档</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Footer ═══ -->
+<div class="footer">
+  黑芝麻智能科技 · 前海展厅方案<br>
+  SesameX Inside · 一颗芯片 · 千万形态 · 人机共生<br>
+  <span style="color:var(--sub2)">通过 OTA 持续升级 · L2→L3→L4 空间智能演进</span>
+</div>
+
+<!-- ═══ Overlay（文档全屏查看） ═══ -->
+<div class="overlay" id="ov">
+  <div class="obar smx-glass">
+    <a class="oback" onclick="closeOverlay()">‹ 返回</a>
+    <div class="obar-mid">
+      <div class="otitle" id="ot">预览</div>
+      <div class="obreadcrumb" id="obc"></div>
+    </div>
+    <div class="o-nav" id="onav"></div>
+  </div>
+  <iframe id="of" src="" onload="document.getElementById('oloader').style.display='none'"></iframe>
+  <div class="oloader" id="oloader">加载中...</div>
 </div>
 
 <script>
-var TITLES={
-  '联动方案可视化.html':'联动方案 · 系统架构与场景设计',
-  '采摘互动动画.html':'采摘互动 · 完整动画演示',
-  'led_screen1_brand.html':'屏1 · 入口品牌墙',
-  'led_screen2_tree.html':'屏2 · 芯片世界树光柱',
-  'led_screen3_dashboard.html':'屏3 · 中枢调度大屏',
-  'led_screen4_sesamex.html':'屏4 · SesameX平台',
-  'led_screen5_oled.html':'屏5 · 透明OLED看板',
-  'led_screen6_coffee.html':'屏6 · 咖啡取餐屏',
-  'led_screen7_future.html':'屏7 · 第五世界弧幕',
-  '展厅3D效果.html':'3D展厅 · 漫游体验',
-  '黑芝麻智能_展厅设计最终方案.html':'展厅总体方案 · 完整策展文档',
-  '机器人联动方案设计.html':'联动方案设计 · 端-边-云架构与场景',
-  '机器人区域LED播放内容脚本.html':'LED脚本 · 7块屏分镜脚本',
-  'LED脚本_Veo_Seedance专用Prompt.html':'Veo Prompt · AI视频生成',
-  '展厅效果图_AI生成Prompt.html':'效果图Prompt · AI生成参考',
-  '多机定位方案研究.html':'多机定位与调度方案研究',
-  '主动式智能架构方案.html':'主动式智能架构方案',
-};
+/* ═══ 文档元数据（面包屑 + 上下章） ═══ */
+var DOCS=[
+  {file:'黑芝麻智能_展厅设计最终方案.html',title:'展厅总体方案 · 完整策展文档',crumb:'Phase 0 · 基建预埋'},
+  {file:'机器人联动方案设计.html',title:'联动方案设计 · 端-边-云架构与场景',crumb:'Phase 1 · L2联动'},
+  {file:'多机定位方案研究.html',title:'多机定位与调度方案研究',crumb:'Phase 1 · 技术深挖'},
+  {file:'主动式智能架构方案.html',title:'主动式智能架构方案',crumb:'Phase 2 · L3主动式智能'},
+  {file:'机器人区域LED播放内容脚本.html',title:'LED脚本 · 7块屏分镜脚本',crumb:'素材 · LED脚本'},
+  {file:'LED脚本_Veo_Seedance专用Prompt.html',title:'Veo Prompt · AI视频生成',crumb:'素材 · AI视频'},
+  {file:'展厅效果图_AI生成Prompt.html',title:'效果图Prompt · AI生成参考',crumb:'素材 · AI图像'},
+  {file:'联动方案可视化.html',title:'联动方案 · 系统架构与场景可视化',crumb:'Phase 1 · 可视化',nonDoc:true},
+  {file:'采摘互动动画.html',title:'采摘互动 · 完整动画演示',crumb:'Phase 1 · 采摘动画',nonDoc:true},
+  {file:'展厅3D效果.html',title:'3D展厅 · 漫游体验',crumb:'Phase 3 · 3D漫游',nonDoc:true},
+  {file:'led_screen1_brand.html',title:'屏1 · 入口品牌墙',crumb:'LED · 品牌墙',led:true},
+  {file:'led_screen2_tree.html',title:'屏2 · 芯片世界树光柱',crumb:'LED · 世界树',led:true},
+  {file:'led_screen3_dashboard.html',title:'屏3 · 中枢调度大屏',crumb:'LED · 调度大屏',led:true},
+  {file:'led_screen4_sesamex.html',title:'屏4 · SesameX平台',crumb:'LED · 平台展示',led:true},
+  {file:'led_screen5_oled.html',title:'屏5 · 透明OLED看板',crumb:'LED · OLED看板',led:true},
+  {file:'led_screen6_coffee.html',title:'屏6 · 咖啡取餐屏',crumb:'LED · 咖啡屏',led:true},
+  {file:'led_screen7_future.html',title:'屏7 · 第五世界弧幕',crumb:'LED · 第五世界',led:true},
+];
 
-function toggleSide(){document.getElementById('side').classList.toggle('show')}
+var DOC_ORDER=[
+  '黑芝麻智能_展厅设计最终方案.html',
+  '机器人联动方案设计.html',
+  '多机定位方案研究.html',
+  '主动式智能架构方案.html',
+  '机器人区域LED播放内容脚本.html',
+  'LED脚本_Veo_Seedance专用Prompt.html',
+  '展厅效果图_AI生成Prompt.html',
+];
 
-function filterSide(q){
-  q=q.toLowerCase();
-  document.querySelectorAll('.side .item').forEach(function(it){
-    it.style.display=it.textContent.toLowerCase().includes(q)?'':'none';
+function findDoc(f){return DOCS.find(function(d){return d.file===f})}
+
+/* ═══ 导航 ═══ */
+function toggleDrawer(){document.getElementById('drawer').classList.toggle('show')}
+
+function navScroll(id,btn){
+  document.getElementById(id).scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.nav-links a').forEach(function(a){a.classList.remove('act')});
+  if(btn)btn.classList.add('act');
+}
+
+/* 滚动时高亮当前section */
+var sections=['hero','phase0','phase1','phase2','phase3','led','assets'];
+window.addEventListener('scroll',function(){
+  var sc=window.scrollY+100;
+  var cur='hero';
+  sections.forEach(function(id){var el=document.getElementById(id);if(el&&el.offsetTop<=sc)cur=id});
+  document.querySelectorAll('.nav-links a').forEach(function(a){
+    a.classList.toggle('act',a.getAttribute('href')==='#'+cur);
   });
-}
+});
 
-function pg(id,b){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
-  document.getElementById(id).classList.add('act');
-  document.querySelectorAll('.side .item').forEach(x=>x.classList.remove('act'));
-  if(b)b.classList.add('act');
-}
+/* ═══ LED画廊生成 ═══ */
+var LED_LIST=[
+  {file:'led_screen1_brand.html',name:'屏1 · 品牌墙',desc:'粒子汇聚·品牌标语·BEST TECH'},
+  {file:'led_screen2_tree.html',name:'屏2 · 世界树',desc:'六面展开·芯片觉醒·数据流'},
+  {file:'led_screen3_dashboard.html',name:'屏3 · 调度大屏',desc:'中枢调度·俯视图·场景触发'},
+  {file:'led_screen4_sesamex.html',name:'屏4 · SesameX',desc:'Kalos·Aura·Liora 平台展示'},
+  {file:'led_screen5_oled.html',name:'屏5 · OLED看板',desc:'透明OLED·机器人状态实时'},
+  {file:'led_screen6_coffee.html',name:'屏6 · 咖啡屏',desc:'取餐提示·拉花展示·订单'},
+  {file:'led_screen7_future.html',name:'屏7 · 第五世界',desc:'人机共生·弧幕沉浸·未来'},
+];
 
-function op(src,b){
+LED_LIST.forEach(function(led){
+  var d=document.createElement('div');
+  d.className='led-thumb';
+  d.onclick=function(){openDoc(led.file)};
+  d.innerHTML='<iframe src="'+led.file+'" loading="lazy"></iframe><div class="led-info"><h4>'+led.name+'</h4><p>'+led.desc+'</p></div>';
+  document.getElementById('ledGallery').appendChild(d);
+});
+
+/* ═══ Overlay ═══ */
+function openDoc(src){
   var ov=document.getElementById('ov');
-  if(ov.classList.contains('open')&&document.getElementById('of').src.endsWith(src))return;
-  document.getElementById('ot').textContent=TITLES[src]||src;
-  document.getElementById('ld').style.display='flex';
+  var doc=findDoc(src);
+  if(!doc)return;
+
+  document.getElementById('ot').textContent=doc.title;
+  document.getElementById('obc').textContent=doc.crumb||'';
+  
+  /* 上下章导航（仅文档类） */
+  var navEl=document.getElementById('onav');
+  navEl.innerHTML='';
+  var idx=DOC_ORDER.indexOf(src);
+  if(idx===-1){
+    /* 非文档类（可视化/3D/LED）— 无上下章 */
+  }else{
+    if(idx>0){
+      var prev=findDoc(DOC_ORDER[idx-1]);
+      if(prev){var a1=document.createElement('a');a1.textContent='‹ '+(prev.title.split('·')[0]||'上一章').trim();a1.onclick=function(){openDoc(DOC_ORDER[idx-1])};a1.style.cursor='pointer';navEl.appendChild(a1)}
+    }
+    if(idx<DOC_ORDER.length-1){
+      var next=findDoc(DOC_ORDER[idx+1]);
+      if(next){var a2=document.createElement('a');a2.textContent=(next.title.split('·')[0]||'下一章').trim()+' ›';a2.onclick=function(){openDoc(DOC_ORDER[idx+1])};a2.style.cursor='pointer';navEl.appendChild(a2)}
+    }
+  }
+
+  document.getElementById('oloader').style.display='flex';
   ov.classList.add('open');
   document.getElementById('of').src=src;
-  if(b){document.querySelectorAll('.side .item').forEach(x=>x.classList.remove('act'));b.classList.add('act')}
   history.pushState({overlay:true,src:src},'');
 }
 
-function cl(){
+function closeOverlay(){
   document.getElementById('ov').classList.remove('open');
-  document.getElementById('ld').style.display='none';
+  document.getElementById('oloader').style.display='none';
   setTimeout(function(){document.getElementById('of').src=''},300);
 }
 
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'&&document.getElementById('ov').classList.contains('open'))cl();
+  if(e.key==='Escape'&&document.getElementById('ov').classList.contains('open'))closeOverlay();
 });
 window.addEventListener('popstate',function(e){
   if(!e.state||!e.state.overlay){
@@ -462,4 +599,5 @@ window.addEventListener('popstate',function(e){
 });
 </script>
 <script src="auth.js"></script>
-</body></html>
+</body>
+</html>

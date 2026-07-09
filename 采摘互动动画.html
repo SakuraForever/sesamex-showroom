@@ -19,8 +19,8 @@ for(var i=0;i<7;i++){var e=document.createElement('div');e.id='p'+i;document.get
 function TD(){var s=0;for(var d of SD)s+=d;return s}
 function GS(){var to=TD(),c=(t/F)%to,a=0;for(var i=0;i<7;i++){if(c<a+SD[i])return{s:i,l:(c-a)/SD[i]};a+=SD[i]}return{s:0,l:0}}
 function drawB(s,loc){
-var l=L();ctx.fillStyle='#060610';ctx.fillRect(0,0,cv.width,cv.height);
-var bg=ctx.createRadialGradient(innerWidth*.4,innerHeight*.5,80,innerWidth*.4,innerHeight*.5,innerWidth*.5);bg.addColorStop(0,'#0a0a1a');bg.addColorStop(1,'#060610');ctx.fillStyle=bg;ctx.fillRect(0,0,cv.width,cv.height);
+var l=L();ctx.fillStyle='#000';ctx.fillRect(0,0,cv.width,cv.height);
+var bg=ctx.createRadialGradient(innerWidth*.4,innerHeight*.5,80,innerWidth*.4,innerHeight*.5,innerWidth*.5);bg.addColorStop(0,'#0a0a1a');bg.addColorStop(1,'#000');ctx.fillStyle=bg;ctx.fillRect(0,0,cv.width,cv.height);
 ctx.strokeStyle='#333';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,l.gy);ctx.lineTo(innerWidth,l.gy);ctx.stroke();
 // Shade hood
 ctx.fillStyle='rgba(10,10,20,.5)';ctx.beginPath();ctx.moveTo(l.tx-50,70);ctx.quadraticCurveTo(l.tx+l.tw*.5,32,l.tx+l.tw+110,70);ctx.lineTo(l.tx+l.tw+110,80);ctx.lineTo(l.tx-50,80);ctx.closePath();ctx.fill();ctx.strokeStyle='#333';ctx.stroke();

@@ -1,34 +1,38 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>黑芝麻智能 机器人联动方案</title>
 <style>
+:root{--bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--bd:rgba(255,255,255,0.08);--cyan:#00D4FF;--green:#00FF88;--orange:#FF8844;--purple:#AA66FF;--yellow:#FFCC00;--red:#FF3333;--font:-apple-system,'SF Pro Display','Microsoft YaHei','PingFang SC',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a12;color:#e0e0e0;font-family:'Microsoft YaHei',sans-serif}
-.hd{background:linear-gradient(135deg,#001525,#0a2040);padding:14px 30px;border-bottom:2px solid #00D4FF}
-.hd h1{font-size:18px;color:#00D4FF}.hd p{font-size:11px;color:#888;margin-top:3px}
-.nv{display:flex;gap:3px;padding:8px 30px;background:#0d0d18;border-bottom:1px solid #222;flex-wrap:wrap}
-.nv button{padding:6px 12px;background:#1a1a2e;color:#888;border:1px solid #333;border-radius:5px;cursor:pointer;font-size:11px}
-.nv button:hover,.nv button.act{background:#00D4FF20;color:#00D4FF;border-color:#00D4FF}
-.tab{display:none;padding:16px 30px;max-width:1400px;margin:0 auto}
+body{background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+.hd{background:var(--bg2);padding:14px 30px;border-bottom:0.5px solid var(--bd)}
+.hd h1{font-size:18px;color:var(--text);font-weight:700}.hd p{font-size:11px;color:var(--sub);margin-top:3px}
+.nv{display:flex;gap:4px;padding:8px 30px;background:var(--bg2);border-bottom:0.5px solid var(--bd);flex-wrap:wrap;position:sticky;top:0;z-index:10}
+.nv button{padding:6px 14px;background:var(--bg3);color:var(--sub);border:0.5px solid var(--bd);border-radius:8px;cursor:pointer;font-size:12px;transition:all .15s}
+.nv button:hover,.nv button.act{background:rgba(0,212,255,0.12);color:var(--cyan);border-color:var(--cyan)}
+.tab{display:none;padding:20px 30px;max-width:1400px;margin:0 auto}
 .tab.act{display:block}
-.tab h2{font-size:15px;color:#00D4FF;margin-bottom:10px;border-left:3px solid #00D4FF;padding-left:8px}
-.cd{background:#111122;border:1px solid #222;border-radius:8px;padding:12px;margin-bottom:12px}
-.cd h3{font-size:12px;color:#00D4FF;margin-bottom:6px}
-table{width:100%;border-collapse:collapse;font-size:11px}
-th,td{padding:4px 8px;text-align:left;border-bottom:1px solid #1a1a2e}
-th{color:#00D4FF}
-.b{display:inline-block;padding:1px 6px;border-radius:5px;font-size:9px}
-.bg{background:#00FF8820;color:#00FF88}.bb{background:#00D4FF20;color:#00D4FF}
-.bo{background:#FF884420;color:#FF8844}.bp{background:#AA66FF20;color:#AA66FF}
-.by{background:#FFCC0020;color:#FFCC00}.br{background:#FF333320;color:#FF3333}
-.tl{display:flex;gap:8px;padding:3px 0;border-bottom:1px solid #1a1a2e}
-.tt{color:#00D4FF;font-family:monospace;font-size:10px;min-width:45px}
-.tc{color:#aaa;font-size:10px}
-.rc{background:#111122;border:1px solid #222;border-radius:8px;padding:10px;display:inline-block;width:240px;margin:4px;vertical-align:top}
-.rc h4{font-size:12px;margin-bottom:4px}.rc .s{font-size:10px;color:#888;line-height:1.6}
-svg{display:block;margin:0 auto}
+.tab h2{font-size:16px;color:var(--text);margin-bottom:14px;border-left:3px solid var(--cyan);padding-left:12px;font-weight:600}
+.cd{background:var(--bg2);border:0.5px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px}
+.cd h3{font-size:13px;color:var(--cyan);margin-bottom:8px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:6px 10px;text-align:left;border-bottom:0.5px solid var(--bd)}
+th{color:var(--cyan);font-weight:600}
+.b{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:500}
+.bg{background:rgba(0,255,136,0.12);color:var(--green)}.bb{background:rgba(0,212,255,0.12);color:var(--cyan)}
+.bo{background:rgba(255,136,68,0.12);color:var(--orange)}.bp{background:rgba(170,102,255,0.12);color:var(--purple)}
+.by{background:rgba(255,204,0,0.12);color:var(--yellow)}.br{background:rgba(255,51,51,0.12);color:var(--red)}
+.bk{background:rgba(255,102,153,0.12);color:#FF6699}
+.tl{display:flex;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--bd)}
+.tt{color:var(--cyan);font-family:'SF Mono','Consolas',monospace;font-size:11px;min-width:50px;font-weight:600}
+.tc{color:var(--text);font-size:11px;opacity:0.85}
+.rc{background:var(--bg2);border:0.5px solid var(--bd);border-radius:12px;padding:14px;display:inline-block;width:250px;margin:5px;vertical-align:top;transition:transform .2s,border-color .2s}
+.rc:hover{transform:translateY(-2px)}
+.rc h4{font-size:13px;margin-bottom:6px;font-weight:600}.rc .s{font-size:11px;color:var(--sub);line-height:1.7}
+svg{display:block;margin:0 auto;max-width:100%;height:auto}
 </style></head><body>
-<div class="hd"><h1>黑芝麻智能 机器人联动方案</h1><p>7台机器人 中枢调度 端-边-云协同 6大联动场景 前海展厅623平方米</p></div>
+<div class="hd"><h1>黑芝麻智能 机器人联动方案</h1><p>7台机器人 · 中枢调度 · 端-边-云协同 · 6大联动场景 · 前海展厅623㎡</p></div>
 <div class="nv">
 <button class="act" onclick="sh('m',this)">展厅俯视图</button>
 <button onclick="sh('a',this)">系统架构</button>
