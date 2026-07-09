@@ -17,7 +17,7 @@
 <hr />
 <h2 id="-">第一章 · 端-边-云三层系统架构</h2>
 <h3 id="11">1.1 架构总览</h3>
-<pre><code class="language-mermaid">graph TB
+<p><div class="mermaid">graph TB
     subgraph Cloud[&quot;云端 Cloud&quot;]
         A1[&quot;模型训练 VLA/VLM&quot;]
         A2[&quot;数据分析 访客行为&quot;]
@@ -45,8 +45,7 @@
     A3 --&gt;|远程指令| B5
     B1 --&gt; B4
     B2 --&gt; B3
-    B1 --&gt;|ROS2 DDS / MQTT| Device
-</code></pre>
+    B1 --&gt;|ROS2 DDS / MQTT| Device</div></p>
 <h3 id="12">1.2 三层职责定义</h3>
 <p>| 层级 | 硬件 | 职责 | 延迟要求 |</p>
 <p>|------|------|------|----------|
@@ -560,4 +559,4 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 <p><strong>SesameX是整个联动的基石——每台机器人的实时智能都由SesameX芯片提供，脱离云端也能独立工作。</strong></p>
 </blockquote>
 <hr />
-<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark"});document.querySelectorAll("pre code.language-mermaid").forEach(function(el){var d=document.createElement("div");d.className="mermaid";d.textContent=el.textContent;el.parentElement.parentElement.replaceChild(d,el.parentElement);mermaid.run({nodes:[d]})})</script></body></html>
+<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"dark"})</script></body></html>
