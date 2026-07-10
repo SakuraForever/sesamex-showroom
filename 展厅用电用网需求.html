@@ -51,7 +51,7 @@ a:hover{text-decoration:underline}
   .doc-footer{flex-direction:column}
   .doc-footer a{min-width:auto}
 }
-</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">展厅用电用网需求</div><div class="dn-crumb"></div></div><div class="dn-chap"><a href="机器人联动方案设计.html">‹ 联动方案设计</a><a href="前海展厅软件架构方案.html">软件架构方案 ›</a></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="_1">前海展厅 · 用电用网需求清单</h1>
+</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">展厅用电用网需求</div><div class="dn-crumb"></div></div><div class="dn-chap"><a href="机器人联动方案设计.html">‹ 联动方案设计</a><a href="芯片世界树落地设计.html">芯片世界树落地设计 ›</a></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="_1">前海展厅 · 用电用网需求清单</h1>
 <blockquote>
 <p>基于现有方案设备清单推算 · 供装修团队技术交底使用</p>
 </blockquote>
@@ -182,15 +182,39 @@ a:hover{text-decoration:underline}
 <td>未来区</td>
 </tr>
 <tr>
+<td><strong>世界树LED光柱+地台</strong></td>
+<td>1套</td>
+<td>500W</td>
+<td>500W</td>
+<td>独立回路</td>
+<td>1F具身智能区</td>
+</tr>
+<tr>
+<td><strong>光纤星空主机</strong></td>
+<td>1</td>
+<td>150W</td>
+<td>150W</td>
+<td>独立回路</td>
+<td>天花板检修口</td>
+</tr>
+<tr>
+<td><strong>DMX512灯光控制器</strong></td>
+<td>1</td>
+<td>30W</td>
+<td>30W</td>
+<td>独立回路</td>
+<td>世界树旁</td>
+</tr>
+<tr>
 <td><strong>遨博i5协作臂</strong></td>
 <td>1</td>
 <td>200W</td>
 <td>200W</td>
 <td>独立插座</td>
-<td>世界树旁</td>
+<td>世界树右侧</td>
 </tr>
 <tr>
-<td><strong>真空泵+补光+提升机</strong></td>
+<td><strong>真空泵+补光灯+提升机</strong></td>
 <td>1套</td>
 <td>100W</td>
 <td>100W</td>
@@ -626,4 +650,4 @@ a:hover{text-decoration:underline}
 <li><strong>PoE供电</strong>：UWB/AP/摄像头/毫米波全部走PoE（网线供电），不需要额外拉电源线</li>
 <li><strong>UPS保护</strong>：服务器/交换机/安全PLC必须接UPS，断电后机器人安全返航</li>
 <li><strong>预埋余量</strong>：每个传感器位多预留1根网线（冗余），穿线管留穿线钢丝</li>
-</ol></div><div class="doc-footer"><a href="机器人联动方案设计.html" class="df-prev">‹ 联动方案设计</a><a href="index.html">返回首页</a><a href="前海展厅软件架构方案.html" class="df-next">软件架构方案 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
+</ol></div><div class="doc-footer"><a href="机器人联动方案设计.html" class="df-prev">‹ 联动方案设计</a><a href="index.html">返回首页</a><a href="芯片世界树落地设计.html" class="df-next">芯片世界树落地设计 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>

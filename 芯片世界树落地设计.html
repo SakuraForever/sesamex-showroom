@@ -1,0 +1,793 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>芯片世界树落地设计</title><style>
+:root{--bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--bd:rgba(255,255,255,0.08);--font:-apple-system,'SF Pro Display','Microsoft YaHei','PingFang SC',sans-serif;--mono:'SF Mono','Consolas',monospace}
+[data-theme="light"]{--bg:#fbfbfd;--bg2:#f5f5f7;--bg3:#e8e8ed;--text:#1d1d1f;--sub:#6e6e73;--acc:#0071e3;--green:#34c759;--orange:#ff9500;--purple:#af52de;--bd:rgba(0,0,0,0.1)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.8;-webkit-font-smoothing:antialiased}
+.doc-nav{position:fixed;top:0;left:0;right:0;height:48px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(28,28,30,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--bd)}
+.doc-nav .dn-back{font-size:14px;color:var(--acc);text-decoration:none;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.doc-nav .dn-back:hover{background:rgba(10,132,255,0.1)}
+.doc-nav .dn-mid{display:flex;align-items:center;gap:10px;overflow:hidden}
+.doc-nav .dn-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-nav .dn-crumb{font-size:11px;color:var(--sub);white-space:nowrap}
+.doc-nav .dn-chap{display:flex;gap:6px;flex-shrink:0}
+.doc-nav .dn-chap a{font-size:11px;color:var(--sub);text-decoration:none;padding:4px 10px;border-radius:8px;border:0.5px solid var(--bd);transition:all .15s;white-space:nowrap}
+.doc-nav .dn-chap a:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
+.smx-theme-toggle{background:var(--bg3);border:0.5px solid var(--bd);border-radius:20px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:6px}
+.doc{max-width:880px;margin:0 auto;padding:72px 24px 80px}
+h1{font-size:30px;font-weight:700;margin:36px 0 20px;letter-spacing:-0.5px;border-bottom:1px solid var(--bd);padding-bottom:12px}
+h2{font-size:22px;font-weight:600;margin:36px 0 16px;padding-left:14px;border-left:3px solid var(--acc)}
+h3{font-size:18px;font-weight:600;margin:28px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--text)}
+p{font-size:15px;margin-bottom:14px;color:var(--text)}
+ul,ol{font-size:15px;margin-bottom:14px;padding-left:26px}
+li{margin-bottom:6px}
+strong{color:#fff;font-weight:600}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;border-radius:12px;overflow:hidden;border:0.5px solid var(--bd)}
+th{background:var(--bg3);color:var(--acc);padding:12px 16px;border:0.5px solid var(--bd);font-weight:600;text-align:left}
+td{padding:10px 16px;border:0.5px solid var(--bd);color:var(--text);line-height:1.6}
+tr:nth-child(even) td{background:var(--bg2)}
+code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:13px;color:#f5f5f7;font-family:var(--mono)}
+pre{background:var(--bg2);padding:18px;border-radius:12px;overflow-x:auto;margin:18px 0;border:0.5px solid var(--bd)}
+pre code{background:none;padding:0;font-size:13px;color:#e0e0e0}
+blockquote{border-left:3px solid var(--acc);padding:12px 22px;margin:18px 0;color:var(--sub);background:var(--bg2);border-radius:0 12px 12px 0}
+hr{border:none;border-top:0.5px solid var(--bd);margin:36px 0}
+a{color:#64b5f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.mermaid{background:var(--bg2);padding:20px;border-radius:12px;margin:18px 0;text-align:center;border:0.5px solid var(--bd)}
+[data-theme="light"] .mermaid{background:transparent;border-color:rgba(0,0,0,0.08)}
+.doc-footer{max-width:880px;margin:0 auto;padding:0 24px 60px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.doc-footer a{font-size:13px;color:var(--sub);text-decoration:none;padding:10px 20px;border-radius:12px;border:0.5px solid var(--bd);transition:all .15s;flex:1;text-align:center;min-width:160px}
+.doc-footer a:hover{color:var(--text);border-color:rgba(255,255,255,0.15);background:var(--bg2)}
+.doc-footer a.df-disabled{opacity:0.3;pointer-events:none}
+@media(max-width:768px){
+  .doc-nav{flex-wrap:wrap;height:auto;padding:8px 12px}
+  .doc-nav .dn-mid{order:3;width:100%;margin-top:4px}
+  .doc-nav .dn-title{font-size:12px}
+  .doc-nav .dn-crumb{font-size:10px}
+  .doc-nav .dn-chap a{font-size:10px;padding:3px 8px}
+  .doc{padding:100px 16px 60px}
+  h1{font-size:24px}
+  h2{font-size:18px}
+  .doc-footer{flex-direction:column}
+  .doc-footer a{min-width:auto}
+}
+</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">芯片世界树落地设计</div><div class="dn-crumb"></div></div><div class="dn-chap"><a href="展厅用电用网需求.html">‹ 展厅用电用网需求</a><a href="前海展厅软件架构方案.html">软件架构方案 ›</a></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="_1">芯片世界树 · 落地设计方案</h1>
+<blockquote>
+<p>核心装置 · 1F具身智能区正中央 · 空间智能的可视化中枢</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 定位：不是"摘苹果的装置"，是"空间神经系统的可视化"</h2>
+<p>世界树的核心价值不是采摘互动本身，而是<strong>让访客直觉感受到空间在"思考"</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>旧叙事</th>
+<th>新叙事</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机器人从树上摘苹果给你</td>
+<td>整个展厅通过树感知你的到来，全场响应</td>
+</tr>
+<tr>
+<td>展示"机械臂很准"</td>
+<td>展示"SesameX芯片是这个空间的神经系统"</td>
+</tr>
+<tr>
+<td>采摘是主角</td>
+<td>采摘是末端动作，树本身是主角</td>
+</tr>
+</tbody>
+</table>
+<p><strong>APEC级别的wow点</strong>：领导团进门，世界树从根部爆发式点亮，光流加速涌向树冠，全场7块LED屏同步切换主题——<strong>空间在0.1秒内感受到了他们的到来</strong>。</p>
+<hr />
+<h2 id="2-5">2. 装置结构（5层）</h2>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>名称</th>
+<th>内容</th>
+<th>技术</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Layer 0</strong></td>
+<td>种子</td>
+<td>华山A2000芯片实物，心跳脉冲光</td>
+<td>LED点光源，常态0.8Hz心跳</td>
+</tr>
+<tr>
+<td><strong>Layer 1</strong></td>
+<td>树根</td>
+<td>发光地台，电路纹理+芯片铭牌</td>
+<td>地面LED透光地台，电路蚀刻</td>
+</tr>
+<tr>
+<td><strong>Layer 2</strong></td>
+<td>树干</td>
+<td>世界树光柱，芯片粒子不断涌现</td>
+<td>LED柱体+内藏供果机构</td>
+</tr>
+<tr>
+<td><strong>Layer 3</strong></td>
+<td>枝叶</td>
+<td>机器人形态全息粒子</td>
+<td>透明屏/投影，随状态切换</td>
+</tr>
+<tr>
+<td><strong>Layer 4</strong></td>
+<td>树冠</td>
+<td>天花板光纤星空</td>
+<td>光纤阵列，随触发事件脉冲</td>
+</tr>
+</tbody>
+</table>
+<p><strong>装置总高</strong>：3.0m（含顶部光球）
+<strong>占地</strong>：直径约1.5m圆形基台
+<strong>位置</strong>：1F具身智能区正中央</p>
+<hr />
+<h2 id="3">3. 光效状态机（核心落地要求）</h2>
+<blockquote>
+<p><strong>关键约束</strong>：世界树光效必须由软件实时驱动，不能是死循环动画。
+展装公司交付时需提供外控接口（DMX512 或 HTTP API），否则空间智能效果无法实现。</p>
+</blockquote>
+<h3 id="31">3.1 四种光效状态</h3>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>触发条件</th>
+<th>光效表现</th>
+<th>持续时长</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>待机</strong></td>
+<td>无访客互动</td>
+<td>低频蓝紫色心跳脉冲，0.8Hz，从树根向上缓慢涌动</td>
+<td>循环</td>
+</tr>
+<tr>
+<td><strong>感知</strong></td>
+<td>有访客进入展厅（红外触发）</td>
+<td>脉冲加快至2Hz，亮度+30%，颜色偏青白</td>
+<td>持续有人期间</td>
+</tr>
+<tr>
+<td><strong>VIP响应</strong></td>
+<td>VIP签到（RFID触发）</td>
+<td>从根部爆发式白光→紫色光流快速涌向树冠，0.5秒完成，然后稳定在高亮紫色</td>
+<td>导览全程</td>
+</tr>
+<tr>
+<td><strong>采摘激活</strong></td>
+<td>访客触发采摘互动</td>
+<td>切换D435i视觉视角（树干LED显示识别框画面），绿色脉冲追踪苹果槽位</td>
+<td>采摘全程约10s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 与全场联动时序</h3>
+<pre><code>VIP进门 T+0s
+  → 红外感知（本地，&lt;50ms）→ 世界树：爆发式点亮（DMX512本地，&lt;100ms）
+  → LED全场主题切换（WebSocket本地，&lt;200ms）
+  ↓
+T+2s
+  → RFID签到确认
+  → HTTP→优必选云→Walker S3开始移动（2~5秒延迟可接受，光效已先给wow）
+  ↓
+T+10s
+  → Walker到达，开口致辞
+  → 其他机器人各自继续工作（M20巡检、遨博i5待机、咖啡机运转）
+  → 体现：这是一个系统在运转，不是表演
+</code></pre>
+<p><strong>关键设计原则</strong>：光和屏在第0.1秒给震撼，机器人走过来是叙事推进，2~5秒延迟不是问题。</p>
+<hr />
+<h2 id="4">4. 供果与采摘机构（工程细节）</h2>
+<h3 id="41">4.1 供果结构</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>槽位数量</strong></td>
+<td>树干内6个V型出口槽位（A~F），苹果随机落入其中一个</td>
+</tr>
+<tr>
+<td><strong>随机机制</strong></td>
+<td>供果管顶部物理偏转片，纯机械随机，不依赖软件</td>
+</tr>
+<tr>
+<td><strong>槽位高度</strong></td>
+<td>距地1.0~1.2m（遨博i5臂展886mm，基座高0.4m，可达范围内）</td>
+</tr>
+<tr>
+<td><strong>固定方式</strong></td>
+<td>真苹果置于V型槽，重力固定，无需磁铁</td>
+</tr>
+<tr>
+<td><strong>补给机构</strong></td>
+<td>树干内链条提升机，底部0.5m处加料口，每日操作约2分钟</td>
+</tr>
+<tr>
+<td><strong>容量</strong></td>
+<td>底部储果仓6~12个，配合每日3次补给（10:00/14:00/17:00）</td>
+</tr>
+<tr>
+<td><strong>水果规格</strong></td>
+<td>真苹果，直径70~80mm，重量150~180g</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-i5">4.2 遨博i5协作臂</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>规格</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>型号</strong></td>
+<td>遨博i5，5轴协作臂，负载5kg，臂展886mm</td>
+</tr>
+<tr>
+<td><strong>安装位置</strong></td>
+<td>世界树装置右侧0.3m，基座高0.4m</td>
+</tr>
+<tr>
+<td><strong>末端执行器</strong></td>
+<td>真空吸盘（3~4硅胶吸盘+12V微型真空泵），不损伤果肉</td>
+</tr>
+<tr>
+<td><strong>视觉</strong></td>
+<td>末端安装RealSense D435i深度相机</td>
+</tr>
+<tr>
+<td><strong>识别算法</strong></td>
+<td>SesameX Aura端侧，HSV颜色分割→6DoF位姿估计，&lt;200ms</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-10">4.3 抓取全流程（总约10秒）</h3>
+<pre><code>① 供果（自动）    链条提升→偏转片随机落入某槽位
+② 视觉扫描 0.5s  D435i扫描6槽，Aura HSV识别→6DoF位姿
+③ 运动规划 0.3s  OMPL/RRT路径规划，避开槽位边缘
+④ 接近吸附 2.0s  速度&lt;0.1m/s，真空泵启动，吸盘接触苹果
+⑤ 提起     1.0s  向上提起，重力脱离V型槽，负压确认
+⑥ 递送     3.0s  移动到取物台上方，释放真空，15°斜面滑落
+⑦ 复位     2.0s  机械臂回扫描待机位，管道自动补位下一苹果
+</code></pre>
+<h3 id="44">4.4 视觉环境控制</h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>展厅LED杂光干扰</td>
+<td>采摘区上方安装黑色亚克力遮光罩（半圆，隔离杂光）</td>
+</tr>
+<tr>
+<td>补光</td>
+<td>遮光罩内5500K恒定LED条灯，色温稳定</td>
+</tr>
+<tr>
+<td>识别成功率目标</td>
+<td>&gt;90%（随机位置+恒定光照+颜色分割）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5">5. 安全设计</h2>
+<table>
+<thead>
+<tr>
+<th>措施</th>
+<th>规格</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>安全光幕</strong></td>
+<td>PSEN系列，保护高度300mm</td>
+<td>机械臂前方0.5m，人手进入&lt;10ms停止</td>
+</tr>
+<tr>
+<td><strong>力控碰撞检测</strong></td>
+<td>遨博i5自带电流反馈</td>
+<td>碰撞力&gt;15N自动停止</td>
+</tr>
+<tr>
+<td><strong>速度限制</strong></td>
+<td>&lt;0.1m/s</td>
+<td>采摘区域内所有运动</td>
+</tr>
+<tr>
+<td><strong>装饰围栏</strong></td>
+<td>高15cm</td>
+<td>视觉提示边界，不阻挡观看</td>
+</tr>
+<tr>
+<td><strong>急停按钮</strong></td>
+<td>红色蘑菇头+钥匙复位</td>
+<td>硬线连接，不经过网络</td>
+</tr>
+<tr>
+<td><strong>接果网</strong></td>
+<td>软质尼龙网</td>
+<td>取物台下方防苹果掉落</td>
+</tr>
+<tr>
+<td><strong>语音提示</strong></td>
+<td>机械臂运动时播放</td>
+<td>"正在采摘，请勿靠近"</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-led">6. LED联动（采摘全程）</h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>世界树光柱</th>
+<th>SesameX大屏</th>
+<th>中枢大屏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>待机</td>
+<td>低频心跳循环</td>
+<td>"触发采摘互动"</td>
+<td>默认状态</td>
+</tr>
+<tr>
+<td>触发</td>
+<td>绿色脉冲，定位槽位</td>
+<td>模组3D拆解动画</td>
+<td>高亮世界树区域</td>
+</tr>
+<tr>
+<td>采摘中</td>
+<td>切换D435i第一视角+HSV识别框</td>
+<td>真空负压数据曲线</td>
+<td>"采摘中..."</td>
+</tr>
+<tr>
+<td>完成</td>
+<td>恢复正常+短暂爆闪</td>
+<td>"SesameX精准抓取"</td>
+<td>恢复默认</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7">7. 展装公司接口需求（必须在合同中确认）</h2>
+<blockquote>
+<p>这是整个"空间智能"能否落地的关键，在方案定稿前必须谈定。</p>
+</blockquote>
+<h3 id="71">7.1 必须提供的接口</h3>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>协议</th>
+<th>用途</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>灯光外控接口</strong></td>
+<td>DMX512 或 HTTP API</td>
+<td>软件触发光效状态切换</td>
+<td>必须支持至少4种预设场景切换</td>
+</tr>
+<tr>
+<td><strong>供果机构控制接口</strong></td>
+<td>RS232 / 继电器 / HTTP</td>
+<td>触发下一个苹果供给</td>
+<td>采摘完成后软件自动触发补果</td>
+</tr>
+<tr>
+<td><strong>装置状态反馈</strong></td>
+<td>MQTT 或 HTTP</td>
+<td>上报槽位是否有苹果、机构是否异常</td>
+<td>M20巡检时需读取</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72">7.2 确认问题清单（发给展装公司）</h3>
+<pre><code>1. 世界树灯光是否支持外部控制？用什么协议（DMX512/HTTP/串口）？
+2. 是否可以设置至少4种灯效预设，由软件切换？
+3. 供果机构是否有电气控制接口，还是纯手动？
+4. 树干LED柱体是否可以接入自定义视频内容（如D435i实时画面）？
+5. 装置完工后，是否提供接口文档和调试支持？
+</code></pre>
+<h3 id="73">7.3 如果展装公司不提供接口</h3>
+<p>降级方案：世界树光效改为<strong>定时触发</strong>（开馆时固定时间点亮），放弃实时感知联动。</p>
+<p>这种情况下"空间智能"仍可通过LED屏内容实时切换来体现，只是少了世界树这个最强的视觉震撼点。</p>
+<hr />
+<h2 id="8">8. 硬件清单（世界树专属）</h2>
+<table>
+<thead>
+<tr>
+<th>设备</th>
+<th>规格</th>
+<th>数量</th>
+<th>供应方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>世界树装置（含灯控）</td>
+<td>3m高，LED光柱+供果机构+地台</td>
+<td>1套</td>
+<td>展装公司</td>
+</tr>
+<tr>
+<td>遨博i5协作臂</td>
+<td>5轴/5kg/886mm</td>
+<td>1</td>
+<td>遨博</td>
+</tr>
+<tr>
+<td>真空吸盘组件</td>
+<td>3~4硅胶吸盘+12V微型真空泵</td>
+<td>1套</td>
+<td>采购</td>
+</tr>
+<tr>
+<td>RealSense D435i</td>
+<td>RGB-D深度相机（末端安装）</td>
+<td>1</td>
+<td>Intel</td>
+</tr>
+<tr>
+<td>黑色亚克力遮光罩</td>
+<td>半圆形，覆盖采摘区</td>
+<td>1套</td>
+<td>展装公司</td>
+</tr>
+<tr>
+<td>5500K LED补光条</td>
+<td>恒定色温，遮光罩内</td>
+<td>1套</td>
+<td>展装公司</td>
+</tr>
+<tr>
+<td>PSEN安全光幕</td>
+<td>保护高度300mm</td>
+<td>1套</td>
+<td>Pilz</td>
+</tr>
+<tr>
+<td>急停按钮</td>
+<td>红色蘑菇头+钥匙复位</td>
+<td>1</td>
+<td>采购</td>
+</tr>
+<tr>
+<td>接果网</td>
+<td>软质尼龙，取物台下方</td>
+<td>1</td>
+<td>采购</td>
+</tr>
+<tr>
+<td>装饰围栏</td>
+<td>高15cm，圆弧形</td>
+<td>1套</td>
+<td>展装公司</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9">9. 开放问题（需确认后才能定稿）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>问题</th>
+<th>影响</th>
+<th>需确认方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>展装公司是否提供灯光外控接口</td>
+<td>决定"空间智能"视觉震撼能否实现</td>
+<td>展装公司</td>
+</tr>
+<tr>
+<td>2</td>
+<td>树干LED柱体能否播放自定义视频</td>
+<td>决定采摘中能否显示D435i实时画面</td>
+<td>展装公司</td>
+</tr>
+<tr>
+<td>3</td>
+<td>遨博i5与BST云平台的API对接</td>
+<td>决定采摘触发能否由软件下发</td>
+<td>遨博</td>
+</tr>
+<tr>
+<td>4</td>
+<td>真苹果的日常卫生管理方案</td>
+<td>决定运营是否可持续</td>
+<td>运营团队</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-layer-4">10. Layer 4 光纤星空（天花板）</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>规格</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>光纤数量</strong></td>
+<td>200~300根端发光光纤，直径0.75mm</td>
+</tr>
+<tr>
+<td><strong>布局</strong></td>
+<td>以世界树正上方为圆心，1.5m半径圆形分布，密度由内向外递减</td>
+</tr>
+<tr>
+<td><strong>光源</strong></td>
+<td>1台LED光纤主机（RGBW，150W），安装在天花板检修口旁</td>
+</tr>
+<tr>
+<td><strong>控制</strong></td>
+<td>DMX512接入世界树灯光控制器，与树体光效联动</td>
+</tr>
+<tr>
+<td><strong>效果</strong></td>
+<td>待机随机闪烁（模拟星空）；VIP响应全部同步脉冲白光；采摘时追踪式闪烁</td>
+</tr>
+<tr>
+<td><strong>安装</strong></td>
+<td>天花板石膏板开孔穿光纤，光纤端面与天花板齐平，远处不可见</td>
+</tr>
+<tr>
+<td><strong>用电</strong></td>
+<td>150W（光纤主机），计入世界树独立回路</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-sop">11. 日常运营SOP</h2>
+<h3 id="2">每日补果（约2分钟/次）</h3>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>操作</th>
+<th>责任人</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10:00</td>
+<td>打开底部储果仓→放入6~12个苹果→关闭→按"补果"按钮</td>
+<td>展厅运营</td>
+</tr>
+<tr>
+<td>14:00</td>
+<td>同上（午间补充）</td>
+<td>展厅运营</td>
+</tr>
+<tr>
+<td>17:00</td>
+<td>同上（下午补充）</td>
+<td>展厅运营</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">每日开闭馆</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>开馆 08:30</td>
+<td>启动世界树系统→检查供果机构→测试采摘1次→确认LED屏联动</td>
+</tr>
+<tr>
+<td>闭馆 18:00</td>
+<td>取出剩余苹果→清洁V型槽+取物台→链条归位→系统待机</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">每周维护</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>真空吸盘</td>
+<td>检查硅胶磨损，必要时更换（备件×3）</td>
+</tr>
+<tr>
+<td>D435i镜头</td>
+<td>镜头纸清洁深度相机</td>
+</tr>
+<tr>
+<td>供果管道</td>
+<td>检查偏转片灵活性，清理果蜡残留</td>
+</tr>
+<tr>
+<td>光纤星空</td>
+<td>检查天花板光纤是否脱落</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">故障降级</h3>
+<table>
+<thead>
+<tr>
+<th>故障</th>
+<th>降级处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>遨博i5故障</td>
+<td>切换人工采摘，世界树光效正常</td>
+</tr>
+<tr>
+<td>供果机构卡住</td>
+<td>手动从顶部加料口补果，事后检修</td>
+</tr>
+<tr>
+<td>LED光柱故障</td>
+<td>采摘互动正常，光效降级为静态灯光</td>
+</tr>
+<tr>
+<td>D435i识别失败</td>
+<td>系统重试3次，仍失败则人工辅助</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="12">12. 成本估算</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>数量</th>
+<th>单价(元)</th>
+<th>小计(元)</th>
+<th>供应方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>世界树装置（含LED光柱+地台+供果机构）</td>
+<td>1套</td>
+<td>150,000~250,000</td>
+<td>150,000~250,000</td>
+<td>展装公司</td>
+</tr>
+<tr>
+<td>遨博i5协作臂</td>
+<td>1</td>
+<td>60,000</td>
+<td>60,000</td>
+<td>遨博</td>
+</tr>
+<tr>
+<td>光纤星空系统（300根+主机）</td>
+<td>1套</td>
+<td>15,000~25,000</td>
+<td>15,000~25,000</td>
+<td>展装公司</td>
+</tr>
+<tr>
+<td>RealSense D435i</td>
+<td>1</td>
+<td>2,500</td>
+<td>2,500</td>
+<td>Intel</td>
+</tr>
+<tr>
+<td>真空吸盘组件</td>
+<td>1套</td>
+<td>3,000</td>
+<td>3,000</td>
+<td>采购</td>
+</tr>
+<tr>
+<td>PSEN安全光幕</td>
+<td>1</td>
+<td>8,000</td>
+<td>8,000</td>
+<td>Pilz</td>
+</tr>
+<tr>
+<td>黑色亚克力遮光罩+补光灯</td>
+<td>1套</td>
+<td>5,000</td>
+<td>5,000</td>
+<td>展装公司</td>
+</tr>
+<tr>
+<td>DMX512灯光控制器</td>
+<td>1</td>
+<td>3,000</td>
+<td>3,000</td>
+<td>采购</td>
+</tr>
+<tr>
+<td>其他（围栏/急停/接果网/线缆）</td>
+<td>—</td>
+<td>5,000</td>
+<td>5,000</td>
+<td>采购</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td></td>
+<td></td>
+<td><strong>~251,500~361,500</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-aipromptgemini-midjourney">13. AI效果图生成Prompt（Gemini / Midjourney）</h2>
+<h3 id="131">13.1 世界树全景</h3>
+<pre><code>A stunning 3.5-meter-tall &quot;Chip World Tree&quot; installation in the center of a dark futuristic tech showroom. The tree has a glowing translucent trunk made of LED light pillars, with circuit board patterns etched into the base. The roots spread across a circular illuminated floor platform with embedded circuit traces. At the top, a starry canopy of fiber optic lights creates a dome effect. At the base of the trunk, a small section shows 6 V-shaped slots holding red apples, with a sleek white robotic arm reaching to pick one. The lighting is dramatic — deep blue-purple ambient with the tree glowing in cyan-white. Cyberpunk meets organic nature. High-end exhibition design, photorealistic, 8K, architectural photography.
+</code></pre>
+<h3 id="132-vip">13.2 VIP爆发瞬间</h3>
+<pre><code>Close-up of a glowing LED tree trunk in a high-tech exhibition space. The moment of &quot;VIP activation&quot; — a burst of bright white light erupts from the base, with purple light streams accelerating upward through the trunk toward the canopy. The fiber optic ceiling explodes with synchronized white pulses. In the background, 7 large LED screens simultaneously switch to a welcome theme. Dramatic low-angle shot, motion blur on light streams, cinematic lighting, photorealistic, 8K.
+</code></pre>
+<h3 id="133">13.3 采摘互动特写</h3>
+<pre><code>A white 5-axis robotic arm with a vacuum suction gripper gently picking a red apple from a V-shaped slot inside a glowing LED tree trunk. A black acrylic dome cover above provides controlled lighting. A depth camera is mounted on the arm end. The tree trunk LED shows a green scanning pulse tracking the apple. On a large LED screen behind, a real-time computer vision visualization with bounding boxes is displayed. Dark showroom, focused lighting, technical and precise, photorealistic, 8K.
+</code></pre>
+<h3 id="134">13.4 地台+树根细节</h3>
+<pre><code>Top-down view of the base of a glowing Chip World Tree — a circular illuminated floor platform, 1.5m diameter, with etched circuit board traces glowing in cyan. At the center, a transparent crystal section reveals a small computer chip with a slow heartbeat-like pulse of blue light. Six metal nameplates embedded around the rim show chip model names. Dark floor, dramatic lighting, product design photography, photorealistic, 8K.
+</code></pre>
+<hr />
+<h2 id="14-aipromptveo-seedance">14. AI视频生成Prompt（Veo / Seedance）</h2>
+<h3 id="141-vip5">14.1 世界树VIP爆发（5秒）</h3>
+<pre><code>Cinematic shot of a dark futuristic showroom. Suddenly, a 3.5-meter LED tree in the center erupts with light — a burst of white glow from the base, accelerating upward as purple light streams through the trunk. The fiber optic ceiling explodes with synchronized pulses. Seven LED screens on the walls simultaneously switch to a welcome animation. Camera slowly pushes in from a low angle. Duration: 5 seconds. Style: sci-fi, premium tech, cinematic color grading.
+</code></pre>
+<h3 id="142-10">14.2 采摘全流程（10秒）</h3>
+<pre><code>A time-lapse style sequence showing a robotic apple-picking interaction at a glowing LED tree: 1) A red apple drops into a V-shaped slot inside the tree trunk. 2) A white robotic arm with a depth camera scans the slots. 3) The arm reaches in with a vacuum gripper and gently picks the apple. 4) The arm delivers the apple to a pickup tray. Green scanning light effects on the trunk during the process. LED screens in background show real-time vision data. Duration: 10 seconds. Style: clean, precise, premium tech demonstration.
+</code></pre>
+<h3 id="143-8">14.3 空间感知联动（8秒）</h3>
+<pre><code>Wide shot of a dark high-tech showroom. A person walks through the entrance. In response: the LED tree in the center pulses brighter, floor lights trace their path, wall screens switch to show their presence as a glowing dot on a floor plan, and a robot in the distance begins to move toward them. Everything responds in a synchronized, organic way — like the room itself is alive and aware. Camera slowly pans across the space. Duration: 8 seconds. Style: ambient, premium, &quot;the space is thinking.&quot;
+</code></pre>
+<h3 id="144-15">14.4 世界树日夜循环（15秒·环境氛围）</h3>
+<pre><code>A 15-second timelapse of the Chip World Tree in a showroom, cycling through different states: 1) Calm standby with slow blue heartbeat pulse. 2) Activity as visitors arrive — pulsing accelerates, brightens. 3) A brief moment of VIP welcome with explosive light. 4) Return to calm as the day ends. Natural light from windows changes from morning to evening. The tree is the constant, alive presence. Style: ambient, emotional, architectural timelapse.
+</code></pre>
+<hr />
+<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><div class="doc-footer"><a href="展厅用电用网需求.html" class="df-prev">‹ 展厅用电用网需求</a><a href="index.html">返回首页</a><a href="前海展厅软件架构方案.html" class="df-next">软件架构方案 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
