@@ -256,8 +256,29 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
       <span class="smx-tag smx-tag-green">完整方案</span>
     </div>
   </div>
-  <div style="margin-top:16px">
-    <a class="cta" onclick="openDoc('黑芝麻智能_展厅设计最终方案.html')">阅读展厅总体方案 ↗</a>
+  <div class="grid grid-3" style="margin-top:14px">
+    <div class="card" onclick="openDoc('展厅用电用网需求.html')">
+      <div class="card-icon">⚡</div>
+      <h3>用电用网需求</h3>
+      <p>总功率~11kW · UPS · PoE · 传感器布线 · 装修技术交底清单</p>
+      <span class="smx-tag smx-tag-gray">装修交底</span>
+    </div>
+    <div class="card" onclick="openDoc('黑芝麻智能_展厅设计最终方案.html')">
+      <div class="card-icon">📐</div>
+      <h3>展厅总体方案</h3>
+      <p>623㎡空间规划 · 8大展区 · 芯片世界树 · 完整策展逻辑</p>
+      <span class="smx-tag smx-tag-green">完整方案</span>
+    </div>
+    <div class="card" onclick="openDoc('机器人联动方案设计.html')">
+      <div class="card-icon">🖥</div>
+      <h3>Isaac Sim 仿真验证</h3>
+      <p>实体部署前用 Isaac Sim 跑通6大场景 · 4周开发 · 降低联调风险</p>
+      <span class="smx-tag smx-tag-blue">仿真验证</span>
+    </div>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
+    <a class="cta" onclick="openDoc('黑芝麻智能_展厅设计最终方案.html')">展厅总体方案 ↗</a>
+    <a class="cta" onclick="openDoc('展厅用电用网需求.html')">用电用网需求 ↗</a>
   </div>
 </div>
 
@@ -666,6 +687,7 @@ body{height:auto;overflow-y:auto;overflow-x:hidden}
 var DOCS=[
   {file:'黑芝麻智能_展厅设计最终方案.html',title:'展厅总体方案 · 完整策展文档',crumb:'Phase 0 · 基建预埋'},
   {file:'机器人联动方案设计.html',title:'联动方案设计 · 端-边-云架构与场景',crumb:'Phase 1 · L2联动'},
+  {file:'展厅用电用网需求.html',title:'用电用网需求 · 装修技术交底',crumb:'Phase 0 · 装修交底'},
   {file:'前海展厅软件架构方案.html',title:'软件架构方案 · 云平台对接',crumb:'Phase 1 · 快速落地路线'},
   {file:'多机定位方案研究.html',title:'多机定位与调度方案研究',crumb:'Phase 1 · 技术深挖'},
   {file:'主动式智能架构方案.html',title:'主动式智能架构方案',crumb:'Phase 2 · L3主动式智能'},

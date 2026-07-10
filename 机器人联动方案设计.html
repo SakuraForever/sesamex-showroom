@@ -51,7 +51,7 @@ a:hover{text-decoration:underline}
   .doc-footer{flex-direction:column}
   .doc-footer a{min-width:auto}
 }
-</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">联动方案设计 · 端-边-云架构与场景</div><div class="dn-crumb">Phase 1 · L2联动</div></div><div class="dn-chap"><a href="黑芝麻智能_展厅设计最终方案.html">‹ 展厅总体方案</a><a href="前海展厅软件架构方案.html">软件架构方案 ›</a></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="_1">黑芝麻智能 · 机器人联动方案设计</h1>
+</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">联动方案设计 · 端-边-云架构与场景</div><div class="dn-crumb">Phase 1 · L2联动</div></div><div class="dn-chap"><a href="黑芝麻智能_展厅设计最终方案.html">‹ 展厅总体方案</a><a href="展厅用电用网需求.html">展厅用电用网需求 ›</a></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="_1">黑芝麻智能 · 机器人联动方案设计</h1>
 <blockquote>
 <p>7台机器人 · 中枢调度 · 端-边-云协同 · 6大联动场景
 </p>
@@ -2213,6 +2213,161 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 </tr>
 </tbody>
 </table>
+<h2 id="11-isaac-sim">第11章 · Isaac Sim仿真验证</h2>
+<blockquote>
+<p>在实体部署前，使用NVIDIA Isaac Sim（Omniverse）进行多机器人调度仿真验证，降低联调风险。</p>
+</blockquote>
+<h3 id="111">11.1 仿真架构</h3>
+<pre><code>Isaac Sim 仿真环境
+├── 展厅场景模型（623㎡ → USD格式导入）
+│   ├── 1F：入口/品牌墙/世界树/机器人区/咖啡站/走廊
+│   └── 2F：芯片区/智驾/未来区
+├── 机器人模型（URDF导入）
+│   ├── Walker S3（人形·迎宾导览）
+│   ├── M20 Pro（四足·巡检越障）
+│   ├── 遨博i5（协作臂·采摘）
+│   ├── 云迹送餐/UP（轮式·物流清洁）
+│   ├── 咖啡机器人（固定·拉花）
+│   └── 遨博海纳（移动协作·抓取）
+├── 传感器仿真
+│   ├── 激光雷达（Isaac LiDAR模拟）
+│   ├── 深度相机（RealSense D435i）
+│   ├── 红外热成像（自定义shader·洒漏检测）
+│   └── UWB定位（位置数据流模拟 ±10cm）
+├── 调度逻辑（Python API）
+│   ├── DAG任务编排引擎（复用实体JSON工作流）
+│   ├── 路径规划（Isaac导航模块+A*）
+│   └── 多机防碰撞（时间窗协调）
+└── 输出
+    ├── 联动场景录像（Omniverse渲染）
+    ├── KPI统计（成功率/响应时延/路径冲突）
+    └── 调度策略优化建议
+</code></pre>
+<h3 id="112">11.2 可验证的联动场景</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>仿真验证重点</th>
+<th>成功标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VIP迎宾导览</strong></td>
+<td>T+330秒全流程·7台机器人路径无冲突</td>
+<td>全程零碰撞·时序误差&lt;5s</td>
+</tr>
+<tr>
+<td><strong>拍照接力</strong></td>
+<td>Walker拍照→StyleGAN→咖啡制作→凭脸取餐</td>
+<td>隐私数据流仿真·全链路&lt;4min</td>
+</tr>
+<tr>
+<td><strong>洒漏自愈</strong></td>
+<td>红外检测→DAG生成→UP路径规划→清洁</td>
+<td>31秒全流程·反复100次成功率&gt;95%</td>
+</tr>
+<tr>
+<td><strong>采摘互动</strong></td>
+<td>随机6槽位·视觉识别→吸盘抓取→递送</td>
+<td>抓取成功率&gt;90%·单次&lt;10s</td>
+</tr>
+<tr>
+<td><strong>多机走廊会车</strong></td>
+<td>送餐+巡检同时通过走廊·防碰撞</td>
+<td>时间窗协调·零死锁</td>
+</tr>
+<tr>
+<td><strong>充电调度</strong></td>
+<td>7台机器人错峰充电·不阻塞通道</td>
+<td>全部满电·无排队冲突</td>
+</tr>
+</tbody>
+</table>
+<h3 id="113">11.3 仿真开发计划</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>时间</th>
+<th>交付物</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>阶段1·环境搭建</strong></td>
+<td>第1周</td>
+<td>展厅USD场景+机器人URDF导入+传感器配置</td>
+</tr>
+<tr>
+<td><strong>阶段2·单机验证</strong></td>
+<td>第2周</td>
+<td>每台机器人独立路径规划+任务执行仿真</td>
+</tr>
+<tr>
+<td><strong>阶段3·多机联动</strong></td>
+<td>第3周</td>
+<td>DAG调度+6大场景全流程仿真+KPI报告</td>
+</tr>
+<tr>
+<td><strong>阶段4·优化迭代</strong></td>
+<td>第4周（可选）</td>
+<td>调度策略优化+异常场景注入+最终验证报告</td>
+</tr>
+</tbody>
+</table>
+<h3 id="114">11.4 硬件要求</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>要求</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GPU</strong></td>
+<td>RTX 4090 或 RTX A6000（24GB+显存）</td>
+<td>展厅边缘服务器已配RTX A6000，可直接使用</td>
+</tr>
+<tr>
+<td><strong>内存</strong></td>
+<td>≥64GB</td>
+<td>展厅服务器已满足</td>
+</tr>
+<tr>
+<td><strong>存储</strong></td>
+<td>≥100GB SSD</td>
+<td>Isaac Sim本体+USD资产</td>
+</tr>
+<tr>
+<td><strong>系统</strong></td>
+<td>Ubuntu 22.04</td>
+<td>展厅服务器已满足</td>
+</tr>
+</tbody>
+</table>
+<h3 id="115">11.5 仿真与实体的关系</h3>
+<pre><code>仿真验证（Isaac Sim）          实体部署（展厅）
+     │                              │
+     ├─ DAG工作流JSON ──────────────┼─→ 同一份JSON直接复用
+     ├─ 路径规划参数 ───────────────┼─→ A*参数直接复用
+     ├─ 传感器配置 ─────────────────┼─→ LiDAR/D435i参数对应
+     └─ 仿真验证通过 ───────────────┼─→ 实体部署信心
+                                    │
+     ┌─ 实体运行数据 ←──────────────┤
+     └─ 回灌仿真优化 ←──────────────┘  数字孪生闭环
+</code></pre>
+<h3 id="116">11.6 价值</h3>
+<ol>
+<li><strong>上线前验证</strong>：6大场景在仿真中跑通后再部署实体，降低联调风险</li>
+<li><strong>VIP导览彩排</strong>：T+330秒全流程仿真录像，提前发现路径冲突</li>
+<li><strong>洒漏自愈压力测试</strong>：反复100次仿真，确认31秒响应可行</li>
+<li><strong>数字孪生基础</strong>：Isaac Sim的USD模型可直接用于展厅中控数字孪生</li>
+<li><strong>客户演示素材</strong>：仿真渲染录像比PPT有说服力，可用于投标/汇报</li>
+</ol>
 <hr />
 <p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p>
 <h3 id="71_1">7.1 现状技术组合</h3>
@@ -3138,5 +3293,347 @@ Walker → [位置] → 中控 → [LED指令] → 各LED屏
 </tr>
 </tbody>
 </table>
+<h2 id="11-isaac-sim_1">第11章 · Isaac Sim仿真验证</h2>
+<blockquote>
+<p>在实体部署前，使用NVIDIA Isaac Sim（Omniverse）进行多机器人调度仿真验证，降低联调风险。</p>
+</blockquote>
+<h3 id="111_1">11.1 仿真架构</h3>
+<pre><code>Isaac Sim 仿真环境
+├── 展厅场景模型（623㎡ → USD格式导入）
+│   ├── 1F：入口/品牌墙/世界树/机器人区/咖啡站/走廊
+│   └── 2F：芯片区/智驾/未来区
+├── 机器人模型（URDF导入）
+│   ├── Walker S3（人形·迎宾导览）
+│   ├── M20 Pro（四足·巡检越障）
+│   ├── 遨博i5（协作臂·采摘）
+│   ├── 云迹送餐/UP（轮式·物流清洁）
+│   ├── 咖啡机器人（固定·拉花）
+│   └── 遨博海纳（移动协作·抓取）
+├── 传感器仿真
+│   ├── 激光雷达（Isaac LiDAR模拟）
+│   ├── 深度相机（RealSense D435i）
+│   ├── 红外热成像（自定义shader·洒漏检测）
+│   └── UWB定位（位置数据流模拟 ±10cm）
+├── 调度逻辑（Python API）
+│   ├── DAG任务编排引擎（复用实体JSON工作流）
+│   ├── 路径规划（Isaac导航模块+A*）
+│   └── 多机防碰撞（时间窗协调）
+└── 输出
+    ├── 联动场景录像（Omniverse渲染）
+    ├── KPI统计（成功率/响应时延/路径冲突）
+    └── 调度策略优化建议
+</code></pre>
+<h3 id="112_1">11.2 可验证的联动场景</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>仿真验证重点</th>
+<th>成功标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VIP迎宾导览</strong></td>
+<td>T+330秒全流程·7台机器人路径无冲突</td>
+<td>全程零碰撞·时序误差&lt;5s</td>
+</tr>
+<tr>
+<td><strong>拍照接力</strong></td>
+<td>Walker拍照→StyleGAN→咖啡制作→凭脸取餐</td>
+<td>隐私数据流仿真·全链路&lt;4min</td>
+</tr>
+<tr>
+<td><strong>洒漏自愈</strong></td>
+<td>红外检测→DAG生成→UP路径规划→清洁</td>
+<td>31秒全流程·反复100次成功率&gt;95%</td>
+</tr>
+<tr>
+<td><strong>采摘互动</strong></td>
+<td>随机6槽位·视觉识别→吸盘抓取→递送</td>
+<td>抓取成功率&gt;90%·单次&lt;10s</td>
+</tr>
+<tr>
+<td><strong>多机走廊会车</strong></td>
+<td>送餐+巡检同时通过走廊·防碰撞</td>
+<td>时间窗协调·零死锁</td>
+</tr>
+<tr>
+<td><strong>充电调度</strong></td>
+<td>7台机器人错峰充电·不阻塞通道</td>
+<td>全部满电·无排队冲突</td>
+</tr>
+</tbody>
+</table>
+<h3 id="113_1">11.3 仿真开发计划</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>时间</th>
+<th>交付物</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>阶段1·环境搭建</strong></td>
+<td>第1周</td>
+<td>展厅USD场景+机器人URDF导入+传感器配置</td>
+</tr>
+<tr>
+<td><strong>阶段2·单机验证</strong></td>
+<td>第2周</td>
+<td>每台机器人独立路径规划+任务执行仿真</td>
+</tr>
+<tr>
+<td><strong>阶段3·多机联动</strong></td>
+<td>第3周</td>
+<td>DAG调度+6大场景全流程仿真+KPI报告</td>
+</tr>
+<tr>
+<td><strong>阶段4·优化迭代</strong></td>
+<td>第4周（可选）</td>
+<td>调度策略优化+异常场景注入+最终验证报告</td>
+</tr>
+</tbody>
+</table>
+<h3 id="114_1">11.4 硬件要求</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>要求</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GPU</strong></td>
+<td>RTX 4090 或 RTX A6000（24GB+显存）</td>
+<td>展厅边缘服务器已配RTX A6000，可直接使用</td>
+</tr>
+<tr>
+<td><strong>内存</strong></td>
+<td>≥64GB</td>
+<td>展厅服务器已满足</td>
+</tr>
+<tr>
+<td><strong>存储</strong></td>
+<td>≥100GB SSD</td>
+<td>Isaac Sim本体+USD资产</td>
+</tr>
+<tr>
+<td><strong>系统</strong></td>
+<td>Ubuntu 22.04</td>
+<td>展厅服务器已满足</td>
+</tr>
+</tbody>
+</table>
+<h3 id="115_1">11.5 仿真与实体的关系</h3>
+<pre><code>仿真验证（Isaac Sim）          实体部署（展厅）
+     │                              │
+     ├─ DAG工作流JSON ──────────────┼─→ 同一份JSON直接复用
+     ├─ 路径规划参数 ───────────────┼─→ A*参数直接复用
+     ├─ 传感器配置 ─────────────────┼─→ LiDAR/D435i参数对应
+     └─ 仿真验证通过 ───────────────┼─→ 实体部署信心
+                                    │
+     ┌─ 实体运行数据 ←──────────────┤
+     └─ 回灌仿真优化 ←──────────────┘  数字孪生闭环
+</code></pre>
+<h3 id="116_1">11.6 价值</h3>
+<ol>
+<li><strong>上线前验证</strong>：6大场景在仿真中跑通后再部署实体，降低联调风险</li>
+<li><strong>VIP导览彩排</strong>：T+330秒全流程仿真录像，提前发现路径冲突</li>
+<li><strong>洒漏自愈压力测试</strong>：反复100次仿真，确认31秒响应可行</li>
+<li><strong>数字孪生基础</strong>：Isaac Sim的USD模型可直接用于展厅中控数字孪生</li>
+<li><strong>客户演示素材</strong>：仿真渲染录像比PPT有说服力，可用于投标/汇报</li>
+</ol>
 <hr />
-<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><div class="doc-footer"><a href="黑芝麻智能_展厅设计最终方案.html" class="df-prev">‹ 展厅总体方案</a><a href="index.html">返回首页</a><a href="前海展厅软件架构方案.html" class="df-next">软件架构方案 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
+<h2 id="12-nvidia">第12章 · NVIDIA 官方参考案例</h2>
+<blockquote>
+<p>本章整理 NVIDIA 官方在多机器人、展厅/工厂场景、Isaac Sim 仿真方面的现成参考，供展厅仿真方案开发时直接对照使用。</p>
+</blockquote>
+<h3 id="121">12.1 官方文档教程（有代码可跑）</h3>
+<h4 id="1211-ros2">12.1.1 多机器人 ROS2 导航（最直接相关）</h4>
+<p><strong>文档</strong>：<a href="https://docs.isaacsim.omniverse.nvidia.com/5.0.0/ros2_tutorials/tutorial_ros2_multi_navigation.html">Multiple Robot ROS2 Navigation — Isaac Sim 5.0</a></p>
+<ul>
+<li>Isaac Sim 集成 ROS2 Nav2 栈，多台机器人同时导航</li>
+<li>使用 <code>isaac_ros_navigation_goal</code> 包同时给多台机器人设置目标点</li>
+<li>通过 ROS2 namespace 隔离，每台机器人独立收发指令</li>
+<li>支持 Linux（Windows 可能有兼容性问题）</li>
+</ul>
+<p><strong>对应展厅场景</strong>：Walker S3 / M20 Pro / 云迹送餐 多机同场路径规划、防碰撞</p>
+<hr />
+<h4 id="1212">12.1.2 仓库物流场景（最接近展厅结构）</h4>
+<p><strong>文档</strong>：<a href="https://docs.isaacsim.omniverse.nvidia.com/4.2.0/features/warehouse_logistics/index.html">Warehouse Logistics — Isaac Sim Docs</a></p>
+<ul>
+<li>内置传送带生成、动画工人、AMR 路径调度</li>
+<li>集成 NVIDIA cuOpt 实时路径优化（多机防碰撞）</li>
+<li>标准 ROS2 机器人接入接口</li>
+<li>提供 <code>carter_warehouse_apriltags_worker.usd</code> 等现成场景文件</li>
+</ul>
+<p><strong>对应展厅场景</strong>：多机调度总体架构，cuOpt 路径优化可直接复用于展厅路径规划模块</p>
+<hr />
+<h3 id="122-github">12.2 官方 GitHub 仓库</h3>
+<h4 id="1221-isaac_mission_dispatch">12.2.1 isaac_mission_dispatch（多机任务下发核心）</h4>
+<p><strong>仓库</strong>：<a href="https://github.com/nvidia-isaac/isaac_mission_dispatch">github.com/nvidia-isaac/isaac_mission_dispatch</a></p>
+<ul>
+<li>VDA5050 协议 + MQTT，向多台机器人下发任务、监控状态</li>
+<li>标准的机器人↔云端/边缘通信协议（AGV/AMR 行业标准）</li>
+<li>不处理任务分配逻辑，只做任务下发和状态回传</li>
+<li>与 Mission Control 配合使用</li>
+</ul>
+<p><strong>对应展厅场景</strong>：DAG 任务编排引擎 → 各厂商机器人 Adapter 下发指令的参考实现</p>
+<hr />
+<h4 id="1222-isaac_mission_control">12.2.2 isaac_mission_control（完整调度链路）</h4>
+<p><strong>仓库</strong>：<a href="https://github.com/nvidia-isaac/isaac_mission_control">github.com/nvidia-isaac/isaac_mission_control</a></p>
+<ul>
+<li>行为树（Behavior Tree）+ cuOpt 路由 + Mission Dispatch 完整组合</li>
+<li>输入占用栅格地图 + CSR 图，输出最优多机路径</li>
+<li>支持多机器人任务目标编排（multi-robot objectives）</li>
+<li>VDA5050 协议执行层</li>
+</ul>
+<p><strong>对应展厅场景</strong>：中枢调度系统的完整参考实现，行为树对应 DAG 任务编排，cuOpt 对应路径冲突避免</p>
+<hr />
+<h4 id="1223-isaacsim">12.2.3 IsaacSim 官方开源</h4>
+<p><strong>仓库</strong>：<a href="https://github.com/isaac-sim/IsaacSim">github.com/isaac-sim/IsaacSim</a></p>
+<ul>
+<li>Apache 2.0 开源，含标准 standalone 示例脚本</li>
+<li>Python API 直接控制多机器人（ArticulationView / RigidBodyView）</li>
+<li>支持 URDF / USD 格式机器人模型导入</li>
+<li>内置传感器仿真（LiDAR / 深度相机 / IMU）</li>
+</ul>
+<hr />
+<h3 id="123">12.3 社区案例（最接近展厅异构多机场景）</h3>
+<h4 id="1231-ros2-isaac-sim">12.3.1 多智能体系统：ROS2 + Isaac Sim + 行为树（最相关）</h4>
+<p><strong>仓库</strong>：<a href="https://github.com/YousefSamm/Multi-Agent-Robotics-System-using-ROS2-Isaac-Sim">YousefSamm/Multi-Agent-Robotics-System-using-ROS2-Isaac-Sim</a></p>
+<ul>
+<li>移动操作臂 + 叉车 + Spot 三类异构机器人协作（2025 毕业项目）</li>
+<li>行为树控制 + RL 运动控制器</li>
+<li>自主导航 + 操作任务协同</li>
+<li>和展厅 7 台异构机器人（人形 / 四足 / 轮式 / 协作臂）结构最像</li>
+</ul>
+<hr />
+<h4 id="1232">12.3.2 双臂协作数字孪生</h4>
+<p><strong>仓库</strong>：<a href="https://github.com/MetaToolEU/MT_Isaac_sim">MetaToolEU/MT_Isaac_sim</a></p>
+<ul>
+<li>两台 UR 协作臂同步控制（<code>isaac_rtde_dual_arm.py</code>）</li>
+<li>实时控制 + 碰撞避免 + 路径规划</li>
+<li>数字孪生环境</li>
+</ul>
+<p><strong>对应展厅场景</strong>：遨博 i5 + 遨博海纳 双臂场景的参考实现</p>
+<hr />
+<h3 id="124-mega-blueprint">12.4 大规模工业落地参考（Mega Blueprint）</h3>
+<p><strong>文档</strong>：<a href="https://build.nvidia.com/nvidia/mega-multi-robot-fleets-for-industrial-automation/blueprintcard">build.nvidia.com — Mega Multi-Robot Fleets</a></p>
+<p><strong>博客</strong>：<a href="https://blogs.nvidia.com/blog/mega-omniverse-blueprint-industrial-digital-twins/">Industrial Ecosystem Adopts Mega Blueprint</a></p>
+<p>NVIDIA Mega Omniverse Blueprint 是官方多机器人机群仿真的旗舰参考架构，已有多家企业落地：</p>
+<table>
+<thead>
+<tr>
+<th>企业</th>
+<th>场景</th>
+<th>机器人类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hyundai</strong></td>
+<td>工厂展示线，Atlas 人形机器人协作装配</td>
+<td>人形机器人</td>
+</tr>
+<tr>
+<td><strong>Mercedes-Benz</strong></td>
+<td>展示线，Apptronik Apollo 协作</td>
+<td>人形机器人</td>
+</tr>
+<tr>
+<td><strong>Toyota Material Handling</strong></td>
+<td>AMR 与人协同搬运展示</td>
+<td>AMR</td>
+</tr>
+<tr>
+<td><strong>Schaeffler</strong></td>
+<td>Agility Robotics Digit 物料搬运机群</td>
+<td>人形机器人</td>
+</tr>
+<tr>
+<td><strong>idealworks</strong></td>
+<td>人形 + AMR 混合机群（VDA5050 框架）</td>
+<td>混合机群</td>
+</tr>
+<tr>
+<td><strong>Amazon Robotics</strong></td>
+<td>仓库数字孪生</td>
+<td>AMR 机群</td>
+</tr>
+</tbody>
+</table>
+<p>核心技术栈：Isaac Sim + Isaac Perceptor（多传感器融合）+ cuOpt（路径优化）+ Metropolis（视觉 AI）</p>
+<hr />
+<h3 id="125">12.5 参考案例与展厅场景映射</h3>
+<table>
+<thead>
+<tr>
+<th>展厅需求</th>
+<th>参考案例</th>
+<th>复用程度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7台异构机器人同场协同</td>
+<td>Multi-Agent ROS2 + Isaac Sim（§12.3.1）</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>任务编排 / 下发</td>
+<td>isaac_mission_dispatch（§12.2.1）</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>路径规划 / 防碰撞</td>
+<td>isaac_mission_control + cuOpt（§12.2.2）</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>多机同场导航</td>
+<td>Multiple Robot ROS2 Navigation（§12.1.1）</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>展厅 / 仓库 USD 场景搭建</td>
+<td>Warehouse Logistics（§12.1.2）</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td>协作臂抓取（遨博 i5）</td>
+<td>MT_Isaac_sim 双臂案例（§12.3.2）</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td>大规模机群架构参考</td>
+<td>Mega Blueprint（§12.4）</td>
+<td>★★★☆☆</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="126">12.6 开发起点建议</h3>
+<p>根据展厅当前采用<strong>云平台 HTTP API 方案</strong>（见<a href="前海展厅软件架构方案.md">前海展厅软件架构方案</a>），Isaac Sim 仿真阶段的推荐参考顺序：</p>
+<pre><code>第1周（环境搭建）
+  → 参考 §12.1.2 Warehouse Logistics：加载现成 USD 仓库场景作为展厅底板
+  → 参考 §12.2.3 IsaacSim GitHub：standalone Python 脚本导入机器人 URDF
+
+第2周（单机验证）
+  → 参考 §12.1.1 Multiple Robot ROS2 Navigation：单机 Nav2 导航验证
+
+第3周（多机联动）
+  → 参考 §12.3.1 Multi-Agent 案例：异构多机行为树调度框架
+  → 参考 §12.2.1 isaac_mission_dispatch：任务下发链路
+
+第4周（优化）
+  → 参考 §12.2.2 isaac_mission_control：cuOpt 路径优化接入
+  → 参考 §12.4 Mega Blueprint：大屏数字孪生可视化架构
+</code></pre>
+<hr />
+<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><div class="doc-footer"><a href="黑芝麻智能_展厅设计最终方案.html" class="df-prev">‹ 展厅总体方案</a><a href="index.html">返回首页</a><a href="展厅用电用网需求.html" class="df-next">展厅用电用网需求 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
