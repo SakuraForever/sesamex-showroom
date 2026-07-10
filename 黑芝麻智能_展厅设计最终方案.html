@@ -1021,9 +1021,9 @@ a:hover{text-decoration:underline}
 <hr />
 <h2 id="9-l2l3l4-ota">第9章 · 空间智能演进路线（L2→L3→L4 OTA）</h2>
 <blockquote>
-<p><strong>展厅不是一堆机器人的集合，而是一台"空间级智能体"——像汽车自动驾驶一样，从L2逐步OTA升级到L4。</strong></p>
+<p><strong>总起：展厅不是一堆机器人的集合，而是一台"空间级智能体"——像汽车自动驾驶一样，从L2逐步OTA升级到L4。前期基建预埋（传感器位/接口/布线布网）决定了后期升级的天花板。</strong></p>
 </blockquote>
-<h3 id="71_1">7.1 智能等级定义</h3>
+<h3 id="91-l2l3l4">9.1 智能等级总表（L2→L3→L4）</h3>
 <div class="mermaid">graph LR
     L2["L2 辅助联动<br/>触发式DAG<br/>2026年8月"] -->|OTA| L3["L3 条件主动<br/>视觉感知+AI Agent<br/>2026年12月"]
     L3 -->|OTA| L4["L4 全自主空间智能<br/>VLA+持续学习<br/>2027年Q1"]</div>
@@ -1061,37 +1061,171 @@ a:hover{text-decoration:underline}
 </tr>
 </tbody>
 </table>
-<h3 id="72-l2">7.2 L2 · 辅助联动（当前方案）</h3>
-<ul>
-<li>触发方式：RFID手环/按钮/定时器</li>
-<li>决策方式：DAG预编程工作流</li>
-<li>执行方式：固定动作序列</li>
-<li><strong>依赖基建</strong>：UWB基站×4 + RFID读写器×3 + Wi-Fi 6 AP×4</li>
-<li><strong>OTA升级路径</strong>：DAG引擎可平滑升级为AI Agent</li>
-</ul>
-<h3 id="73-l3">7.3 L3 · 条件主动</h3>
-<ul>
-<li>感知方式：摄像头阵列（访客画像/行为识别）+ 麦克风阵列（远场语音）</li>
-<li>决策方式：AI Agent理解全局上下文→动态生成最优方案</li>
-<li>执行方式：根据访客画像灵活组合行为</li>
-<li><strong>依赖基建</strong>：Phase 0预埋的8个摄像头PoE口 + 4个麦克风阵列PoE口</li>
-<li><strong>OTA升级路径</strong>：SesameX VLA模型OTA下发</li>
-</ul>
-<h3 id="74-l4">7.4 L4 · 全自主空间智能</h3>
-<ul>
-<li>感知方式：全传感器融合+世界模型预测</li>
-<li>决策方式：SesameX端侧VLA推理（&lt;5ms）+ 持续学习闭环</li>
-<li>执行方式：机器人自主思考，不需要中控指令</li>
-<li><strong>依赖基建</strong>：边缘服务器（双路供电+万兆网络）+ OTA服务器</li>
-<li><strong>核心价值</strong>：SesameX Inside——断网也能主动思考</li>
-</ul>
-<h3 id="75-ota">7.5 OTA升级路径</h3>
+<h3 id="92-ota">9.2 分述：各子系统如何随OTA进化</h3>
+<blockquote>
+<p>展厅的"进化"不是一个抽象概念——它体现在<strong>每一个子系统的版本递增</strong>中。以下四个维度，每个都能让访客"看到"空间在变聪明。</p>
+</blockquote>
+<h4 id="921">9.2.1 芯片世界树：从"灯光秀"进化为"会思考的生命体"</h4>
+<blockquote>
+<p>详见《芯片世界树落地设计方案》第15章</p>
+</blockquote>
+<p>世界树是OTA叙事最直观的物理载体——它的光效会随版本递增而"进化"：</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>OTA时间</th>
+<th>光效能力</th>
+<th>对应OTA层级</th>
+<th>访客能感知到的变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v1.0</strong></td>
+<td>开馆</td>
+<td>4种基础光效（待机/感知/VIP/采摘）</td>
+<td>L2</td>
+<td>"这棵树会响应我的到来"</td>
+</tr>
+<tr>
+<td><strong>v2.0</strong></td>
+<td>+3个月</td>
+<td>+5种个性化光效（年龄/性别/情绪驱动）+ 季节光效包</td>
+<td>L3</td>
+<td>"年轻人来它变酷炫，老人来它变温暖"</td>
+</tr>
+<tr>
+<td><strong>v3.0</strong></td>
+<td>+6个月</td>
+<td>灯光AI模型自主生成光效 + 空间记忆可视化（每日光点足迹）</td>
+<td>L4</td>
+<td>"这棵树记得今天来了谁，它在用自己的方式表达"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>进化保障（合同必须确认的接口）</strong>：
+- 🔴 灯光控制器支持 HTTP API 动态加载新场景JSON（不只DMX512预设）
+- 🔴 地台LED显示光效版本号 <code>v2.1.0</code>，让进化可见
+- 🟡 光纤DMX512通道预留≥16ch，为未来新光效留空间</p>
+<p><strong>成本影响</strong>：+8,000~15,000元（占总预算3-5%），但<strong>决定了世界树能否从"装置"进化为"生命体"</strong>。</p>
+<h4 id="922">9.2.2 机器人系统：从"规则执行"进化为"自主思考"</h4>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>OTA时间</th>
+<th>决策方式</th>
+<th>感知能力</th>
+<th>访客能感知到的变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v1.0</strong></td>
+<td>开馆</td>
+<td>DAG预编程工作流（RFID/按钮触发）</td>
+<td>UWB定位+激光雷达</td>
+<td>"机器人按固定路线走"</td>
+</tr>
+<tr>
+<td><strong>v2.0</strong></td>
+<td>+3个月</td>
+<td>AI Agent动态决策（根据访客画像）</td>
+<td>+摄像头阵列+麦克风</td>
+<td>"机器人会根据我的表情调整行为"</td>
+</tr>
+<tr>
+<td><strong>v3.0</strong></td>
+<td>+6个月</td>
+<td>SesameX VLA端侧推理（&lt;5ms）+ 持续学习</td>
+<td>全传感器融合+世界模型</td>
+<td>"机器人像有自主意识一样主动服务"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>OTA升级路径</strong>：DAG引擎 → AI Agent → VLA模型，硬件不变，软件和模型持续进化。</p>
+<h4 id="923-ledai">9.2.3 LED屏系统：从"固定播放"进化为"AI生成内容"</h4>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>OTA时间</th>
+<th>内容来源</th>
+<th>互动方式</th>
+<th>访客能感知到的变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v1.0</strong></td>
+<td>开馆</td>
+<td>预制视频+固定动画循环</td>
+<td>无互动（单向播放）</td>
+<td>"屏幕在播放品牌内容"</td>
+</tr>
+<tr>
+<td><strong>v2.0</strong></td>
+<td>+3个月</td>
+<td>实时数据可视化（访客计数/机器人状态）</td>
+<td>世界树联动切换</td>
+<td>"屏幕在实时反映展厅状态"</td>
+</tr>
+<tr>
+<td><strong>v3.0</strong></td>
+<td>+6个月</td>
+<td>AI生成内容（根据实时访客画像动态生成画面）</td>
+<td>个性化内容推送</td>
+<td>"屏幕上的画面好像是为我定制的"</td>
+</tr>
+</tbody>
+</table>
+<h4 id="924">9.2.4 传感器网络：从"定位工具"进化为"空间感官"</h4>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>OTA时间</th>
+<th>感知范围</th>
+<th>数据用途</th>
+<th>访客能感知到的变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v1.0</strong></td>
+<td>开馆</td>
+<td>UWB定位（机器人位置±10cm）</td>
+<td>多机调度+防碰撞</td>
+<td>"机器人不会撞到彼此"</td>
+</tr>
+<tr>
+<td><strong>v2.0</strong></td>
+<td>+3个月</td>
+<td>+摄像头（访客画像/行为）+ 环境传感器</td>
+<td>世界树光效个性化+内容推送</td>
+<td>"空间在理解我"</td>
+</tr>
+<tr>
+<td><strong>v3.0</strong></td>
+<td>+6个月</td>
+<td>全传感器融合（毫米波+红外+声音+视觉）</td>
+<td>世界模型预测+自主决策</td>
+<td>"空间在我开口前就知道我需要什么"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="93-ota">9.3 基建预埋如何支撑OTA</h3>
+<blockquote>
+<p><strong>基建层是"不可逆"的——装修时没埋的线、没留的口、没选对协议的控制器，后期无法追加。</strong></p>
+</blockquote>
 <div class="mermaid">graph TB
     subgraph 基建层["基建层 Phase 0（装修时预埋，不可后期追加）"]
         E1["UWB基站×4"]
         E2["摄像头PoE口×8"]
         E3["麦克风PoE口×4"]
-        E4["万兆光纤+VLAN"]
+        E4["世界树HTTP API灯光控制器"]
+        E5["万兆光纤+VLAN"]
     end
     subgraph L2["L2 软件层（OTA可升级）"]
         S1["DAG引擎→AI Agent"]
@@ -1100,50 +1234,68 @@ a:hover{text-decoration:underline}
     subgraph L3L4["L3/L4 模型层（OTA可升级）"]
         M1["SesameX VLA模型"]
         M2["世界模型"]
-        M3["访客画像模型"]
+        M3["灯光AI模型"]
     end
     基建层 --> L2
     L2 --> L3L4</div>
-<blockquote>
-<p><strong>关键设计</strong>：硬件一次预埋到位，软件和模型通过OTA持续进化。就像汽车L2→L3→L4，硬件不变，软件升级。</p>
-</blockquote>
-<h3 id="76-ota">7.6 每个阶段的OTA内容</h3>
+<h3 id="94-ota">9.4 总结：OTA路线图与关键里程碑</h3>
 <table>
 <thead>
 <tr>
 <th>OTA版本</th>
-<th>升级内容</th>
-<th>不需要改的</th>
-<th>需要改的</th>
+<th>时间</th>
+<th>世界树</th>
+<th>机器人</th>
+<th>LED屏</th>
+<th>传感器</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>v1.0</strong>（8月）</td>
-<td>L2 DAG脚本</td>
-<td>硬件/基建</td>
-<td>部署初始联动脚本</td>
+<td><strong>v1.0</strong></td>
+<td>8月开馆</td>
+<td>4种光效+DMX512</td>
+<td>DAG规则联动</td>
+<td>固定内容循环</td>
+<td>UWB定位</td>
 </tr>
 <tr>
-<td><strong>v1.5</strong>（10月）</td>
-<td>视觉感知模块</td>
-<td>硬件（已预埋）</td>
-<td>激活摄像头阵列+条件触发</td>
+<td><strong>v1.5</strong></td>
+<td>10月</td>
+<td>+光效版本号显示</td>
+<td>+视觉感知模块</td>
+<td>+实时数据可视化</td>
+<td>+摄像头激活</td>
 </tr>
 <tr>
-<td><strong>v2.0</strong>（12月）</td>
-<td>VLA模型+AI Agent</td>
-<td>硬件（已预埋）</td>
-<td>OTA下发VLA模型到SesameX</td>
+<td><strong>v2.0</strong></td>
+<td>12月</td>
+<td>+个性化光效（年龄/情绪）</td>
+<td>+AI Agent动态决策</td>
+<td>+AI生成内容</td>
+<td>+行为分析</td>
 </tr>
 <tr>
-<td><strong>v2.5</strong>（2027Q1）</td>
-<td>持续学习闭环</td>
-<td>硬件（已预埋）</td>
-<td>激活数据采集+模型微调</td>
+<td><strong>v2.5</strong></td>
+<td>2027Q1</td>
+<td>+空间记忆可视化</td>
+<td>+VLA端侧推理</td>
+<td>+个性化推送</td>
+<td>+全感知融合</td>
+</tr>
+<tr>
+<td><strong>v3.0</strong></td>
+<td>2027Q2</td>
+<td>+灯光AI模型自主生成</td>
+<td>+持续学习闭环</td>
+<td>+自主生成</td>
+<td>+世界模型预测</td>
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>一句话总结</strong>：硬件一次预埋到位（Phase 0），软件和模型通过OTA持续进化（L2→L3→L4）。3-5%的预算增量（HTTP API灯光控制器+地台LED版本号），决定了整个展厅能否从"一堆机器"进化为"一个会思考的空间"。这就是<strong>空间智能OTA</strong>的核心承诺。</p>
+</blockquote>
 <hr />
 <h2 id="10">第10章 · 展项清单汇总</h2>
 <h3 id="81-1f">8.1 1F展项统计</h3>
