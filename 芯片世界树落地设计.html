@@ -790,4 +790,204 @@ T+10s
 <pre><code>A 15-second timelapse of the Chip World Tree in a showroom, cycling through different states: 1) Calm standby with slow blue heartbeat pulse. 2) Activity as visitors arrive — pulsing accelerates, brightens. 3) A brief moment of VIP welcome with explosive light. 4) Return to calm as the day ends. Natural light from windows changes from morning to evening. The tree is the constant, alive presence. Style: ambient, emotional, architectural timelapse.
 </code></pre>
 <hr />
+<h2 id="15-ota">15. 与空间智能OTA的契合度分析与进化路径</h2>
+<h3 id="151">15.1 当前契合度评估</h3>
+<blockquote>
+<p>世界树的<strong>叙事是 L4 级的</strong>，但<strong>落地技术是 L2 级的</strong>。要真正契合 OTA 叙事，需在硬件选型阶段就把"可进化"考虑进去。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>OTA层级</th>
+<th>世界树应呈现</th>
+<th>当前落地</th>
+<th>契合度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L2 · 规则联动</strong></td>
+<td>预设规则触发（DMX512 4种灯效+定时切换）</td>
+<td>✅ 4种光效状态机+DMX512外控</td>
+<td>9/10</td>
+</tr>
+<tr>
+<td><strong>L3 · 主动感知</strong></td>
+<td>VLA感知→空间主动响应（情绪/行为分析驱动光效）</td>
+<td>⚠️ 有红外"感知"状态，但只是"人来变亮"，缺行为理解</td>
+<td>4/10</td>
+</tr>
+<tr>
+<td><strong>L4 · 空间智能</strong></td>
+<td>全场传感器融合→自主决策→OTA持续学习→光效"进化"</td>
+<td>❌ 固定4种模式循环，无扩展路径</td>
+<td>2/10</td>
+</tr>
+</tbody>
+</table>
+<h3 id="152">15.2 三个核心缺口</h3>
+<h4 id="1_1">缺口1：没有"进化"的视觉证据</h4>
+<p>OTA核心承诺是"展厅会越来越好"。但当前设计L2上线时光效有4种，半年后还是这4种，访客看不到"进化"。</p>
+<h4 id="2_1">缺口2：缺少"数据→光效"闭环</h4>
+<p>当前是单向触发（传感器→灯光响应），OTA叙事需要闭环（访客数据积累→云端分析→发现新pattern→OTA下发新光效→世界树"学会了"新的表达方式）。</p>
+<h4 id="3l4">缺口3：缺少"L4空间智能"的物理载体</h4>
+<p>L4承诺"空间本身就是机器人"。但世界树目前只是被动响应的灯光装置，没有体现空间对人群密度的理解、对时间的记忆、对事件的记忆。</p>
+<h3 id="153">15.3 六项进化改进</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>改进</th>
+<th>具体做法</th>
+<th>对应OTA</th>
+<th>优先级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>光效版本号</strong></td>
+<td>地台LED显示 <code>v2.1.0</code>，每次OTA更新递增，访客看到"这个空间在升级"</td>
+<td>L2→L3→L4</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>OTA光效包接口</strong></td>
+<td>灯光控制器支持 HTTP API 动态加载新场景JSON（不只DMX512预设），为持续进化留通道</td>
+<td>L3</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>访客数据→光效个性化</strong></td>
+<td>接入人脸年龄/性别/情绪→生成"专属光效"（年轻人→炫酷青色；老人→温暖橙色）</td>
+<td>L3</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>空间记忆可视化</strong></td>
+<td>地台投影"今日N位访客的光点足迹"，每天结束时世界树"回顾"当天</td>
+<td>L4</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>季节性进化</strong></td>
+<td>每季度OTA一次"季节光效包"（春绿/夏蓝/秋金/冬紫），让访客每次来都不一样</td>
+<td>L4</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>灯光AI模型</strong></td>
+<td>L4阶段在边缘服务器训练"光效生成模型"，根据实时传感器数据自动生成新光效</td>
+<td>L4</td>
+<td>P2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="154">15.4 展装公司必须增加的接口（进化保障）</h3>
+<blockquote>
+<p>以下接口必须在合同中确认，否则世界树无法实现 OTA 进化。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>协议</th>
+<th>用途</th>
+<th>必要性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>灯光场景动态加载</strong></td>
+<td>HTTP API POST <code>/api/lighting/scene</code></td>
+<td>OTA下发新光效JSON，灯光控制器实时加载</td>
+<td>🔴 必须</td>
+</tr>
+<tr>
+<td><strong>灯光控制器状态上报</strong></td>
+<td>MQTT <code>tree/lighting/status</code></td>
+<td>上报当前光效版本、运行状态、故障信息</td>
+<td>🔴 必须</td>
+</tr>
+<tr>
+<td><strong>地台LED文字/数字接口</strong></td>
+<td>HTTP API POST <code>/api/baseboard/text</code></td>
+<td>显示光效版本号 <code>v2.1.0</code>、访客计数等动态文字</td>
+<td>🟡 建议</td>
+</tr>
+<tr>
+<td><strong>光纤主机扩展接口</strong></td>
+<td>DMX512 通道预留≥16ch</td>
+<td>为未来新光效预留控制通道</td>
+<td>🟡 建议</td>
+</tr>
+</tbody>
+</table>
+<h3 id="155">15.5 进化路线图</h3>
+<pre><code>Phase 1（L2 · 开馆）
+  世界树 v1.0.0
+  ├─ 4种基础光效（待机/感知/VIP/采摘）
+  ├─ DMX512控制
+  └─ 地台显示 v1.0.0
+
+      ↓ OTA（每月）
+
+Phase 2（L3 · 3个月后）
+  世界树 v2.0.0
+  ├─ +5种个性化光效（年龄/性别/情绪驱动）
+  ├─ HTTP API动态加载新场景
+  ├─ 地台显示访客画像统计
+  └─ 季节光效包（春绿v2.1）
+
+      ↓ OTA（每季度）
+
+Phase 3（L4 · 6个月后）
+  世界树 v3.0.0
+  ├─ 灯光AI模型自主生成光效（不再依赖人工预设）
+  ├─ 空间记忆可视化（每日光点足迹回顾）
+  ├─ 全场传感器融合→光效实时自适应
+  └─ 地台显示&quot;今日世界树学会了...&quot;
+</code></pre>
+<h3 id="156">15.6 成本影响</h3>
+<table>
+<thead>
+<tr>
+<th>改进</th>
+<th>增加成本</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTP API灯光控制器（替代纯DMX512）</td>
+<td>+5,000~10,000元</td>
+<td>选支持API的智能灯光控制器</td>
+</tr>
+<tr>
+<td>地台LED文字显示模块</td>
+<td>+3,000~5,000元</td>
+<td>增加一行LED文字/数字显示</td>
+</tr>
+<tr>
+<td>光纤DMX通道扩展</td>
+<td>+0元</td>
+<td>只需在合同中要求预留通道</td>
+</tr>
+<tr>
+<td>灯光AI模型（L4阶段）</td>
+<td>边缘服务器已有</td>
+<td>利用现有RTX A6000训练</td>
+</tr>
+<tr>
+<td><strong>总增加</strong></td>
+<td><strong>~8,000~15,000元</strong></td>
+<td>占总预算3-5%，但决定了OTA进化的天花板</td>
+</tr>
+</tbody>
+</table>
 <p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><div class="doc-footer"><a href="展厅用电用网需求.html" class="df-prev">‹ 展厅用电用网需求</a><a href="index.html">返回首页</a><a href="前海展厅软件架构方案.html" class="df-next">软件架构方案 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
