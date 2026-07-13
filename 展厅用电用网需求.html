@@ -332,29 +332,19 @@ a:hover{text-decoration:underline}
 <hr />
 <h2 id="2">2. 用网需求</h2>
 <h3 id="21">2.1 网络架构</h3>
-<pre><code>互联网光纤入户
-    │
-    ├─ 访客Wi-Fi（现有网络，不改动）
-    │
-    └─ 展厅专用网络（新建VLAN隔离）
-         │
-         ├─ 千兆PoE交换机（24口，弱电间）
-         │    ├─ 边缘服务器（有线千兆）
-         │    ├─ LED播控服务器（有线千兆）
-         │    ├─ NTP服务器（有线）
-         │    ├─ Wi-Fi 6 AP ×4（PoE供电）
-         │    ├─ UWB基站 ×4（PoE供电）
-         │    ├─ 预埋摄像头 ×4-6（PoE供电，Phase 0预留）
-         │    └─ 预埋毫米波 ×2-4（PoE供电，Phase 0预留）
-         │
-         └─ Wi-Fi 6 无线（机器人专用SSID）
-              ├─ Walker S3
-              ├─ M20 Pro
-              ├─ 咖啡机器人
-              ├─ 云迹送餐
-              ├─ 云迹UP
-              └─ 遨博海纳
-</code></pre>
+<div class="mermaid">graph TB
+    INET["互联网光纤入户"]
+    INET --> GUEST["访客Wi-Fi<br/>（现有网络，不改动）"]
+    INET --> VLAN["展厅专用网络<br/>（新建VLAN隔离）"]
+    VLAN --> SW["千兆PoE交换机<br/>（24口，弱电间）"]
+    SW --> SRV1["边缘服务器<br/>（有线千兆）"]
+    SW --> SRV2["LED播控服务器<br/>（有线千兆）"]
+    SW --> NTP["NTP服务器"]
+    SW --> AP["Wi-Fi 6 AP ×4<br/>（PoE供电）"]
+    SW --> UWB["UWB基站 ×4<br/>（PoE供电）"]
+    SW --> CAM["预埋摄像头 ×4-6<br/>（PoE，Phase 0预留）"]
+    SW --> RADAR["预埋毫米波 ×2-4<br/>（PoE，Phase 0预留）"]
+    AP -.->|Wi-Fi 6 专用SSID| ROBOTS["机器人<br/>Walker/M20/咖啡/云迹×2/遨博"]</div>
 <h3 id="22">2.2 网络带宽需求</h3>
 <table>
 <thead>
