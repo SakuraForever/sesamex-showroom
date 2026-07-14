@@ -1,0 +1,1104 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>采购执行清单</title><style>
+:root{--bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--bd:rgba(255,255,255,0.08);--font:-apple-system,'SF Pro Display','Microsoft YaHei','PingFang SC',sans-serif;--mono:'SF Mono','Consolas',monospace}
+[data-theme="light"]{--bg:#fbfbfd;--bg2:#f5f5f7;--bg3:#e8e8ed;--text:#1d1d1f;--sub:#6e6e73;--acc:#0071e3;--green:#34c759;--orange:#ff9500;--purple:#af52de;--bd:rgba(0,0,0,0.1)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.8;-webkit-font-smoothing:antialiased}
+.doc-nav{position:fixed;top:0;left:0;right:0;height:48px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(28,28,30,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--bd)}
+.doc-nav .dn-back{font-size:14px;color:var(--acc);text-decoration:none;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.doc-nav .dn-back:hover{background:rgba(10,132,255,0.1)}
+.doc-nav .dn-mid{display:flex;align-items:center;gap:10px;overflow:hidden}
+.doc-nav .dn-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-nav .dn-crumb{font-size:11px;color:var(--sub);white-space:nowrap}
+.doc-nav .dn-chap{display:flex;gap:6px;flex-shrink:0}
+.doc-nav .dn-chap a{font-size:11px;color:var(--sub);text-decoration:none;padding:4px 10px;border-radius:8px;border:0.5px solid var(--bd);transition:all .15s;white-space:nowrap}
+.doc-nav .dn-chap a:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
+.smx-theme-toggle{background:var(--bg3);border:0.5px solid var(--bd);border-radius:20px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:6px}
+.doc{max-width:880px;margin:0 auto;padding:72px 24px 80px}
+h1{font-size:30px;font-weight:700;margin:36px 0 20px;letter-spacing:-0.5px;border-bottom:1px solid var(--bd);padding-bottom:12px}
+h2{font-size:22px;font-weight:600;margin:36px 0 16px;padding-left:14px;border-left:3px solid var(--acc)}
+h3{font-size:18px;font-weight:600;margin:28px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--text)}
+p{font-size:15px;margin-bottom:14px;color:var(--text)}
+ul,ol{font-size:15px;margin-bottom:14px;padding-left:26px}
+li{margin-bottom:6px}
+strong{color:#fff;font-weight:600}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;border-radius:12px;overflow:hidden;border:0.5px solid var(--bd)}
+th{background:var(--bg3);color:var(--acc);padding:12px 16px;border:0.5px solid var(--bd);font-weight:600;text-align:left}
+td{padding:10px 16px;border:0.5px solid var(--bd);color:var(--text);line-height:1.6}
+tr:nth-child(even) td{background:var(--bg2)}
+code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:13px;color:#f5f5f7;font-family:var(--mono)}
+pre{background:var(--bg2);padding:18px;border-radius:12px;overflow-x:auto;margin:18px 0;border:0.5px solid var(--bd)}
+pre code{background:none;padding:0;font-size:13px;color:#e0e0e0}
+blockquote{border-left:3px solid var(--acc);padding:12px 22px;margin:18px 0;color:var(--sub);background:var(--bg2);border-radius:0 12px 12px 0}
+hr{border:none;border-top:0.5px solid var(--bd);margin:36px 0}
+a{color:#64b5f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.mermaid{background:var(--bg2);padding:20px;border-radius:12px;margin:18px 0;text-align:center;border:0.5px solid var(--bd)}
+[data-theme="light"] .mermaid{background:transparent;border-color:rgba(0,0,0,0.08)}
+.doc-footer{max-width:880px;margin:0 auto;padding:0 24px 60px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.doc-footer a{font-size:13px;color:var(--sub);text-decoration:none;padding:10px 20px;border-radius:12px;border:0.5px solid var(--bd);transition:all .15s;flex:1;text-align:center;min-width:160px}
+.doc-footer a:hover{color:var(--text);border-color:rgba(255,255,255,0.15);background:var(--bg2)}
+.doc-footer a.df-disabled{opacity:0.3;pointer-events:none}
+@media(max-width:768px){
+  .doc-nav{flex-wrap:wrap;height:auto;padding:8px 12px}
+  .doc-nav .dn-mid{order:3;width:100%;margin-top:4px}
+  .doc-nav .dn-title{font-size:12px}
+  .doc-nav .dn-crumb{font-size:10px}
+  .doc-nav .dn-chap a{font-size:10px;padding:3px 8px}
+  .doc{padding:100px 16px 60px}
+  h1{font-size:24px}
+  h2{font-size:18px}
+  .doc-footer{flex-direction:column}
+  .doc-footer a{min-width:auto}
+}
+</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">采购执行清单</div><div class="dn-crumb"></div></div><div class="dn-chap"></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="_1">采购执行清单 · 供应商/研发/采购三线并行</h1>
+<blockquote>
+<p>本文档可直接拆分为三份执行件，分别发送给采购部、研发团队、供应商。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、采购清单（发给采购部）</h2>
+<h3 id="11">1.1 机器人设备类</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>物料名称</th>
+<th>品牌/型号</th>
+<th>规格</th>
+<th>数量</th>
+<th>预估单价(万元)</th>
+<th>小计(万元)</th>
+<th>到货时间</th>
+<th>供应商</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R01</td>
+<td>人形机器人</td>
+<td>优必选 Walker S3</td>
+<td>1.45m/77kg/36DOF/负载1.5kg</td>
+<td>1</td>
+<td>80-120</td>
+<td>80-120</td>
+<td>7月15日</td>
+<td>优必选科技</td>
+<td>步态稳定+语音交互+拍照功能验收</td>
+</tr>
+<tr>
+<td>R02</td>
+<td>四足机器狗</td>
+<td>云深处 M20 Pro</td>
+<td>30kg/负载12kg/IP66/96线激光雷达</td>
+<td>1</td>
+<td>15-25</td>
+<td>15-25</td>
+<td>7月15日</td>
+<td>云深处科技</td>
+<td>越障+巡检+热成像检测验收</td>
+</tr>
+<tr>
+<td>R03</td>
+<td>咖啡机器人</td>
+<td>(待选型)</td>
+<td>含人脸识别+StyleGAN拉花+机械臂</td>
+<td>1</td>
+<td>8-15</td>
+<td>8-15</td>
+<td>7月20日</td>
+<td>TBD</td>
+<td>人像拉花成功率&gt;85%+90秒完成</td>
+</tr>
+<tr>
+<td>R04</td>
+<td>送餐机器人</td>
+<td>云迹润</td>
+<td>轮式/多层托盘/8h续航</td>
+<td>1</td>
+<td>3-5</td>
+<td>3-5</td>
+<td>7月15日</td>
+<td>云迹科技</td>
+<td>送物到位+自动返桩</td>
+</tr>
+<tr>
+<td>R05</td>
+<td>分体底盘</td>
+<td>云迹UP</td>
+<td>模块化/扫地+拖地+送物</td>
+<td>1</td>
+<td>3-5</td>
+<td>3-5</td>
+<td>7月15日</td>
+<td>云迹科技</td>
+<td>清洁+送物模式切换</td>
+</tr>
+<tr>
+<td>R06</td>
+<td>协作机械臂</td>
+<td>遨博AUBO i5</td>
+<td>5轴/负载5kg/臂展886mm/重复精度±0.02mm</td>
+<td>1</td>
+<td>4-6</td>
+<td>4-6</td>
+<td>7月10日</td>
+<td>遨博智能</td>
+<td>采摘成功率&gt;90%+力控&lt;15N</td>
+</tr>
+<tr>
+<td>R07</td>
+<td>移动协作臂</td>
+<td>遨博海纳系列</td>
+<td>移动底盘+i5臂/预留扩展</td>
+<td>1</td>
+<td>8-12</td>
+<td>8-12</td>
+<td>7月20日</td>
+<td>遨博智能</td>
+<td>底盘导航+臂协同验收</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>小计</strong></td>
+<td></td>
+<td></td>
+<td><strong>7台</strong></td>
+<td></td>
+<td><strong>121-190</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-it">1.2 IT基础设施类</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>物料名称</th>
+<th>品牌/型号</th>
+<th>规格</th>
+<th>数量</th>
+<th>预估单价(万元)</th>
+<th>小计(万元)</th>
+<th>到货时间</th>
+<th>供应商</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I01</td>
+<td>边缘服务器</td>
+<td>Dell R750 / 华为 2288H</td>
+<td>双路Xeon Gold+256GB+RTX A6000(48GB)+2TB NVMe</td>
+<td>1</td>
+<td>12-18</td>
+<td>12-18</td>
+<td>7月5日</td>
+<td>Dell/华为</td>
+<td>ROS2+Docker+StyleGAN推理通过</td>
+</tr>
+<tr>
+<td>I02</td>
+<td>UPS不间断电源</td>
+<td>APC SRT3000XLI</td>
+<td>3kVA/2700W/续航30分钟</td>
+<td>1</td>
+<td>1-1.5</td>
+<td>1-1.5</td>
+<td>7月5日</td>
+<td>APC</td>
+<td>满载续航&gt;30分钟</td>
+</tr>
+<tr>
+<td>I03</td>
+<td>PoE交换机</td>
+<td>Cisco Catalyst 9300 / 华为 S5735</td>
+<td>24口千兆PoE+/370W预算</td>
+<td>1</td>
+<td>1.5-2.5</td>
+<td>1.5-2.5</td>
+<td>7月5日</td>
+<td>Cisco/华为</td>
+<td>24口PoE供电稳定</td>
+</tr>
+<tr>
+<td>I04</td>
+<td>Wi-Fi 6 AP</td>
+<td>华为 AirEngine 6760</td>
+<td>Wi-Fi 6/2.5Gbps/带机128</td>
+<td>4</td>
+<td>0.3-0.5</td>
+<td>1.2-2.0</td>
+<td>7月5日</td>
+<td>华为</td>
+<td>全场覆盖信号&gt;-65dBm</td>
+</tr>
+<tr>
+<td>I05</td>
+<td>充电桩</td>
+<td>(匹配各机器人)</td>
+<td>自动对接/7台</td>
+<td>7</td>
+<td>0.3-0.5</td>
+<td>2.1-3.5</td>
+<td>7月15日</td>
+<td>各机器人厂商</td>
+<td>对接成功率&gt;95%</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>小计</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>17.8-27.5</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="13">1.3 传感器与安全类</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>物料名称</th>
+<th>品牌/型号</th>
+<th>规格</th>
+<th>数量</th>
+<th>预估单价(万元)</th>
+<th>小计(万元)</th>
+<th>到货时间</th>
+<th>供应商</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S01</td>
+<td>UWB定位基站</td>
+<td>Decawave DWM1001 / 清研讯科</td>
+<td>PoE供电/精度±10cm</td>
+<td>4</td>
+<td>0.3-0.5</td>
+<td>1.2-2.0</td>
+<td>7月1日</td>
+<td>清研讯科</td>
+<td>定位精度±10cm@全覆盖</td>
+</tr>
+<tr>
+<td>S02</td>
+<td>UWB标签</td>
+<td>Decawave DWM1001-DEV</td>
+<td>机器人供电</td>
+<td>7</td>
+<td>0.05-0.1</td>
+<td>0.35-0.7</td>
+<td>7月1日</td>
+<td>清研讯科</td>
+<td>基站通信稳定</td>
+</tr>
+<tr>
+<td>S03</td>
+<td>深度相机</td>
+<td>Intel RealSense D435i</td>
+<td>RGB-D/深度0.1-10m/IMU</td>
+<td>1</td>
+<td>0.2-0.3</td>
+<td>0.2-0.3</td>
+<td>7月1日</td>
+<td>英特尔</td>
+<td>HSV识别+6DoF位姿</td>
+</tr>
+<tr>
+<td>S04</td>
+<td>安全光幕</td>
+<td>Pilz PSEN cs3.1</td>
+<td>保护高度300mm/&lt;10ms停止</td>
+<td>1</td>
+<td>0.8-1.2</td>
+<td>0.8-1.2</td>
+<td>7月1日</td>
+<td>Pilz</td>
+<td>人手进入即停&lt;10ms</td>
+</tr>
+<tr>
+<td>S05</td>
+<td>安全PLC</td>
+<td>Pilz PNOZ multi 2</td>
+<td>安全继电器+逻辑控制</td>
+<td>1</td>
+<td>0.5-0.8</td>
+<td>0.5-0.8</td>
+<td>7月1日</td>
+<td>Pilz</td>
+<td>急停+光幕联动</td>
+</tr>
+<tr>
+<td>S06</td>
+<td>走廊红外光幕</td>
+<td>(国产)</td>
+<td>红外对射/检测距离10m</td>
+<td>2组</td>
+<td>0.1-0.2</td>
+<td>0.2-0.4</td>
+<td>7月1日</td>
+<td>TBD</td>
+<td>行人穿越检测</td>
+</tr>
+<tr>
+<td>S07</td>
+<td>急停按钮</td>
+<td>施耐德 XB4-BS542</td>
+<td>红色蘑菇头+钥匙复位</td>
+<td>5</td>
+<td>0.01-0.02</td>
+<td>0.05-0.1</td>
+<td>7月1日</td>
+<td>施耐德</td>
+<td>硬线连接即时断电</td>
+</tr>
+<tr>
+<td>S08</td>
+<td>红外热成像</td>
+<td>FLIR Lepton 3.5</td>
+<td>160×120/M20内置</td>
+<td>1</td>
+<td>0.3-0.5</td>
+<td>0.3-0.5</td>
+<td>随M20</td>
+<td>FLIR</td>
+<td>温差&gt;2°C检测</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>小计</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>3.6-6.0</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-led">1.4 LED屏与显示类</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>物料名称</th>
+<th>品牌/型号</th>
+<th>规格</th>
+<th>数量</th>
+<th>预估单价(万元)</th>
+<th>小计(万元)</th>
+<th>到货时间</th>
+<th>供应商</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L01</td>
+<td>入口品牌墙LED</td>
+<td>利亚德/洲明 P1.5</td>
+<td>3m×2m/精度1.5mm</td>
+<td>1</td>
+<td>2-3</td>
+<td>2-3</td>
+<td>7月25日</td>
+<td>利亚德/洲明</td>
+<td>色彩均匀+无死灯</td>
+</tr>
+<tr>
+<td>L02</td>
+<td>芯片世界树LED</td>
+<td>定制(光柱+光纤)</td>
+<td>3m高/直径1.5m/5层结构</td>
+<td>1套</td>
+<td>8-12</td>
+<td>8-12</td>
+<td>7月25日</td>
+<td>展装公司</td>
+<td>光效同步+DMX512控制</td>
+</tr>
+<tr>
+<td>L03</td>
+<td>中枢调度大屏</td>
+<td>利亚德 P1.2</td>
+<td>2m×1.2m/精度1.2mm</td>
+<td>1</td>
+<td>1.5-2</td>
+<td>1.5-2</td>
+<td>7月25日</td>
+<td>利亚德</td>
+<td>实时数据渲染60fps</td>
+</tr>
+<tr>
+<td>L04</td>
+<td>SesameX平台屏</td>
+<td>LG 49寸透明OLED</td>
+<td>49寸/透明度40%</td>
+<td>1</td>
+<td>3-5</td>
+<td>3-5</td>
+<td>7月25日</td>
+<td>LG</td>
+<td>透明度+触控交互</td>
+</tr>
+<tr>
+<td>L05</td>
+<td>透明OLED看板</td>
+<td>LG 55寸透明OLED</td>
+<td>55寸/透明度40%</td>
+<td>1</td>
+<td>3-5</td>
+<td>3-5</td>
+<td>7月25日</td>
+<td>LG</td>
+<td>透明度+内容播放</td>
+</tr>
+<tr>
+<td>L06</td>
+<td>咖啡取餐屏</td>
+<td>商用15寸</td>
+<td>15寸/安卓/含摄像头</td>
+<td>1</td>
+<td>0.3-0.5</td>
+<td>0.3-0.5</td>
+<td>7月20日</td>
+<td>TBD</td>
+<td>人脸识别取餐</td>
+</tr>
+<tr>
+<td>L07</td>
+<td>第五世界弧幕LED</td>
+<td>利亚德/洲明 P1.8</td>
+<td>8m×3.5m曲面/270°包裹</td>
+<td>1套</td>
+<td>5-8</td>
+<td>5-8</td>
+<td>7月25日</td>
+<td>利亚德/洲明</td>
+<td>曲面拼接无缝+7.1声道</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>小计</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>23.3-36.0</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="15">1.5 装修与布线类</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>物料名称</th>
+<th>规格</th>
+<th>数量</th>
+<th>预估小计(万元)</th>
+<th>到货时间</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F01</td>
+<td>强电布线</td>
+<td>三相380V+单相220V+独立回路×8</td>
+<td>全场</td>
+<td>5-8</td>
+<td>装修期</td>
+<td>强弱电分离30cm</td>
+</tr>
+<tr>
+<td>F02</td>
+<td>弱电布线</td>
+<td>穿线管+底盒+Cat6网线+光纤</td>
+<td>全场</td>
+<td>3-5</td>
+<td>装修期</td>
+<td>每个PoE位独立穿线管</td>
+</tr>
+<tr>
+<td>F03</td>
+<td>世界树装置安装</td>
+<td>3m高/5层/供果机构+偏转片+V型槽</td>
+<td>1套</td>
+<td>15-20</td>
+<td>7月25日</td>
+<td>结构安全+供果顺畅</td>
+</tr>
+<tr>
+<td>F04</td>
+<td>采摘遮光罩</td>
+<td>黑色亚克力半圆罩+5500K补光</td>
+<td>1套</td>
+<td>0.5-1</td>
+<td>7月20日</td>
+<td>杂光隔离+色温稳定</td>
+</tr>
+<tr>
+<td>F05</td>
+<td>充电桩安装</td>
+<td>地面开槽+电源接入×7</td>
+<td>7个</td>
+<td>1-2</td>
+<td>装修期</td>
+<td>自动对接验证</td>
+</tr>
+<tr>
+<td>F06</td>
+<td>地板/墙面/吊顶</td>
+<td>展厅标准装修</td>
+<td>623㎡</td>
+<td>10-15</td>
+<td>装修期</td>
+<td>验收标准按展装规范</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>小计</strong></td>
+<td></td>
+<td></td>
+<td><strong>34.5-51.0</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="16">1.6 耗材类</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>物料名称</th>
+<th>规格</th>
+<th>日用量</th>
+<th>预估月费用(元)</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C01</td>
+<td>新鲜苹果</td>
+<td>直径70-80mm/150-180g</td>
+<td>20个(补果3次)</td>
+<td>1,200</td>
+<td>无破损+大小均匀</td>
+</tr>
+<tr>
+<td>C02</td>
+<td>咖啡豆</td>
+<td>精品阿拉比卡</td>
+<td>日均50-80杯</td>
+<td>3,000</td>
+<td>新鲜烘焙</td>
+</tr>
+<tr>
+<td>C03</td>
+<td>牛奶</td>
+<td>全脂鲜奶</td>
+<td>日均10L</td>
+<td>1,500</td>
+<td>冷链配送</td>
+</tr>
+<tr>
+<td>C04</td>
+<td>RFID手环</td>
+<td>防水/可重复使用</td>
+<td>5套VIP+20套普通</td>
+<td>一次性</td>
+<td>读取距离&gt;5cm</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">二、研发任务清单（发给研发团队）</h2>
+<h3 id="21">2.1 软件模块分解</h3>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>模块名称</th>
+<th>功能描述</th>
+<th>核心接口</th>
+<th>依赖项</th>
+<th>估算工时(人天)</th>
+<th>交付物</th>
+<th>负责人</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D01</td>
+<td>DAG任务编排引擎</td>
+<td>场景任务编排+优先级抢占+防碰撞</td>
+<td>DDS/MQTT→各机器人</td>
+<td>UWB定位(UWB01)</td>
+<td>120</td>
+<td>DAG工作流JSON+运行时引擎</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D02</td>
+<td>多机定位融合</td>
+<td>UWB+里程计+IMU卡尔曼融合</td>
+<td>UWB基站数据→位置估计</td>
+<td>UWB硬件(S01/S02)</td>
+<td>40</td>
+<td>定位模块ROS2节点</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D03</td>
+<td>人脸识别服务</td>
+<td>拍照→人脸检测→StyleGAN拉花图案</td>
+<td>HTTP API(照片→图案)</td>
+<td>RTX A6000(I01)</td>
+<td>30</td>
+<td>StyleGAN模型+API服务</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D04</td>
+<td>LED播控系统</td>
+<td>7屏统一播控+实时数据渲染</td>
+<td>MQTT→各LED控制器</td>
+<td>LED硬件(L01-L07)</td>
+<td>60</td>
+<td>播控后台+内容管理</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D05</td>
+<td>世界树光效引擎</td>
+<td>DMX512控制+4种光效状态机</td>
+<td>Art-Net→DMX解码器</td>
+<td>世界树装置(F03)</td>
+<td>40</td>
+<td>光效引擎+DMX配置</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D06</td>
+<td>采摘视觉系统</td>
+<td>D435i→HSV分割→6DoF位姿→路径规划</td>
+<td>ROS2→遨博SDK</td>
+<td>D435i(S03)+遨博i5(R06)</td>
+<td>50</td>
+<td>视觉识别节点+抓取策略</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D07</td>
+<td>安全监控系统</td>
+<td>急停+光幕+力控+速度限制统一管理</td>
+<td>安全PLC→DAG引擎</td>
+<td>安全硬件(S04-S07)</td>
+<td>25</td>
+<td>安全监控ROS2节点</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D08</td>
+<td>充电调度系统</td>
+<td>7台机器人错峰充电+自动返桩</td>
+<td>DDS→各机器人</td>
+<td>充电桩(I05)</td>
+<td>20</td>
+<td>调度算法+返桩逻辑</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D09</td>
+<td>洒漏检测算法</td>
+<td>红外热成像→温差阈值→误报过滤</td>
+<td>M20热成像数据→MQTT</td>
+<td>M20 Pro(R02)</td>
+<td>20</td>
+<td>检测算法+响应DAG</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D10</td>
+<td>中枢大屏可视化</td>
+<td>实时数据渲染+数字孪生+3D拆解</td>
+<td>WebGL+WebSocket</td>
+<td>中枢大屏(L03)</td>
+<td>40</td>
+<td>前端可视化页面</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D11</td>
+<td>Isaac Sim仿真</td>
+<td>USD场景+7台URDF+传感器+6场景</td>
+<td>Isaac Sim→DAG JSON</td>
+<td>RTX A6000(I01)</td>
+<td>60</td>
+<td>仿真环境+验证报告</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D12</td>
+<td>OTA分发系统</td>
+<td>模型训练→打包→OTA下发→机器人回传</td>
+<td>HTTP→各机器人SDK</td>
+<td>云端GPU+边缘服务器</td>
+<td>30</td>
+<td>OTA管理后台</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D13</td>
+<td>第五世界影片</td>
+<td>90秒三段式CG渲染</td>
+<td>弧幕LED播放控制</td>
+<td>弧幕LED(L07)</td>
+<td>40</td>
+<td>影片文件+播放控制</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td>D14</td>
+<td>签到系统</td>
+<td>NFC/RFID签到+VIP识别+iPad界面</td>
+<td>HTTP API→DAG引擎</td>
+<td>NFC读卡器+iPad</td>
+<td>15</td>
+<td>签到App+后台</td>
+<td>TBD</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>总工时</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>590人天</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="22">2.2 研发里程碑</h3>
+<table>
+<thead>
+<tr>
+<th>里程碑</th>
+<th>日期</th>
+<th>交付内容</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1 基建验收</td>
+<td>7月25日</td>
+<td>布线/底盒/PoE/UWB/摄像头位全部到位</td>
+<td>逐个点位通电测试</td>
+</tr>
+<tr>
+<td>M2 硬件到位</td>
+<td>7月25日</td>
+<td>7台机器人+服务器+LED屏全部到货</td>
+<td>逐台开机验收</td>
+</tr>
+<tr>
+<td>M3 单机调试</td>
+<td>8月1日</td>
+<td>每台机器人独立路径规划+任务执行</td>
+<td>逐台功能验收</td>
+</tr>
+<tr>
+<td>M4 DAG联调</td>
+<td>8月5日</td>
+<td>6大场景DAG全流程串联</td>
+<td>6场景全通过</td>
+</tr>
+<tr>
+<td>M5 开馆验收</td>
+<td>8月8日</td>
+<td>全系统联调+Isaac Sim仿真通过</td>
+<td>VIP场景全流程0失败</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_4">三、供应商对接表</h2>
+<h3 id="31">3.1 机器人厂商</h3>
+<table>
+<thead>
+<tr>
+<th>供应商</th>
+<th>对接物料</th>
+<th>联系人</th>
+<th>对接内容</th>
+<th>时间节点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优必选科技</td>
+<td>Walker S3</td>
+<td>TBD</td>
+<td>采购合同+SDK对接+维修培训</td>
+<td>7月10日签约→7月15日到货</td>
+</tr>
+<tr>
+<td>云深处科技</td>
+<td>M20 Pro</td>
+<td>TBD</td>
+<td>采购合同+热成像模块定制+ROS2接口</td>
+<td>7月10日签约→7月15日到货</td>
+</tr>
+<tr>
+<td>遨博智能</td>
+<td>AUBO i5+海纳</td>
+<td>TBD</td>
+<td>采购合同+采摘末端定制+力控参数调试</td>
+<td>7月5日签约→7月10日到货</td>
+</tr>
+<tr>
+<td>云迹科技</td>
+<td>送餐+UP</td>
+<td>TBD</td>
+<td>采购合同+清洁模块+充电桩接口</td>
+<td>7月10日签约→7月15日到货</td>
+</tr>
+<tr>
+<td>咖啡机器人(待选)</td>
+<td>咖啡机器人</td>
+<td>TBD</td>
+<td>选型评估+拉花模块定制+人脸识别API</td>
+<td>7月5日选型→7月20日到货</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-it">3.2 IT与传感器供应商</h3>
+<table>
+<thead>
+<tr>
+<th>供应商</th>
+<th>对接物料</th>
+<th>联系人</th>
+<th>对接内容</th>
+<th>时间节点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dell/华为</td>
+<td>边缘服务器</td>
+<td>TBD</td>
+<td>配置确认(RTX A6000+双路)+到货</td>
+<td>6月28日下单→7月5日到货</td>
+</tr>
+<tr>
+<td>APC</td>
+<td>UPS</td>
+<td>TBD</td>
+<td>选型+安装+电池配置</td>
+<td>7月1日到货</td>
+</tr>
+<tr>
+<td>Cisco/华为</td>
+<td>PoE交换机+AP</td>
+<td>TBD</td>
+<td>网络架构确认+部署方案</td>
+<td>7月1日到货</td>
+</tr>
+<tr>
+<td>清研讯科</td>
+<td>UWB基站+标签</td>
+<td>TBD</td>
+<td>定位方案+安装位置+校准</td>
+<td>6月28日下单→7月1日到货</td>
+</tr>
+<tr>
+<td>英特尔</td>
+<td>RealSense D435i</td>
+<td>TBD</td>
+<td>采购+SDK+标定</td>
+<td>7月1日到货</td>
+</tr>
+<tr>
+<td>Pilz</td>
+<td>安全光幕+PLC</td>
+<td>TBD</td>
+<td>安全方案+安装+验收</td>
+<td>7月1日到货</td>
+</tr>
+<tr>
+<td>FLIR</td>
+<td>热成像Lepton 3.5</td>
+<td>TBD</td>
+<td>随M20采购或单独采购</td>
+<td>随M20到货</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-led">3.3 展装与LED供应商</h3>
+<table>
+<thead>
+<tr>
+<th>供应商</th>
+<th>对接物料</th>
+<th>联系人</th>
+<th>对接内容</th>
+<th>时间节点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>展装公司(TBD)</td>
+<td>世界树装置+装修+布线</td>
+<td>TBD</td>
+<td>结构设计+施工图+光效安装+供果机构</td>
+<td>6月28日签约→7月25日完工</td>
+</tr>
+<tr>
+<td>利亚德/洲明</td>
+<td>LED屏×5+弧幕</td>
+<td>TBD</td>
+<td>屏体选型+安装+播控调试</td>
+<td>7月10日到货→7月25日安装</td>
+</tr>
+<tr>
+<td>LG</td>
+<td>透明OLED×2</td>
+<td>TBD</td>
+<td>采购+安装方案</td>
+<td>7月15日到货</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">四、预算汇总</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>预估范围(万元)</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机器人设备</td>
+<td>121-190</td>
+<td>7台机器人</td>
+</tr>
+<tr>
+<td>IT基础设施</td>
+<td>17.8-27.5</td>
+<td>服务器+网络+UPS+充电桩</td>
+</tr>
+<tr>
+<td>传感器与安全</td>
+<td>3.6-6.0</td>
+<td>UWB+相机+光幕+急停</td>
+</tr>
+<tr>
+<td>LED屏与显示</td>
+<td>23.3-36.0</td>
+<td>7块屏+世界树光效</td>
+</tr>
+<tr>
+<td>装修与布线</td>
+<td>34.5-51.0</td>
+<td>装修+世界树安装+布线</td>
+</tr>
+<tr>
+<td>软件开发</td>
+<td>20-30</td>
+<td>590人天研发(按外包350-500元/人天)</td>
+</tr>
+<tr>
+<td>耗材(月)</td>
+<td>0.57</td>
+<td>苹果+咖啡豆+牛奶</td>
+</tr>
+<tr>
+<td><strong>一次性合计</strong></td>
+<td><strong>220.2-340.5</strong></td>
+<td>不含月度耗材</td>
+</tr>
+<tr>
+<td><strong>建议预算</strong></td>
+<td><strong>280</strong></td>
+<td>含10%不可预见费</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_6">五、关键路径与风险</h2>
+<h3 id="51">5.1 关键路径（最长依赖链）</h3>
+<pre><code>装修布线(7/25完工) → 硬件到货(7/25) → 单机调试(8/1) → DAG联调(8/5) → 开馆(8/8)
+         ↑                    ↑
+    展装公司签约(6/28)    各供应商签约(7/5-7/10)
+</code></pre>
+<h3 id="52">5.2 关键风险</h3>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>概率</th>
+<th>影响</th>
+<th>应对措施</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Walker S3交付延迟</td>
+<td>中</td>
+<td>高</td>
+<td>提前签约+合同约定7/15到货+备选Walker S2</td>
+</tr>
+<tr>
+<td>咖啡机器人选型不确定</td>
+<td>高</td>
+<td>中</td>
+<td>7/5完成选型评估+备选方案(普通咖啡机)</td>
+</tr>
+<tr>
+<td>世界树装置施工复杂</td>
+<td>中</td>
+<td>高</td>
+<td>7/1前完成施工图评审+展装公司驻场</td>
+</tr>
+<tr>
+<td>DAG联调超期</td>
+<td>中</td>
+<td>高</td>
+<td>Isaac Sim仿真先行+并行开发</td>
+</tr>
+<tr>
+<td>590人天研发不足</td>
+<td>中</td>
+<td>高</td>
+<td>核心模块(D01/D06)优先+外包辅助模块</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>© 2026 黑芝麻智能 · 前海展厅项目组</em></p></div><div class="doc-footer"><a class="df-disabled">‹ 已是首篇</a><a href="index.html">返回首页</a><a class="df-disabled">已是末篇 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
