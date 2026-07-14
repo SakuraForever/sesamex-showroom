@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>黑芝麻智能 · 前海展厅方案演示</title>
+<style>
+:root{--bg:#0a0a0c;--bg2:#1c1c1e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--bd:rgba(255,255,255,0.1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif;overflow:hidden;height:100vh}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;justify-content:center;align-items:center;padding:60px 80px;opacity:0;transition:opacity .4s}
+.slide.active{display:flex;opacity:1}
+.slide.cover{background:radial-gradient(ellipse at center,#1c1c1e 0%,#0a0a0c 70%)}
+.slide.cover h1{font-size:48px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#fff,#0a84ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px;text-align:center}
+.slide.cover .subtitle{font-size:24px;color:var(--sub);text-align:center;margin-bottom:40px}
+.slide.cover .footer{font-size:16px;color:var(--acc);text-align:center;letter-spacing:2px}
+.slide-header{width:100%;margin-bottom:30px;display:flex;align-items:center;gap:12px}
+.slide-header h2{font-size:32px;font-weight:700}
+.phase-tag{background:var(--acc);color:#fff;padding:4px 12px;border-radius:8px;font-size:13px;font-weight:600;white-space:nowrap}
+.bullets{width:100%;max-width:900px;list-style:none}
+.bullets li{font-size:22px;line-height:2;color:var(--text);padding-left:8px}
+.ppt-table{width:100%;max-width:900px;border-collapse:collapse;font-size:18px}
+.ppt-table th{background:var(--bg2);padding:12px 16px;text-align:left;font-weight:600;border-bottom:2px solid var(--acc);color:var(--acc)}
+.ppt-table td{padding:10px 16px;border-bottom:1px solid var(--bd);color:var(--text)}
+.ppt-table tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+.controls{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:20px;z-index:100}
+.controls button{background:var(--bg2);color:var(--text);border:1px solid var(--bd);border-radius:50%;width:44px;height:44px;font-size:18px;cursor:pointer;transition:.2s}
+.controls button:hover{background:var(--acc);border-color:var(--acc)}
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--acc);transition:width .3s;z-index:100}
+.pagenum{color:var(--sub);font-size:14px;min-width:60px;text-align:center}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+<section class="slide cover">
+        <div class="cover-inner">
+          <h1>黑芝麻智能 · 前海展厅</h1>
+          <p class="subtitle">端侧AI推理芯片全球领导者 · 空间智能体</p>
+          <p class="footer">BEST TECH · BEST LIFE · 2026</p>
+        </div>
+      </section>
+<section class="slide">
+      <div class="slide-header"><span class="phase-tag">APEC 2026</span><h2>项目定位</h2></div>
+      <ul class="bullets"><li>📍 前海具身智造基地29号楼 · 1F+2F · 623㎡</li><li>🏛️ APEC召开地 · 1000+政要 · 500+全球媒体</li><li>🎯 展厅使命：全球覆盖面最广的端侧AI推理芯片平台</li><li>🏙️ 深港双总部 · 前海+香港双循环 · 四项跨境政策</li></ul>
+    </section>
+<section class="slide">
+        <div class="slide-header"><span class="phase-tag">叙事</span><h2>策展叙事 · 五套故事脉络</h2></div>
+        <table class="ppt-table"><thead><tr><th>#</th><th>叙事名</th><th>核心隐喻</th><th>适用场景</th></tr></thead><tbody><tr><td>1</td><td>《种子的力量》</td><td>一粒黑芝麻→产业森林</td><td>常规参观</td></tr><tr><td>2</td><td>道生一·一生二</td><td>芯片觉醒→万物生长</td><td>学术/技术</td></tr><tr><td>3</td><td>《创"芯"为你》</td><td>看不见的芯看见光</td><td>品牌传播</td></tr><tr><td>4</td><td>中国算力战略突围</td><td>缺芯→攻坚→自主→引领</td><td>APEC/政府</td></tr><tr><td>5</td><td>《向无界而生》</td><td>有边界→泛边界→无边界</td><td>合作伙伴</td></tr></tbody></table>
+      </section>
+<section class="slide">
+      <div class="slide-header"><span class="phase-tag">空间规划</span><h2>空间内容权重</h2></div>
+      <ul class="bullets"><li>🏷️ 品牌企业介绍 — 3%</li><li>🔬 端侧AI推理前瞻技术 — 10%</li><li>💾 端侧AI推理芯片平台 — 10%</li><li>🤖 具身智能（核心！） — 50% ← 最大板块</li><li>🚗 智能驾驶及中央计算 — 10%</li><li>🌐 泛AI应用 — 10% ｜ 生态布局 — 5% ｜ 前瞻创新 — 5%</li></ul>
+    </section>
+<section class="slide">
+      <div class="slide-header"><span class="phase-tag">L2→L3→L4</span><h2>空间智能OTA演进路线</h2></div>
+      <ul class="bullets"><li>展厅不是一堆机器人的集合，而是一台"空间级智能体"</li><li>像汽车自动驾驶一样，从L2逐步OTA升级到L4</li><br><li>🟢 L2 辅助联动（2026年8月）— DAG预编程 · RFID触发</li><li>🟡 L3 条件主动（2026年12月）— AI Agent · 视觉感知</li><li>🔴 L4 全自主空间智能（2027Q1）— VLA端侧推理 · 自进化</li><br><li>💡 基建预埋决定升级天花板 — 装修时没埋的线，后期无法追加</li></ul>
+    </section>
+<section class="slide">
+      <div class="slide-header"><span class="phase-tag">装修期</span><h2>Phase 0 · 基建预埋</h2></div>
+      <ul class="bullets"><li>⚡ 用电：总功率~11kW · UPS≥3kVA · 三相380V入户</li><li>🌐 网络：千兆PoE交换机 · Wi-Fi 6 AP×4 · 专用VLAN</li><li>📡 传感器：UWB基站×4 · 摄像头PoE×6 · 毫米波×4</li><li>🌳 世界树：HTTP API灯光控制器 · DMX512 · 光纤星空300根</li><li>🔒 强弱电分离≥30cm · PoE供电 · UPS保护</li></ul>
+    </section>
+<section class="slide">
+      <div class="slide-header"><span class="phase-tag">Phase 0</span><h2>核心装置 · 芯片世界树</h2></div>
+      <ul class="bullets"><li>🌳 3m高LED光柱 · 5层结构（种子→树根→树干→枝叶→树冠）</li><li>💫 4种光效状态：待机→感知→VIP响应→采摘激活</li><li>🍎 采摘互动：遨博i5机械臂 · 6槽位随机 · 10秒全流程</li><li>⭐ 光纤星空：300根 · 天花板 · DMX512联动</li><li>🔄 OTA进化：v1(4种光效)→v2(个性化)→v3(AI自主生成)</li><li>💰 成本：~25-36万元（含装置+机械臂+光纤+安全）</li></ul>
+    </section>
+<section class="slide">
+        <div class="slide-header"><span class="phase-tag">Phase 1</span><h2>7台具身智能机器人</h2></div>
+        <table class="ppt-table"><thead><tr><th>#</th><th>机器人</th><th>角色</th><th>核心能力</th></tr></thead><tbody><tr><td>1</td><td>Walker S3（优必选）</td><td>人形主角</td><td>迎宾·讲解·拍照</td></tr><tr><td>2</td><td>M20 Pro（云深处）</td><td>机器狗</td><td>巡检·越障·洒漏检测</td></tr><tr><td>3</td><td>咖啡机器人</td><td>固定</td><td>人脸识别→肖像拉花咖啡</td></tr><tr><td>4</td><td>云迹送餐</td><td>轮式</td><td>送包到会议室</td></tr><tr><td>5</td><td>云迹UP</td><td>分体底盘</td><td>送物·送水·扫地清洁</td></tr><tr><td>6</td><td>遨博i5</td><td>协作臂</td><td>世界树采摘互动</td></tr><tr><td>7</td><td>遨博海纳</td><td>移动协作</td><td>移动抓取（预留扩展）</td></tr></tbody></table>
+      </section>
+<section class="slide">
+      <div class="slide-header"><span class="phase-tag">Phase 1 · L2</span><h2>6大联动场景</h2></div>
+      <ul class="bullets"><li>1️⃣ VIP迎宾导览 — T+330秒全流程 · 7台协同</li><li>2️⃣ 拍照接力 — Walker拍照→StyleGAN→咖啡→凭脸取餐</li><li>3️⃣ 洒漏自愈 — 热成像检测→DAG生成→UP清洁·31秒</li><li>4️⃣ 采摘互动 — D435i视觉→HSV识别→吸盘抓取→递送</li><li>5️⃣ 多机走廊会车 — 时间窗防碰撞·零死锁</li><li>6️⃣ 充电调度 — 错峰充电·不阻塞通道</li></ul>
+    </section>
+<section class="slide">
+      <div class="slide-header"><span class="phase-tag">Phase 1</span><h2>端-边-云三层架构</h2></div>
+      <ul class="bullets"><li>☁️ 云端 — 阿里云/腾讯云GPU · 模型训练/OTA/远程监控</li><li>🖥️ 边缘侧 — 双路Xeon+RTX A6000 · 任务编排/路径规划/<50ms</li><li>🤖 端侧 — SesameX芯片 · 每台机器人独立推理/<5ms</li><br><li>📡 通信：DDS(机器人10Hz) · MQTT(UWB 50Hz) · WebSocket(LED屏)</li><li>🌐 网络：千兆有线+Wi-Fi 6专用VLAN · 带宽~38Mbps</li></ul>
+    </section>
+<section class="slide">
+      <div class="slide-header"><span class="phase-tag">上线前</span><h2>Isaac Sim仿真验证</h2></div>
+      <ul class="bullets"><li>🖥️ NVIDIA Isaac Sim（Omniverse）· 多机器人调度仿真</li><li>📦 展厅USD场景 + 7台机器人URDF + 传感器仿真</li><li>✅ 6大场景全流程仿真 · KPI统计 · 路径冲突检测</li><li>📅 4周开发：环境搭建→单机→多机联动→优化</li><li>💻 硬件：RTX A6000（展厅服务器已有）· Ubuntu 22.04</li><li>🎯 DAG工作流JSON · 仿真与实体复用 · 数字孪生闭环</li></ul>
+    </section>
+<section class="slide">
+        <div class="slide-header"><span class="phase-tag">L2→L4</span><h2>OTA进化路线图（总-分-总）</h2></div>
+        <table class="ppt-table"><thead><tr><th>版本</th><th>时间</th><th>世界树</th><th>机器人</th><th>LED屏</th></tr></thead><tbody><tr><td>v1.0</td><td>8月开馆</td><td>4种光效</td><td>DAG规则</td><td>固定内容</td></tr><tr><td>v2.0</td><td>12月</td><td>个性化光效</td><td>AI Agent</td><td>实时数据</td></tr><tr><td>v3.0</td><td>2027Q2</td><td>AI自主生成</td><td>VLA推理</td><td>AI生成内容</td></tr></tbody></table>
+      </section>
+<section class="slide">
+      <div class="slide-header"><span class="phase-tag">未来区</span><h2>第五世界 · 沉浸体验</h2></div>
+      <ul class="bullets"><li>🎬 弧幕LED 8m×3.5m曲面 · 270°包裹视野</li><li>📽️ 90秒三段式影片：觉醒(0-30s)→共生(30-60s)→进化(60-90s)</li><li>🔊 7.1声道环绕 · 地面投影联动 · 灯光色彩渐变</li><li>🌟 LED七屏联动：弧幕播放时屏1-6同步"运行中"</li><li>📸 互动彩蛋：影片后弧幕显示访客"数字脚印"合影</li></ul>
+    </section>
+<section class="slide cover">
+        <div class="cover-inner">
+          <h1>BEST TECH · BEST LIFE</h1>
+          <p class="subtitle">当芯片有了身体 · 未来便有了温度</p>
+          <p class="footer">一颗芝麻很轻，但一颗中国芯，很重！</p>
+        </div>
+      </section>
+</div>
+<div class="controls">
+  <button onclick="prev()">‹</button>
+  <span class="pagenum" id="pagenum">1 / 14</span>
+  <button onclick="next()">›</button>
+  <button onclick="toggleFullscreen()" title="全屏">⛶</button>
+</div>
+<script>
+let cur=0;const slides=document.querySelectorAll('.slide');const total=14;
+function show(n){slides.forEach(s=>s.classList.remove('active'));cur=Math.max(0,Math.min(n,total-1));slides[cur].classList.add('active');document.getElementById('progress').style.width=((cur+1)/total*100)+'%';document.getElementById('pagenum').textContent=(cur+1)+' / '+total}
+function next(){show(cur+1)}function prev(){show(cur-1)}
+function toggleFullscreen(){if(!document.fullscreenElement){document.documentElement.requestFullscreen()}else{document.exitFullscreen()}}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();if(e.key==='f')toggleFullscreen()});
+show(0);
+</script>
+</body>
+</html>

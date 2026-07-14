@@ -1,0 +1,904 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>场景执行手册</title><style>
+:root{--bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--bd:rgba(255,255,255,0.08);--font:-apple-system,'SF Pro Display','Microsoft YaHei','PingFang SC',sans-serif;--mono:'SF Mono','Consolas',monospace}
+[data-theme="light"]{--bg:#fbfbfd;--bg2:#f5f5f7;--bg3:#e8e8ed;--text:#1d1d1f;--sub:#6e6e73;--acc:#0071e3;--green:#34c759;--orange:#ff9500;--purple:#af52de;--bd:rgba(0,0,0,0.1)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.8;-webkit-font-smoothing:antialiased}
+.doc-nav{position:fixed;top:0;left:0;right:0;height:48px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(28,28,30,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--bd)}
+.doc-nav .dn-back{font-size:14px;color:var(--acc);text-decoration:none;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.doc-nav .dn-back:hover{background:rgba(10,132,255,0.1)}
+.doc-nav .dn-mid{display:flex;align-items:center;gap:10px;overflow:hidden}
+.doc-nav .dn-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-nav .dn-crumb{font-size:11px;color:var(--sub);white-space:nowrap}
+.doc-nav .dn-chap{display:flex;gap:6px;flex-shrink:0}
+.doc-nav .dn-chap a{font-size:11px;color:var(--sub);text-decoration:none;padding:4px 10px;border-radius:8px;border:0.5px solid var(--bd);transition:all .15s;white-space:nowrap}
+.doc-nav .dn-chap a:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
+.smx-theme-toggle{background:var(--bg3);border:0.5px solid var(--bd);border-radius:20px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:6px}
+.doc{max-width:880px;margin:0 auto;padding:72px 24px 80px}
+h1{font-size:30px;font-weight:700;margin:36px 0 20px;letter-spacing:-0.5px;border-bottom:1px solid var(--bd);padding-bottom:12px}
+h2{font-size:22px;font-weight:600;margin:36px 0 16px;padding-left:14px;border-left:3px solid var(--acc)}
+h3{font-size:18px;font-weight:600;margin:28px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--text)}
+p{font-size:15px;margin-bottom:14px;color:var(--text)}
+ul,ol{font-size:15px;margin-bottom:14px;padding-left:26px}
+li{margin-bottom:6px}
+strong{color:#fff;font-weight:600}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;border-radius:12px;overflow:hidden;border:0.5px solid var(--bd)}
+th{background:var(--bg3);color:var(--acc);padding:12px 16px;border:0.5px solid var(--bd);font-weight:600;text-align:left}
+td{padding:10px 16px;border:0.5px solid var(--bd);color:var(--text);line-height:1.6}
+tr:nth-child(even) td{background:var(--bg2)}
+code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:13px;color:#f5f5f7;font-family:var(--mono)}
+pre{background:var(--bg2);padding:18px;border-radius:12px;overflow-x:auto;margin:18px 0;border:0.5px solid var(--bd)}
+pre code{background:none;padding:0;font-size:13px;color:#e0e0e0}
+blockquote{border-left:3px solid var(--acc);padding:12px 22px;margin:18px 0;color:var(--sub);background:var(--bg2);border-radius:0 12px 12px 0}
+hr{border:none;border-top:0.5px solid var(--bd);margin:36px 0}
+a{color:#64b5f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.mermaid{background:var(--bg2);padding:20px;border-radius:12px;margin:18px 0;text-align:center;border:0.5px solid var(--bd)}
+[data-theme="light"] .mermaid{background:transparent;border-color:rgba(0,0,0,0.08)}
+.doc-footer{max-width:880px;margin:0 auto;padding:0 24px 60px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.doc-footer a{font-size:13px;color:var(--sub);text-decoration:none;padding:10px 20px;border-radius:12px;border:0.5px solid var(--bd);transition:all .15s;flex:1;text-align:center;min-width:160px}
+.doc-footer a:hover{color:var(--text);border-color:rgba(255,255,255,0.15);background:var(--bg2)}
+.doc-footer a.df-disabled{opacity:0.3;pointer-events:none}
+@media(max-width:768px){
+  .doc-nav{flex-wrap:wrap;height:auto;padding:8px 12px}
+  .doc-nav .dn-mid{order:3;width:100%;margin-top:4px}
+  .doc-nav .dn-title{font-size:12px}
+  .doc-nav .dn-crumb{font-size:10px}
+  .doc-nav .dn-chap a{font-size:10px;padding:3px 8px}
+  .doc{padding:100px 16px 60px}
+  h1{font-size:24px}
+  h2{font-size:18px}
+  .doc-footer{flex-direction:column}
+  .doc-footer a{min-width:auto}
+}
+</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">场景执行手册</div><div class="dn-crumb"></div></div><div class="dn-chap"></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="_1">场景执行手册 · 物料清单与领导节奏设计</h1>
+<blockquote>
+<p>每个场景细化到具体物料、领导体验节奏、物料适配性。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、物料适配性总矩阵</h2>
+<table>
+<thead>
+<tr>
+<th>物料/设备</th>
+<th style="text-align: center;">场景1 VIP迎宾</th>
+<th style="text-align: center;">场景2 拍照接力</th>
+<th style="text-align: center;">场景3 洒漏自愈</th>
+<th style="text-align: center;">场景4 送物接力</th>
+<th style="text-align: center;">场景5 采摘互动</th>
+<th style="text-align: center;">场景6 充电调度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Walker S3 人形</td>
+<td style="text-align: center;"><strong>主角</strong></td>
+<td style="text-align: center;"><strong>主角</strong></td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">待机中</td>
+</tr>
+<tr>
+<td>M20 Pro 机器狗</td>
+<td style="text-align: center;">辅助表演</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;"><strong>主角</strong></td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">待机中</td>
+</tr>
+<tr>
+<td>咖啡机器人</td>
+<td style="text-align: center;">闭环收尾</td>
+<td style="text-align: center;"><strong>主角</strong></td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">市电供电</td>
+</tr>
+<tr>
+<td>云迹送餐</td>
+<td style="text-align: center;">送包到会议室</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;"><strong>主角</strong></td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">待机中</td>
+</tr>
+<tr>
+<td>云迹UP底盘</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;"><strong>主角</strong></td>
+<td style="text-align: center;">备选</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">待机中</td>
+</tr>
+<tr>
+<td>遨博i5协作臂</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;">不适合</td>
+<td style="text-align: center;"><strong>主角</strong></td>
+<td style="text-align: center;">市电供电</td>
+</tr>
+<tr>
+<td>边缘服务器</td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;"><strong>必须</strong></td>
+</tr>
+<tr>
+<td>UWB基站×4</td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;">辅助</td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;"><strong>必须</strong></td>
+</tr>
+<tr>
+<td>RFID读写器</td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+</tr>
+<tr>
+<td>LED屏×7</td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;">部分</td>
+<td style="text-align: center;">中枢屏</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">世界树屏</td>
+<td style="text-align: center;">不需要</td>
+</tr>
+<tr>
+<td>安全光幕PSEN</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;">不需要</td>
+</tr>
+<tr>
+<td>D435i深度相机</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;">不需要</td>
+</tr>
+<tr>
+<td>红外热成像</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;"><strong>必须</strong></td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+</tr>
+<tr>
+<td>弧幕LED+音响</td>
+<td style="text-align: center;">收尾体验</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+<td style="text-align: center;">不需要</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-vip">二、场景1 · VIP迎宾导览</h2>
+<h3 id="21">2.1 物料清单</h3>
+<table>
+<thead>
+<tr>
+<th>区域</th>
+<th>物料</th>
+<th>数量</th>
+<th>适配性说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>签到台</strong></td>
+<td>NFC读卡器</td>
+<td>1</td>
+<td>适合：快速读取VIP手环，&lt;0.5秒识别</td>
+</tr>
+<tr>
+<td></td>
+<td>RFID手环（VIP专用）</td>
+<td>5套</td>
+<td>适合：可重复使用，防水防摔</td>
+</tr>
+<tr>
+<td></td>
+<td>iPad签到界面</td>
+<td>1</td>
+<td>适合：显示VIP姓名/职务/参观路线</td>
+</tr>
+<tr>
+<td><strong>迎宾区</strong></td>
+<td>Walker S3</td>
+<td>1</td>
+<td>必须：人形迎宾是核心亮点</td>
+</tr>
+<tr>
+<td></td>
+<td>品牌墙LED（3m×2m）</td>
+<td>1</td>
+<td>适合：实时切换欢迎词+企业宣传片</td>
+</tr>
+<tr>
+<td></td>
+<td>麦克风阵列</td>
+<td>1</td>
+<td>适合：Walker远场语音交互</td>
+</tr>
+<tr>
+<td><strong>导览路径</strong></td>
+<td>Walker S3</td>
+<td>(同上)</td>
+<td>适合：1.3m身高，引导行走自然</td>
+</tr>
+<tr>
+<td></td>
+<td>中枢调度大屏（2m×1.2m）</td>
+<td>1</td>
+<td>适合：实时显示"Welcoming VIP"+机器人状态</td>
+</tr>
+<tr>
+<td><strong>世界树区</strong></td>
+<td>世界树装置</td>
+<td>1</td>
+<td>必须：VIP专属光效爆发</td>
+</tr>
+<tr>
+<td></td>
+<td>遨博i5+采摘系统</td>
+<td>1</td>
+<td>不适合此场景：采摘需访客触发，VIP导览中不采摘</td>
+</tr>
+<tr>
+<td><strong>咖啡区</strong></td>
+<td>咖啡机器人</td>
+<td>1</td>
+<td>必须：VIP人像拉花是闭环终点</td>
+</tr>
+<tr>
+<td></td>
+<td>取餐屏（15寸）</td>
+<td>1</td>
+<td>适合：显示"VIP专属咖啡制作中"</td>
+</tr>
+<tr>
+<td></td>
+<td>咖啡豆/牛奶储备</td>
+<td>充足</td>
+<td>适合：VIP级别需用高品质豆</td>
+</tr>
+<tr>
+<td><strong>未来区</strong></td>
+<td>弧幕LED（8m×3.5m）</td>
+<td>1</td>
+<td>必须：VIP收尾体验</td>
+</tr>
+<tr>
+<td></td>
+<td>7.1声道音响</td>
+<td>1套</td>
+<td>适合：沉浸感</td>
+</tr>
+<tr>
+<td><strong>中控</strong></td>
+<td>边缘服务器</td>
+<td>1</td>
+<td>必须：DAG编排+人脸识别+LED播控</td>
+</tr>
+<tr>
+<td></td>
+<td>千兆PoE交换机</td>
+<td>1</td>
+<td>必须：全链路通信</td>
+</tr>
+<tr>
+<td></td>
+<td>UWB基站</td>
+<td>4</td>
+<td>必须：Walker导航定位±10cm</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22">2.2 领导体验节奏分析</h3>
+<blockquote>
+<p><strong>核心问题</strong>：T+120s到T+210s有90秒咖啡制作等待，领导会干站。</p>
+</blockquote>
+<h4 id="_3">原始时间轴问题</h4>
+<table>
+<thead>
+<tr>
+<th>时间段</th>
+<th>原始设计</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T+0~T+10s</td>
+<td>Walker走向入口(10s)</td>
+<td><strong>领导在入口等10秒</strong> — 填充：品牌墙播放"欢迎[领导姓名]"动画</td>
+</tr>
+<tr>
+<td>T+100~T+120s</td>
+<td>M20越障表演(20s)</td>
+<td>无问题，有视觉看点</td>
+</tr>
+<tr>
+<td>T+120~T+210s</td>
+<td><strong>咖啡制作(90s)</strong></td>
+<td><strong>领导干站90秒</strong> — 必须填充</td>
+</tr>
+<tr>
+<td>T+210~T+240s</td>
+<td>咖啡取餐+送包(30s)</td>
+<td>无问题</td>
+</tr>
+<tr>
+<td>T+270~T+330s</td>
+<td>第五世界影片(60s)</td>
+<td>无问题，沉浸观影</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_4">优化后的领导节奏（填充等待空档）</h4>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>领导体验</th>
+<th>填充策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T+0s</td>
+<td>签到触发</td>
+<td>品牌墙即时切换"欢迎[姓名/职务]"，<strong>0秒等待</strong></td>
+</tr>
+<tr>
+<td>T+0~T+10s</td>
+<td>Walker走向入口</td>
+<td>品牌墙播放10秒企业里程碑动画，领导观看</td>
+</tr>
+<tr>
+<td>T+10s</td>
+<td>Walker到达迎宾</td>
+<td>Walker语音问候+合影提议</td>
+</tr>
+<tr>
+<td>T+15~T+30s</td>
+<td>合影+导览启动</td>
+<td>Walker引导走向品牌墙</td>
+</tr>
+<tr>
+<td>T+30~T+60s</td>
+<td>品牌墙讲解</td>
+<td>Walker讲解企业实力，<strong>持续输出信息</strong></td>
+</tr>
+<tr>
+<td>T+60~T+90s</td>
+<td>世界树讲解</td>
+<td>世界树VIP光效爆发+Walker讲解芯片平台</td>
+</tr>
+<tr>
+<td>T+90~T+100s</td>
+<td>M20越障表演</td>
+<td>机器狗越障表演20秒</td>
+</tr>
+<tr>
+<td><strong>T+120s</strong></td>
+<td><strong>咖啡触发</strong></td>
+<td>Walker引导领导走向<strong>SesameX展板</strong></td>
+</tr>
+<tr>
+<td><strong>T+120~T+170s</strong></td>
+<td><strong>芯片架构讲解</strong></td>
+<td>Walker讲解SesameX平台（50秒），中枢大屏同步显示3D拆解动画</td>
+</tr>
+<tr>
+<td><strong>T+170~T+200s</strong></td>
+<td><strong>数字孪生演示</strong></td>
+<td>中枢大屏切到"展厅数字孪生实时画面"（30秒），领导看到Walker自己的虚拟分身</td>
+</tr>
+<tr>
+<td><strong>T+200~T+210s</strong></td>
+<td>走向取餐区</td>
+<td>Walker引导领导走到咖啡取餐区</td>
+</tr>
+<tr>
+<td>T+210s</td>
+<td>咖啡完成取餐</td>
+<td><strong>刚好到达取餐区，咖啡已就绪</strong>，零等待</td>
+</tr>
+<tr>
+<td>T+210~T+240s</td>
+<td>取咖啡+送包完成</td>
+<td>送餐机器人同时送包到会议室</td>
+</tr>
+<tr>
+<td>T+240~T+270s</td>
+<td>走向未来区</td>
+<td>Walker引导，时间之门开启</td>
+</tr>
+<tr>
+<td>T+270~T+330s</td>
+<td>第五世界影片</td>
+<td>弧幕播放60秒，沉浸体验</td>
+</tr>
+<tr>
+<td>T+330s</td>
+<td>送别</td>
+<td>Walker送别，品牌墙恢复默认</td>
+</tr>
+</tbody>
+</table>
+<p><strong>节奏优化总结</strong>：领导全程<strong>零干站等待</strong>，每个环节都有视觉/听觉/交互填充。</p>
+<h3 id="23">2.3 物料适配性说明</h3>
+<table>
+<thead>
+<tr>
+<th>物料</th>
+<th>场景适配</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Walker S3</td>
+<td><strong>必须</strong></td>
+<td>人形导览是核心，不可替代</td>
+</tr>
+<tr>
+<td>M20 Pro</td>
+<td><strong>辅助</strong></td>
+<td>仅T+100s越障表演20秒，不适合全程跟随（四足噪音影响讲解）</td>
+</tr>
+<tr>
+<td>咖啡机器人</td>
+<td><strong>必须</strong></td>
+<td>90秒制作时间是体验闭环的关键节点</td>
+</tr>
+<tr>
+<td>遨博i5</td>
+<td><strong>不适合</strong></td>
+<td>VIP导览中不触发采摘，采摘需访客主动交互</td>
+</tr>
+<tr>
+<td>云迹UP</td>
+<td><strong>不适合</strong></td>
+<td>清洁底盘不适合VIP场景（视觉不佳）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">三、场景2 · 拍照接力 → 专属咖啡</h2>
+<h3 id="31">3.1 物料清单</h3>
+<table>
+<thead>
+<tr>
+<th>物料</th>
+<th>数量</th>
+<th>适配性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Walker S3</td>
+<td>1</td>
+<td><strong>必须</strong>：胸部摄像头拍照+引导</td>
+</tr>
+<tr>
+<td>咖啡机器人（含Liora拉花模块）</td>
+<td>1</td>
+<td><strong>必须</strong>：人像拉花制作</td>
+</tr>
+<tr>
+<td>中控服务器（StyleGAN模型）</td>
+<td>1</td>
+<td><strong>必须</strong>：人脸→线条画转换&lt;2秒</td>
+</tr>
+<tr>
+<td>取餐屏（15寸+人脸识别摄像头）</td>
+<td>1</td>
+<td><strong>必须</strong>：凭脸取餐匹配</td>
+</tr>
+<tr>
+<td>触发触摸屏/语音按钮</td>
+<td>1</td>
+<td><strong>适合</strong>：普通访客自助触发</td>
+</tr>
+<tr>
+<td>咖啡豆/牛奶储备</td>
+<td>充足</td>
+<td><strong>适合</strong>：日均50-80杯预估</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 领导节奏（普通访客版）</h3>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>访客体验</th>
+<th>等待风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T+0s</td>
+<td>触发拍照</td>
+<td>无等待</td>
+</tr>
+<tr>
+<td>T+3s</td>
+<td>Walker拍照完成</td>
+<td>无等待</td>
+</tr>
+<tr>
+<td>T+5s</td>
+<td>人脸识别+图案生成</td>
+<td><strong>2秒</strong>：触摸屏显示"正在生成你的专属图案..."</td>
+</tr>
+<tr>
+<td>T+6s~T+96s</td>
+<td><strong>咖啡制作90秒</strong></td>
+<td><strong>90秒等待</strong> — 填充策略见下</td>
+</tr>
+</tbody>
+</table>
+<p><strong>90秒等待填充</strong>：
+- 触摸屏播放"SesameX芯片如何让机器人看见你"科普动画（60秒）
+- Walker引导访客参观旁边的芯片展示墙（30秒）
+- T+96s取餐屏提示"咖啡就绪，请面对摄像头取餐"</p>
+<h3 id="33">3.3 物料适配性</h3>
+<table>
+<thead>
+<tr>
+<th>物料</th>
+<th>适配</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Walker S3</td>
+<td><strong>必须</strong></td>
+<td>拍照+引导</td>
+</tr>
+<tr>
+<td>M20 Pro</td>
+<td><strong>不适合</strong></td>
+<td>四足机器人拍照体验不佳</td>
+</tr>
+<tr>
+<td>遨博i5</td>
+<td><strong>不适合</strong></td>
+<td>协作臂无拍照能力</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3">四、场景3 · 洒漏自愈</h2>
+<h3 id="41">4.1 物料清单</h3>
+<table>
+<thead>
+<tr>
+<th>物料</th>
+<th>数量</th>
+<th>适配性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M20 Pro（含FLIR Lepton 3.5热成像）</td>
+<td>1</td>
+<td><strong>必须</strong>：巡检+检测洒漏</td>
+</tr>
+<tr>
+<td>云迹UP底盘（含清洁模块）</td>
+<td>1</td>
+<td><strong>必须</strong>：湿拖清洁</td>
+</tr>
+<tr>
+<td>中枢调度大屏</td>
+<td>1</td>
+<td><strong>必须</strong>：实时显示警报+轨迹</td>
+</tr>
+<tr>
+<td>UWB基站</td>
+<td>4</td>
+<td><strong>必须</strong>：UP定位导航</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42">4.2 领导节奏</h3>
+<p>此场景为<strong>自动触发</strong>，领导无需参与。但如果领导正在参观时发生洒漏：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>领导视角</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T+0s</td>
+<td>（可能未注意到）</td>
+<td>M20检测到洒漏</td>
+</tr>
+<tr>
+<td>T+2s</td>
+<td>中枢大屏弹出红色警报</td>
+<td>领导看到"空间自主感知到异常"</td>
+</tr>
+<tr>
+<td>T+8s</td>
+<td>UP到达现场</td>
+<td>领导看到"机器人31秒完成自愈"</td>
+</tr>
+<tr>
+<td>T+31s</td>
+<td>警报解除</td>
+<td><strong>正面展示</strong>：空间智能的自主响应能力</td>
+</tr>
+</tbody>
+</table>
+<p><strong>适配性</strong>：此场景是"意外即表演"——洒漏越及时，领导越能感受空间智能。</p>
+<hr />
+<h2 id="4">五、场景4 · 送物接力</h2>
+<h3 id="51">5.1 物料清单</h3>
+<table>
+<thead>
+<tr>
+<th>物料</th>
+<th>数量</th>
+<th>适配性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>云迹送餐机器人</td>
+<td>1</td>
+<td><strong>必须</strong>：送包到会议室</td>
+</tr>
+<tr>
+<td>RFID物品检测传感器</td>
+<td>1</td>
+<td><strong>必须</strong>：包架检测物品放置</td>
+</tr>
+<tr>
+<td>包架（含指示灯）</td>
+<td>1</td>
+<td><strong>适合</strong>：灯闪烁提示放包</td>
+</tr>
+<tr>
+<td>走廊红外光幕</td>
+<td>2组</td>
+<td><strong>必须</strong>：行人安全检测</td>
+</tr>
+<tr>
+<td>到达通知屏+语音</td>
+<td>1</td>
+<td><strong>适合</strong>：会议室门口通知</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52">5.2 领导节奏</h3>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>领导体验</th>
+<th>等待风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T+0s</td>
+<td>领导在入口放包</td>
+<td>无等待</td>
+</tr>
+<tr>
+<td>T+5s</td>
+<td>送餐机器人取货出发</td>
+<td><strong>5秒</strong>：品牌墙播放"物品已交由机器人护送"</td>
+</tr>
+<tr>
+<td>T+5~T+45s</td>
+<td>送餐中（40秒）</td>
+<td>领导同时在世界树区参观，<strong>送物并行不阻塞</strong></td>
+</tr>
+<tr>
+<td>T+45s</td>
+<td>到达会议室</td>
+<td>领导尚未到达会议室，物品已就位</td>
+</tr>
+</tbody>
+</table>
+<p><strong>优化</strong>：送物与导览<strong>并行</strong>，领导全程不等待送物。</p>
+<hr />
+<h2 id="5">六、场景5 · 采摘互动</h2>
+<h3 id="61">6.1 物料清单</h3>
+<table>
+<thead>
+<tr>
+<th>物料</th>
+<th>数量</th>
+<th>适配性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>遨博i5协作臂</td>
+<td>1</td>
+<td><strong>必须</strong>：抓取苹果</td>
+</tr>
+<tr>
+<td>真空吸盘组件（3-4硅胶吸盘+12V真空泵）</td>
+<td>1套</td>
+<td><strong>必须</strong>：不损伤果肉</td>
+</tr>
+<tr>
+<td>RealSense D435i深度相机</td>
+<td>1</td>
+<td><strong>必须</strong>：HSV识别苹果位姿</td>
+</tr>
+<tr>
+<td>世界树装置（含6槽位+链条提升机）</td>
+<td>1套</td>
+<td><strong>必须</strong>：供果机构</td>
+</tr>
+<tr>
+<td>安全光幕PSEN</td>
+<td>1</td>
+<td><strong>必须</strong>：人手进入即停</td>
+</tr>
+<tr>
+<td>黑色亚克力遮光罩</td>
+<td>1</td>
+<td><strong>必须</strong>：隔离LED杂光</td>
+</tr>
+<tr>
+<td>5500K LED补光条</td>
+<td>1套</td>
+<td><strong>必须</strong>：恒定色温</td>
+</tr>
+<tr>
+<td>真苹果（70-80mm/150-180g）</td>
+<td>日备20个</td>
+<td><strong>适合</strong>：每日补果3次</td>
+</tr>
+<tr>
+<td>接果网（软质尼龙）</td>
+<td>1</td>
+<td><strong>必须</strong>：防苹果掉落</td>
+</tr>
+<tr>
+<td>急停按钮</td>
+<td>1</td>
+<td><strong>必须</strong>：紧急停止</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62">6.2 领导节奏</h3>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>领导体验</th>
+<th>等待风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T+0s</td>
+<td>领导触发采摘（触摸按钮/语音）</td>
+<td>无等待</td>
+</tr>
+<tr>
+<td>T+0~T+2s</td>
+<td>供果（苹果落入槽位）</td>
+<td><strong>2秒</strong>：世界树LED显示绿色扫描脉冲，领导看到"正在寻找果实"</td>
+</tr>
+<tr>
+<td>T+2~T+10s</td>
+<td>机械臂抓取+递送（8秒）</td>
+<td><strong>8秒</strong>：中枢大屏实时显示D435i第一视角+HSV识别框</td>
+</tr>
+<tr>
+<td>T+10s</td>
+<td>苹果递送到领导手中</td>
+<td>零等待完成</td>
+</tr>
+</tbody>
+</table>
+<p><strong>适配性</strong>：10秒全流程，领导不会感到无聊。大屏实时画面是关键填充。</p>
+<hr />
+<h2 id="6">七、场景6 · 充电调度</h2>
+<h3 id="71">7.1 物料清单</h3>
+<table>
+<thead>
+<tr>
+<th>物料</th>
+<th>数量</th>
+<th>适配性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>充电桩</td>
+<td>7（入口5+机器人区2）</td>
+<td><strong>必须</strong>：错峰充电</td>
+</tr>
+<tr>
+<td>UWB基站</td>
+<td>4</td>
+<td><strong>必须</strong>：导航到充电桩</td>
+</tr>
+<tr>
+<td>充电桩指示灯</td>
+<td>7</td>
+<td><strong>适合</strong>：占用/空闲状态可视化</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72">7.2 领导节奏</h3>
+<p>此场景为<strong>后台自动调度</strong>，领导不直接参与。</p>
+<p><strong>关键设计</strong>：充电调度在<strong>闭馆后/非参观时段</strong>执行，确保领导参观时所有机器人满电。</p>
+<hr />
+<h2 id="_5">八、总结：领导体验设计原则</h2>
+<table>
+<thead>
+<tr>
+<th>原则</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>零干站等待</strong></td>
+<td>每个超过10秒的环节必须有视觉/听觉/交互填充</td>
+</tr>
+<tr>
+<td><strong>信息持续输出</strong></td>
+<td>Walker讲解+大屏动画+世界树光效，全程有信息接收</td>
+</tr>
+<tr>
+<td><strong>高潮节奏</strong></td>
+<td>迎宾→世界树爆发→越障表演→芯片讲解→数字孪生→咖啡取餐→弧幕影片，7个高潮点交替</td>
+</tr>
+<tr>
+<td><strong>并行不阻塞</strong></td>
+<td>送物/充电/洒漏自愈等后台任务与导览并行，不阻塞领导动线</td>
+</tr>
+<tr>
+<td><strong>失败不可见</strong></td>
+<td>任何机器人故障由降级方案无缝接管，领导感知不到异常</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>© 2026 黑芝麻智能 · SesameX · BEST TECH / BEST LIFE</em></p></div><div class="doc-footer"><a class="df-disabled">‹ 已是首篇</a><a href="index.html">返回首页</a><a class="df-disabled">已是末篇 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
