@@ -1,0 +1,563 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>供应商对接记录_优必选C1</title><style>
+:root{--bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--bd:rgba(255,255,255,0.08);--font:-apple-system,'SF Pro Display','Microsoft YaHei','PingFang SC',sans-serif;--mono:'SF Mono','Consolas',monospace}
+[data-theme="light"]{--bg:#fbfbfd;--bg2:#f5f5f7;--bg3:#e8e8ed;--text:#1d1d1f;--sub:#6e6e73;--acc:#0071e3;--green:#34c759;--orange:#ff9500;--purple:#af52de;--bd:rgba(0,0,0,0.1)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.8;-webkit-font-smoothing:antialiased}
+.doc-nav{position:fixed;top:0;left:0;right:0;height:48px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(28,28,30,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--bd)}
+.doc-nav .dn-back{font-size:14px;color:var(--acc);text-decoration:none;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.doc-nav .dn-back:hover{background:rgba(10,132,255,0.1)}
+.doc-nav .dn-mid{display:flex;align-items:center;gap:10px;overflow:hidden}
+.doc-nav .dn-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-nav .dn-crumb{font-size:11px;color:var(--sub);white-space:nowrap}
+.doc-nav .dn-chap{display:flex;gap:6px;flex-shrink:0}
+.doc-nav .dn-chap a{font-size:11px;color:var(--sub);text-decoration:none;padding:4px 10px;border-radius:8px;border:0.5px solid var(--bd);transition:all .15s;white-space:nowrap}
+.doc-nav .dn-chap a:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
+.smx-theme-toggle{background:var(--bg3);border:0.5px solid var(--bd);border-radius:20px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:6px}
+.doc{max-width:880px;margin:0 auto;padding:72px 24px 80px}
+h1{font-size:30px;font-weight:700;margin:36px 0 20px;letter-spacing:-0.5px;border-bottom:1px solid var(--bd);padding-bottom:12px}
+h2{font-size:22px;font-weight:600;margin:36px 0 16px;padding-left:14px;border-left:3px solid var(--acc)}
+h3{font-size:18px;font-weight:600;margin:28px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--text)}
+p{font-size:15px;margin-bottom:14px;color:var(--text)}
+ul,ol{font-size:15px;margin-bottom:14px;padding-left:26px}
+li{margin-bottom:6px}
+strong{color:#fff;font-weight:600}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;border-radius:12px;overflow:hidden;border:0.5px solid var(--bd)}
+th{background:var(--bg3);color:var(--acc);padding:12px 16px;border:0.5px solid var(--bd);font-weight:600;text-align:left}
+td{padding:10px 16px;border:0.5px solid var(--bd);color:var(--text);line-height:1.6}
+tr:nth-child(even) td{background:var(--bg2)}
+code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:13px;color:#f5f5f7;font-family:var(--mono)}
+pre{background:var(--bg2);padding:18px;border-radius:12px;overflow-x:auto;margin:18px 0;border:0.5px solid var(--bd)}
+pre code{background:none;padding:0;font-size:13px;color:#e0e0e0}
+blockquote{border-left:3px solid var(--acc);padding:12px 22px;margin:18px 0;color:var(--sub);background:var(--bg2);border-radius:0 12px 12px 0}
+hr{border:none;border-top:0.5px solid var(--bd);margin:36px 0}
+a{color:#64b5f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.mermaid{background:var(--bg2);padding:20px;border-radius:12px;margin:18px 0;text-align:center;border:0.5px solid var(--bd)}
+[data-theme="light"] .mermaid{background:transparent;border-color:rgba(0,0,0,0.08)}
+.doc-footer{max-width:880px;margin:0 auto;padding:0 24px 60px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.doc-footer a{font-size:13px;color:var(--sub);text-decoration:none;padding:10px 20px;border-radius:12px;border:0.5px solid var(--bd);transition:all .15s;flex:1;text-align:center;min-width:160px}
+.doc-footer a:hover{color:var(--text);border-color:rgba(255,255,255,0.15);background:var(--bg2)}
+.doc-footer a.df-disabled{opacity:0.3;pointer-events:none}
+@media(max-width:768px){
+  .doc-nav{flex-wrap:wrap;height:auto;padding:8px 12px}
+  .doc-nav .dn-mid{order:3;width:100%;margin-top:4px}
+  .doc-nav .dn-title{font-size:12px}
+  .doc-nav .dn-crumb{font-size:10px}
+  .doc-nav .dn-chap a{font-size:10px;padding:3px 8px}
+  .doc{padding:100px 16px 60px}
+  h1{font-size:24px}
+  h2{font-size:18px}
+  .doc-footer{flex-direction:column}
+  .doc-footer a{min-width:auto}
+}
+</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">供应商对接记录_优必选C1</div><div class="dn-crumb"></div></div><div class="dn-chap"></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="c1">供应商对接记录 · 优必选C1人形机器人</h1>
+<blockquote>
+<p>对接日期：2026年7月 · 对接方：优必选科技 · 机型：UBTECH C1</p>
+</blockquote>
+<hr />
+<h2 id="_1">一、对接信息整理</h2>
+<h3 id="11">1.1 机型与角色</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>型号</strong></td>
+<td>优必选 C1（非Walker S系列）</td>
+</tr>
+<tr>
+<td><strong>角色</strong></td>
+<td>机器人前台 · 迎宾导览 · 讲解</td>
+</tr>
+<tr>
+<td><strong>续航</strong></td>
+<td>180分钟（手动拆换电池）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12">1.2 位置与动作信息获取</h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>优必选回复</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>位置获取方式</strong></td>
+<td>基于地图信息，提供位置坐标。需通过SDK二次开发获取</td>
+</tr>
+<tr>
+<td><strong>动作信息获取</strong></td>
+<td>SDK文档中可获取关节信息</td>
+</tr>
+<tr>
+<td><strong>云平台能力</strong></td>
+<td>目前云平台<strong>未集成</strong>实时位置/动作数据，不支持直接平台级编排</td>
+</tr>
+<tr>
+<td><strong>二次开发方案</strong></td>
+<td>本地服务器（与机器人同一局域网）通过SDK获取位置信息，WiFi传输</td>
+</tr>
+<tr>
+<td><strong>通讯协议</strong></td>
+<td>TCP/IP，需做后续处理和转换</td>
+</tr>
+<tr>
+<td><strong>任务编排</strong></td>
+<td>通过云平台编辑和下发，但实时数据走本地SDK</td>
+</tr>
+</tbody>
+</table>
+<p><strong>架构总结</strong>：</p>
+<pre><code>C1机器人 ──(SDK/WiFi)──→ 本地服务器 ──(TCP/IP)──→ DAG编排引擎
+                              ↑
+                        优必选云平台（任务下发）
+</code></pre>
+<h3 id="13">1.3 语音与讲解能力</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>当前状态</th>
+<th>时间节点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>边走边讲</strong></td>
+<td>✅ 支持</td>
+<td>已可用</td>
+</tr>
+<tr>
+<td><strong>固定点位播报</strong></td>
+<td>✅ 支持</td>
+<td>已可用</td>
+</tr>
+<tr>
+<td><strong>打断续播放</strong></td>
+<td>❌ 不支持</td>
+<td><strong>9月中旬版本上线</strong></td>
+</tr>
+<tr>
+<td><strong>语音交互插入</strong></td>
+<td>❌ 不支持（需打断功能）</td>
+<td>随打断功能同步</td>
+</tr>
+</tbody>
+</table>
+<p><strong>场景影响</strong>：VIP导览中「Walker讲解途中插入对话」功能需等待9月中旬版本。</p>
+<h3 id="14">1.4 拍照功能</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>当前状态</th>
+<th>时间节点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>拍照</strong></td>
+<td>❌ 不支持</td>
+<td>优必选评估中，<strong>目标8-9月版本</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>场景影响</strong>：「拍照接力→专属咖啡」场景的核心链路依赖拍照。需备选方案。</p>
+<h3 id="15">1.5 充电与安置</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>充电基站</strong></td>
+<td>❌ 无充电基站配置</td>
+</tr>
+<tr>
+<td><strong>换电系统</strong></td>
+<td>❌ 不支持S2/S3的热插拔自主换电</td>
+</tr>
+<tr>
+<td><strong>电池更换</strong></td>
+<td>手动拆换电池</td>
+</tr>
+<tr>
+<td><strong>续航</strong></td>
+<td>180分钟</td>
+</tr>
+<tr>
+<td><strong>非上电安置</strong></td>
+<td>需要设置前台位+板凳，供平时非上电状态安置/换电</td>
+</tr>
+<tr>
+<td><strong>肩部吊带</strong></td>
+<td>现阶段需要肩部挂吊带（后续版本迭代去除）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">二、能力矩阵</h2>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th style="text-align: center;">支持状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>迎宾导览</td>
+<td style="text-align: center;">✅</td>
+<td>核心功能，已可用</td>
+</tr>
+<tr>
+<td>边走边讲</td>
+<td style="text-align: center;">✅</td>
+<td>已可用</td>
+</tr>
+<tr>
+<td>固定点播报</td>
+<td style="text-align: center;">✅</td>
+<td>已可用</td>
+</tr>
+<tr>
+<td>续航180min</td>
+<td style="text-align: center;">✅</td>
+<td>足够全天运营（需中午换电1次）</td>
+</tr>
+<tr>
+<td>SDK位置获取</td>
+<td style="text-align: center;">✅</td>
+<td>需二次开发，WiFi+TCP/IP</td>
+</tr>
+<tr>
+<td>SDK关节信息</td>
+<td style="text-align: center;">✅</td>
+<td>可获取关节状态</td>
+</tr>
+<tr>
+<td>云平台任务下发</td>
+<td style="text-align: center;">✅</td>
+<td>编辑+下发</td>
+</tr>
+<tr>
+<td>语音打断续播</td>
+<td style="text-align: center;">⏳</td>
+<td>9月中旬版本</td>
+</tr>
+<tr>
+<td>拍照功能</td>
+<td style="text-align: center;">⏳</td>
+<td>8-9月版本（评估中）</td>
+</tr>
+<tr>
+<td>自动充电</td>
+<td style="text-align: center;">❌</td>
+<td>无充电基站</td>
+</tr>
+<tr>
+<td>自主换电</td>
+<td style="text-align: center;">❌</td>
+<td>仅S2/S3支持</td>
+</tr>
+<tr>
+<td>实时位置上云</td>
+<td style="text-align: center;">❌</td>
+<td>仅SDK本地获取</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6">三、对6大场景的影响</h2>
+<h3 id="1-vip">场景1 · VIP迎宾导览</h3>
+<table>
+<thead>
+<tr>
+<th>原设计</th>
+<th>C1影响</th>
+<th>调整方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Walker S3迎宾</td>
+<td>C1替代，功能基本一致</td>
+<td>型号改C1</td>
+</tr>
+<tr>
+<td>语音打断交互</td>
+<td>9月中旬前不支持</td>
+<td>8月开馆用「固定讲解+定点问答」模式，9月后升级打断</td>
+</tr>
+<tr>
+<td>拍照合影</td>
+<td>不支持拍照</td>
+<td><strong>取消C1拍照</strong>，改为「C1引导到品牌墙→品牌墙摄像头拍照」或「工作人员用iPad拍照」</td>
+</tr>
+<tr>
+<td>自动返桩充电</td>
+<td>无充电桩</td>
+<td><strong>手动换电</strong>：中午12:00+下午15:00各换1次（180min续航足够）</td>
+</tr>
+<tr>
+<td>UWB定位</td>
+<td>C1不集成UWB</td>
+<td>SDK位置坐标精度可能不如UWB，需验证</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2">场景2 · 拍照接力→专属咖啡</h3>
+<table>
+<thead>
+<tr>
+<th>原设计</th>
+<th>C1影响</th>
+<th>调整方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Walker S3胸部摄像头拍照</td>
+<td><strong>C1不支持拍照</strong></td>
+<td><strong>方案A</strong>：品牌墙旁加装独立摄像头/iPad拍照位<br><strong>方案B</strong>：等待8-9月版本（风险高）<br><strong>方案C</strong>：取消拍照拉花，改用预设图案</td>
+</tr>
+<tr>
+<td>人脸识别取餐</td>
+<td>无影响</td>
+<td>咖啡机独立摄像头做人脸识别</td>
+</tr>
+</tbody>
+</table>
+<p><strong>建议</strong>：采用方案A，品牌墙旁设独立拍照位（iPad Pro+支架），拍照后传到中控→咖啡机。</p>
+<h3 id="3">场景3 · 洒漏自愈</h3>
+<p>无影响。此场景主角是M20 Pro，C1不参与。</p>
+<h3 id="4">场景4 · 送物接力</h3>
+<p>无直接影响。此场景主角是云迹送餐机器人。</p>
+<p>但C1导览与送物并行时，C1的位置信息通过SDK获取（非UWB），需要确认定位精度是否影响走廊避碰。</p>
+<h3 id="5">场景5 · 采摘互动</h3>
+<p>无影响。此场景主角是遨博i5。</p>
+<h3 id="6_1">场景6 · 充电调度</h3>
+<table>
+<thead>
+<tr>
+<th>原设计</th>
+<th>C1影响</th>
+<th>调整方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1自动返桩充电</td>
+<td><strong>不支持</strong></td>
+<td>C1排除在自动充电调度外，改为<strong>人工换电SOP</strong></td>
+</tr>
+<tr>
+<td>其他6台机器人充电</td>
+<td>不影响</td>
+<td>正常自动充电调度</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">四、对研发任务的影响</h2>
+<h3 id="_4">需要新增/修改的研发任务</h3>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>原任务</th>
+<th>修改内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D01</td>
+<td>DAG任务编排引擎</td>
+<td><strong>新增</strong>：C1 SDK适配模块（TCP/IP位置获取+任务下发）</td>
+</tr>
+<tr>
+<td>D02</td>
+<td>多机定位融合</td>
+<td><strong>修改</strong>：C1位置来源从UWB改为SDK坐标，需做坐标系转换（SDK地图坐标→展厅UWB坐标系）</td>
+</tr>
+<tr>
+<td>D03</td>
+<td>人脸识别服务</td>
+<td><strong>修改</strong>：拍照来源从C1胸部摄像头改为独立拍照位（iPad/品牌墙摄像头）</td>
+</tr>
+<tr>
+<td>D15（新增）</td>
+<td>C1换电SOP系统</td>
+<td><strong>新增</strong>：换电提醒（续航&lt;30min时通知运营人员）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="d01-c1-sdk15">D01 C1 SDK适配模块（新增，约15人天）</h3>
+<pre><code>C1机器人 ──(SDK/WiFi)──→ 本地服务器 ──(TCP/IP JSON)──→ DAG引擎
+                                                   ↓
+                                          坐标系转换：C1地图坐标 → 展厅UWB坐标
+</code></pre>
+<ul>
+<li>读取C1 SDK位置坐标（地图坐标系）</li>
+<li>转换到展厅UWB坐标系（需标定C1地图原点+UWB原点的偏移）</li>
+<li>TCP/IP推送位置到DAG引擎（频率10Hz）</li>
+<li>接收DAG任务下发（移动到指定坐标+播报内容）</li>
+</ul>
+<hr />
+<h2 id="_5">五、对采购清单的影响</h2>
+<h3 id="_6">修改项</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>原采购</th>
+<th>修改</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R01</td>
+<td>Walker S3（80-120万）</td>
+<td><strong>改为 C1</strong>（价格待优必选确认，预计更低）</td>
+</tr>
+<tr>
+<td>I05</td>
+<td>充电桩×7</td>
+<td><strong>改为×6</strong>（C1不需要充电桩）</td>
+</tr>
+<tr>
+<td>新增</td>
+<td>C1备用电池</td>
+<td><strong>新增2块备用电池</strong>（换电用）</td>
+</tr>
+<tr>
+<td>新增</td>
+<td>C1安置区（前台位+板凳+吊带支架）</td>
+<td><strong>装修新增</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">新增采购</h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>物料</th>
+<th>数量</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R01a</td>
+<td>C1备用电池</td>
+<td>2</td>
+<td>换电用，保证全天运营</td>
+</tr>
+<tr>
+<td>F07</td>
+<td>C1安置区设施（前台桌+板凳+吊带）</td>
+<td>1套</td>
+<td>非上电状态安置</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_8">六、待跟进问题清单</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>问题</th>
+<th style="text-align: center;">优先级</th>
+<th>负责人</th>
+<th>截止时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>C1正式报价+交付时间</td>
+<td style="text-align: center;">高</td>
+<td>采购</td>
+<td>7月10日</td>
+</tr>
+<tr>
+<td>2</td>
+<td>C1 SDK文档获取+技术对接会</td>
+<td style="text-align: center;">高</td>
+<td>研发</td>
+<td>7月5日</td>
+</tr>
+<tr>
+<td>3</td>
+<td>C1位置坐标精度验证（±多少cm？）</td>
+<td style="text-align: center;">高</td>
+<td>研发</td>
+<td>7月15日</td>
+</tr>
+<tr>
+<td>4</td>
+<td>C1地图坐标系与UWB坐标系标定方案</td>
+<td style="text-align: center;">高</td>
+<td>研发</td>
+<td>7月20日</td>
+</tr>
+<tr>
+<td>5</td>
+<td>拍照功能8-9月版本确认（是否能做到）</td>
+<td style="text-align: center;">中</td>
+<td>研发</td>
+<td>7月15日</td>
+</tr>
+<tr>
+<td>6</td>
+<td>语音打断续播9月中旬版本确认</td>
+<td style="text-align: center;">中</td>
+<td>研发</td>
+<td>8月1日</td>
+</tr>
+<tr>
+<td>7</td>
+<td>C1换电SOP制定（换电时间/人员/备用电池管理）</td>
+<td style="text-align: center;">中</td>
+<td>运营</td>
+<td>7月25日</td>
+</tr>
+<tr>
+<td>8</td>
+<td>C1非上电安置区设计（前台位/板凳/吊带位置图）</td>
+<td style="text-align: center;">中</td>
+<td>展装</td>
+<td>7月10日</td>
+</tr>
+<tr>
+<td>9</td>
+<td>C1云平台任务下发接口文档</td>
+<td style="text-align: center;">中</td>
+<td>研发</td>
+<td>7月15日</td>
+</tr>
+<tr>
+<td>10</td>
+<td>肩部吊带后续版本去除时间线</td>
+<td style="text-align: center;">低</td>
+<td>优必选</td>
+<td>TBD</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>© 2026 黑芝麻智能 · 前海展厅项目组 · 供应商对接记录</em></p></div><div class="doc-footer"><a class="df-disabled">‹ 已是首篇</a><a href="index.html">返回首页</a><a class="df-disabled">已是末篇 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
