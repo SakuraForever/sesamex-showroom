@@ -1044,4 +1044,500 @@ a:hover{text-decoration:underline}
 2027Q1 ── L4全自主空间智能（VLA OTA+持续学习）
 </code></pre>
 <hr />
+<p><em>© 2026 黑芝麻智能 · 前海展厅项目组 · 基于供应商实际能力边界</em></p>
+<hr />
+<h2 id="_14">九、机器人状态机与唤醒协议</h2>
+<h3 id="91">9.1 统一状态机模型</h3>
+<p>每个机器人遵循统一的状态流转：</p>
+<pre><code>SLEEP（闭馆断电）
+  ↓ 开馆上电（08:30）
+STANDBY（待机展示态）
+  ↓ 唤醒触发
+IDLE（就绪态·自检完成·等待指令）
+  ↓ DAG分配任务
+ACTIVE（执行态·正在执行DAG序列）
+  ↓ 任务完成 / 超时 / 故障
+RETURN（返回态·回充电桩/待机位）
+  ↓ 到达待机位
+STANDBY（待机展示态）
+  ↓ 闭馆（18:00）
+SLEEP
+</code></pre>
+<h3 id="92-standby">9.2 各机器人STANDBY态行为</h3>
+<table>
+<thead>
+<tr>
+<th>机器人</th>
+<th>STANDBY时的物理状态</th>
+<th>STANDBY时的展示行为</th>
+<th>唤醒者</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>C1</strong></td>
+<td>坐在前台板凳上，肩部吊带固定</td>
+<td>品牌墙LED显示"C1迎宾待机"呼吸灯效</td>
+<td><strong>NFC签到台</strong>（RFID手环读取→SDK→DAG）</td>
+</tr>
+<tr>
+<td><strong>M20</strong></td>
+<td>趴伏在跑道起点，关节锁定</td>
+<td>跑道灯带呼吸蓝光</td>
+<td><strong>DAG定时器</strong>（每30分钟自动唤醒巡逻）或<strong>UDP手动指令</strong></td>
+</tr>
+<tr>
+<td><strong>UP（配送舱）</strong></td>
+<td>停在充电桩上，配送舱在位</td>
+<td>充电桩指示灯绿色常亮</td>
+<td><strong>RFID包架</strong>（检测物品放置→DAG→REST transport）</td>
+</tr>
+<tr>
+<td><strong>UP（清洁舱）</strong></td>
+<td>停在充电桩上（配送舱已换为清洁舱）</td>
+<td>充电桩指示灯绿色常亮</td>
+<td><strong>DAG调度</strong>（M20 UDP检测洒漏→DAG→REST move-task）</td>
+</tr>
+<tr>
+<td><strong>i5</strong></td>
+<td>臂收拢到待机位（世界树右侧），吸盘松开</td>
+<td>世界树LED显示绿色扫描脉冲</td>
+<td><strong>触摸按钮</strong>（世界树旁触摸屏→DAG→SDK执行序列）</td>
+</tr>
+<tr>
+<td><strong>咖啡机</strong></td>
+<td>屏保播放"SesameX咖啡待机"动画</td>
+<td>取餐屏显示欢迎语</td>
+<td><strong>DAG触发</strong>（iPad拍照→StyleGAN→4.12上传→4.5下单）</td>
+</tr>
+<tr>
+<td><strong>海纳</strong></td>
+<td>臂收拢+底盘锁定在展位</td>
+<td>展位灯效呼吸</td>
+<td><strong>Phase 2</strong>（8月后底盘上云→MCP→DAG）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="93">9.3 唤醒协议详解</h3>
+<h4 id="c1_1">C1唤醒链路</h4>
+<pre><code>访客NFC签到台刷RFID手环
+  → NFC读卡器读取VIP ID（&lt;0.5秒）
+  → 本地服务器SDK接收（WiFi TCP/IP）
+  → DAG引擎收到&quot;NFC_SIGN_IN&quot;事件
+  → DAG查询VIP信息（姓名/职务）
+  → DAG下发任务到C1云平台
+  → C1从STANDBY→IDLE（自检关节+启动语音模块）
+  → C1从IDLE→ACTIVE（走向入口，开始边走边讲）
+  → 品牌墙LED同步切换&quot;欢迎[姓名/职务]&quot;
+</code></pre>
+<h4 id="m20">M20唤醒链路</h4>
+<pre><code>方式A（定时巡逻）：
+  DAG定时器每30分钟触发
+  → UDP指令下发&quot;M20_PATROL_START&quot;
+  → M20从STANDBY→IDLE（关节解锁+LiDAR启动）
+  → M20从IDLE→ACTIVE（自主建图+按预设点位巡逻）
+  → 巡逻完成后→RETURN（回跑道起点趴伏）→STANDBY
+
+方式B（越障表演）：
+  DAG在VIP场景T+90s触发
+  → UDP指令&quot;M20_PERFORMANCE_START&quot;
+  → M20执行越障序列（22cm台阶/80cm高台）
+  → 完成后→RETURN→STANDBY
+
+方式C（洒漏检测）：
+  M20在ACTIVE巡逻态时热成像检测到温差&gt;2°C
+  → UDP上报&quot;SPILL_DETECTED + 坐标&quot;
+  → DAG收到→触发洒漏自愈DAG序列
+</code></pre>
+<h4 id="up">UP唤醒链路（送物）</h4>
+<pre><code>访客在入口包架放置物品
+  → RFID传感器检测物品放置
+  → DAG收到&quot;ITEM_PLACED&quot;事件
+  → DAG调用云迹REST API: transport
+    {robotId, cabinId, via:{point:&quot;包架&quot;}, target:{point:&quot;会议室&quot;}, autoBack:true}
+  → UP从STANDBY（充电桩）→IDLE→ACTIVE
+  → UP到包架取物→走廊导航→到达会议室
+  → notification通知（短信/VMS）
+  → 访客二维码取物→UP→RETURN（autoBack回充）→STANDBY
+</code></pre>
+<h4 id="i5_1">i5唤醒链路（采摘）</h4>
+<pre><code>访客在世界树旁触摸屏点击&quot;开始采摘&quot;（或语音&quot;我要摘苹果&quot;）
+  → 触摸按钮信号→DAG
+  → DAG下发执行序列到遨博云平台
+  → 云平台→i5 SDK:
+    Step1: 链条提升机供果（物理触发，2秒）
+    Step2: D435i扫描6槽HSV识别（SDK获取臂数据，0.5秒）
+    Step3: OMPL路径规划→臂移动到苹果位姿（SDK执行序列，2秒）
+    Step4: 真空泵启动→吸盘吸附（SDK控制IO，2秒）
+    Step5: 臂提起→移动到递送位→释放真空（SDK执行序列，3秒）
+    Step6: 臂回到待机位（SDK执行序列，2秒）
+  → 全流程约10秒→i5回到STANDBY
+  → 世界树LED从&quot;采摘中&quot;红色→恢复绿色扫描脉冲
+</code></pre>
+<hr />
+<h2 id="dag">十、DAG序列触发链路总表</h2>
+<h3 id="101-6dag-">10.1 6大DAG序列触发-连锁反应矩阵</h3>
+<table>
+<thead>
+<tr>
+<th>DAG序列</th>
+<th>触发源</th>
+<th>触发条件</th>
+<th>连锁设备</th>
+<th>时长</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DAG-01 VIP迎宾</strong></td>
+<td>NFC签到台</td>
+<td>RFID读取VIP ID</td>
+<td>C1(SDK)+品牌墙(MQTT)+世界树(DMX)+M20(UDP)+咖啡机(HTTPS)+UP送物(REST)+弧幕(MQTT)</td>
+<td>330秒</td>
+</tr>
+<tr>
+<td><strong>DAG-02 拍照咖啡</strong></td>
+<td>iPad拍照位</td>
+<td>访客点击拍照</td>
+<td>iPad(HTTP)+StyleGAN(本地)+HTCBot(4.12+4.5)+取餐屏</td>
+<td>96秒</td>
+</tr>
+<tr>
+<td><strong>DAG-03 洒漏自愈</strong></td>
+<td>M20热成像</td>
+<td>UDP上报温差&gt;2°C</td>
+<td>M20(UDP)+DAG调度+UP清洁(REST move-task)+中枢大屏(MQTT)</td>
+<td>31秒</td>
+</tr>
+<tr>
+<td><strong>DAG-04 送物接力</strong></td>
+<td>RFID包架</td>
+<td>检测物品放置</td>
+<td>UP(REST transport)+包架灯(MQTT)+走廊光幕(IO)+会议室通知</td>
+<td>45秒</td>
+</tr>
+<tr>
+<td><strong>DAG-05 采摘互动</strong></td>
+<td>触摸按钮</td>
+<td>访客点击/语音</td>
+<td>i5(SDK执行序列)+世界树(DMX)+中枢大屏(D435i画面)</td>
+<td>10秒</td>
+</tr>
+<tr>
+<td><strong>DAG-06 充电调度</strong></td>
+<td>DAG定时器</td>
+<td>闭馆后18:30触发</td>
+<td>M20(UDP返充)+送餐(REST返充)</td>
+<td>后台</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102-dag">10.2 DAG优先级与抢占规则</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">优先级</th>
+<th>DAG序列</th>
+<th>抢占规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">P0（最高）</td>
+<td>DAG-01 VIP迎宾</td>
+<td><strong>抢占所有其他DAG</strong>，所有机器人为VIP让路</td>
+</tr>
+<tr>
+<td style="text-align: center;">P1</td>
+<td>DAG-03 洒漏自愈</td>
+<td>抢占DAG-04/06，不抢占DAG-01</td>
+</tr>
+<tr>
+<td style="text-align: center;">P2</td>
+<td>DAG-05 采摘互动</td>
+<td>不抢占，排队等待</td>
+</tr>
+<tr>
+<td style="text-align: center;">P2</td>
+<td>DAG-02 拍照咖啡</td>
+<td>不抢占，排队等待</td>
+</tr>
+<tr>
+<td style="text-align: center;">P3</td>
+<td>DAG-04 送物接力</td>
+<td>不抢占，可并行执行</td>
+</tr>
+<tr>
+<td style="text-align: center;">P4（最低）</td>
+<td>DAG-06 充电调度</td>
+<td>仅闭馆后执行</td>
+</tr>
+</tbody>
+</table>
+<p><strong>抢占示例</strong>：VIP参观途中（DAG-01执行中）如果M20检测到洒漏，DAG-03被<strong>抑制</strong>（不抢占P0），洒漏等VIP离开后再处理。但M20会在巡逻时避开VIP路线。</p>
+<hr />
+<h2 id="_15">十一、领导参观动线与机器人协调</h2>
+<h3 id="111-330">11.1 领导动线（330秒全流程）</h3>
+<pre><code>入口签到台 ──→ 品牌墙 ──→ 芯片平台 ──→ 世界树 ──→ 机器人区 ──→ 咖啡站 ──→ 时间之门 ──→ 弧幕
+   T+0s         T+30s       T+45s        T+60s       T+90s        T+120s       T+240s      T+270s
+</code></pre>
+<h3 id="112">11.2 各时段机器人状态协调</h3>
+<table>
+<thead>
+<tr>
+<th>时段</th>
+<th>领导位置</th>
+<th>C1状态</th>
+<th>M20状态</th>
+<th>UP状态</th>
+<th>i5状态</th>
+<th>咖啡机</th>
+<th>世界树</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T+0~10s</td>
+<td>签到台等待</td>
+<td>STANDBY→ACTIVE（走向入口）</td>
+<td>STANDBY（跑道趴伏）</td>
+<td>STANDBY（充电桩）</td>
+<td>STANDBY（臂收拢）</td>
+<td>STANDBY（屏保）</td>
+<td>待机绿光</td>
+</tr>
+<tr>
+<td>T+10~30s</td>
+<td>入口→品牌墙</td>
+<td>ACTIVE（边走边讲）</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>待机绿光</td>
+</tr>
+<tr>
+<td>T+30~60s</td>
+<td>品牌墙讲解</td>
+<td>ACTIVE（讲解企业实力）</td>
+<td>STANDBY</td>
+<td><strong>STANDBY→ACTIVE</strong>（并行送包到会议室）</td>
+<td>STANDBY</td>
+<td><strong>STANDBY→ACTIVE</strong>（开始制作VIP咖啡）</td>
+<td>待机→VIP金光</td>
+</tr>
+<tr>
+<td>T+60~90s</td>
+<td>世界树讲解</td>
+<td>ACTIVE（讲解芯片平台）</td>
+<td>STANDBY</td>
+<td>ACTIVE（走廊送物中）</td>
+<td>STANDBY</td>
+<td>ACTIVE（制作中90秒）</td>
+<td>VIP金光爆发</td>
+</tr>
+<tr>
+<td>T+90~120s</td>
+<td>机器人区</td>
+<td>ACTIVE（介绍各机器人）</td>
+<td><strong>STANDBY→ACTIVE</strong>（越障表演20秒）</td>
+<td>ACTIVE（送物完成→返充）</td>
+<td>STANDBY</td>
+<td>ACTIVE（制作中）</td>
+<td>VIP金光</td>
+</tr>
+<tr>
+<td><strong>T+120~210s</strong></td>
+<td><strong>SesameX展板</strong></td>
+<td><strong>ACTIVE（讲解芯片架构50秒）</strong></td>
+<td>ACTIVE→STANDBY（回跑道）</td>
+<td>RETURN→STANDBY</td>
+<td>STANDBY</td>
+<td>ACTIVE（制作中）</td>
+<td>VIP金光</td>
+</tr>
+<tr>
+<td>T+170~200s</td>
+<td>中枢大屏前</td>
+<td>ACTIVE（数字孪生演示30秒）</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>ACTIVE→完成</td>
+<td>VIP金光</td>
+</tr>
+<tr>
+<td>T+200~210s</td>
+<td>走向取餐区</td>
+<td>ACTIVE（引导步行）</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td><strong>完成→待取餐</strong></td>
+<td>VIP金光</td>
+</tr>
+<tr>
+<td>T+210~240s</td>
+<td>取咖啡+送包完成</td>
+<td>ACTIVE（引导取餐）</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY（取餐完成）</td>
+<td>VIP金光</td>
+</tr>
+<tr>
+<td>T+240~270s</td>
+<td>走向未来区</td>
+<td>ACTIVE（引导+时间之门）</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>恢复绿光</td>
+</tr>
+<tr>
+<td>T+270~330s</td>
+<td>弧幕观影</td>
+<td>STANDBY（送别位等待）</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>弧幕播放</td>
+</tr>
+<tr>
+<td>T+330s</td>
+<td>离馆</td>
+<td>RETURN→STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>STANDBY</td>
+<td>恢复默认</td>
+</tr>
+</tbody>
+</table>
+<h3 id="113">11.3 冲突避免规则</h3>
+<table>
+<thead>
+<tr>
+<th>冲突场景</th>
+<th>避免策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M20巡逻挡住领导路线</td>
+<td>VIP期间（DAG-01）M20<strong>锁定在跑道区域</strong>，UDP不发巡逻指令</td>
+</tr>
+<tr>
+<td>UP送物与领导同时走走廊</td>
+<td>UP送物在T+30s触发，走廊路径与领导路线<strong>错峰</strong>（领导T+60s才到机器人区，UP T+45s已到达会议室）</td>
+</tr>
+<tr>
+<td>多台机器人同时移动碰撞</td>
+<td>UWB定位+DAG时间窗协调，同一走廊同一时间只有1台机器人</td>
+</tr>
+<tr>
+<td>咖啡制作期间领导干站</td>
+<td>填充SesameX讲解+数字孪生演示，<strong>零干站</strong></td>
+</tr>
+<tr>
+<td>i5采摘与领导参观时间冲突</td>
+<td>VIP导览中不触发采摘（i5保持STANDBY），采摘为普通访客独立触发</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ota_1">十二、OTA后唤醒与行动变化</h2>
+<h3 id="121-l2l3l4">12.1 L2→L3→L4唤醒方式演进</h3>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>唤醒方式</th>
+<th>C1</th>
+<th>M20</th>
+<th>UP</th>
+<th>i5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L2</strong></td>
+<td><strong>外部物理触发</strong></td>
+<td>NFC签到台RFID</td>
+<td>DAG定时UDP</td>
+<td>RFID包架/触摸</td>
+<td>触摸按钮</td>
+</tr>
+<tr>
+<td><strong>L3</strong></td>
+<td><strong>AI感知触发</strong></td>
+<td>摄像头阵列识别VIP到达→自动唤醒（不需NFC）</td>
+<td>麦克风阵列检测异常声音→唤醒巡逻</td>
+<td>摄像头检测访客手势→召唤送物</td>
+<td>摄像头检测访客靠近世界树→自动采摘</td>
+</tr>
+<tr>
+<td><strong>L4</strong></td>
+<td><strong>端侧自主决策</strong></td>
+<td>VLA模型自主判断最优导览路径</td>
+<td>VLA自主感知环境→自主巡逻路线</td>
+<td>VLA自主判断送物需求</td>
+<td>VLA端侧推理→自主采摘策略</td>
+</tr>
+</tbody>
+</table>
+<h3 id="122-l2l3l4">12.2 L2→L3→L4行动方式演进</h3>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>C1导览</th>
+<th>M20巡逻</th>
+<th>UP送物</th>
+<th>i5采摘</th>
+<th>世界树光效</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L2</strong></td>
+<td>固定点位播报</td>
+<td>固定路线巡逻</td>
+<td>固定路径送物</td>
+<td>固定HSV识别+抓取序列</td>
+<td>4种预设光效</td>
+</tr>
+<tr>
+<td><strong>L3</strong></td>
+<td>根据访客画像调整讲解深度</td>
+<td>根据人流量调整巡逻频率</td>
+<td>根据访客位置动态调整路径</td>
+<td>根据苹果位置动态调整抓取策略</td>
+<td>年龄/情绪驱动个性化光效</td>
+</tr>
+<tr>
+<td><strong>L4</strong></td>
+<td>VLA端侧自主决策讲解内容+路径</td>
+<td>VLA自主规划最优巡逻路线</td>
+<td>VLA自主判断送物需求+路径</td>
+<td>VLA端侧推理→全新未知场景采摘</td>
+<td>灯光AI模型自主生成光效</td>
+</tr>
+</tbody>
+</table>
+<h3 id="123-ota">12.3 OTA升级流程</h3>
+<pre><code>L2上线（8月8日开馆）
+  ↓ 运营数据采集（每日访客行为/机器人状态/传感器数据）
+L3升级（10-12月）
+  云端训练AI Agent → DAG引擎OTA升级 → 摄像头阵列激活
+  ↓ 持续学习（每日数据→模型微调）
+L4升级（2027Q1-Q2）
+  SesameX VLA模型OTA下发到每台机器人 → 端侧推理
+</code></pre>
+<p><strong>关键：硬件一次预埋到位（Phase 0），软件和模型通过OTA持续进化。</strong></p>
+<hr />
 <p><em>© 2026 黑芝麻智能 · 前海展厅项目组 · 基于供应商实际能力边界</em></p></div><div class="doc-footer"><a class="df-disabled">‹ 已是首篇</a><a href="index.html">返回首页</a><a class="df-disabled">已是末篇 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
