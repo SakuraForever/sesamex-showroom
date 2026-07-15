@@ -1,0 +1,562 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>方案可行性分析与迭代改进</title><style>
+:root{--bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--bd:rgba(255,255,255,0.08);--font:-apple-system,'SF Pro Display','Microsoft YaHei','PingFang SC',sans-serif;--mono:'SF Mono','Consolas',monospace}
+[data-theme="light"]{--bg:#fbfbfd;--bg2:#f5f5f7;--bg3:#e8e8ed;--text:#1d1d1f;--sub:#6e6e73;--acc:#0071e3;--green:#34c759;--orange:#ff9500;--purple:#af52de;--bd:rgba(0,0,0,0.1)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.8;-webkit-font-smoothing:antialiased}
+.doc-nav{position:fixed;top:0;left:0;right:0;height:48px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(28,28,30,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--bd)}
+.doc-nav .dn-back{font-size:14px;color:var(--acc);text-decoration:none;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.doc-nav .dn-back:hover{background:rgba(10,132,255,0.1)}
+.doc-nav .dn-mid{display:flex;align-items:center;gap:10px;overflow:hidden}
+.doc-nav .dn-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-nav .dn-crumb{font-size:11px;color:var(--sub);white-space:nowrap}
+.doc-nav .dn-chap{display:flex;gap:6px;flex-shrink:0}
+.doc-nav .dn-chap a{font-size:11px;color:var(--sub);text-decoration:none;padding:4px 10px;border-radius:8px;border:0.5px solid var(--bd);transition:all .15s;white-space:nowrap}
+.doc-nav .dn-chap a:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
+.smx-theme-toggle{background:var(--bg3);border:0.5px solid var(--bd);border-radius:20px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:6px}
+.doc{max-width:880px;margin:0 auto;padding:72px 24px 80px}
+h1{font-size:30px;font-weight:700;margin:36px 0 20px;letter-spacing:-0.5px;border-bottom:1px solid var(--bd);padding-bottom:12px}
+h2{font-size:22px;font-weight:600;margin:36px 0 16px;padding-left:14px;border-left:3px solid var(--acc)}
+h3{font-size:18px;font-weight:600;margin:28px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--text)}
+p{font-size:15px;margin-bottom:14px;color:var(--text)}
+ul,ol{font-size:15px;margin-bottom:14px;padding-left:26px}
+li{margin-bottom:6px}
+strong{color:#fff;font-weight:600}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;border-radius:12px;overflow:hidden;border:0.5px solid var(--bd)}
+th{background:var(--bg3);color:var(--acc);padding:12px 16px;border:0.5px solid var(--bd);font-weight:600;text-align:left}
+td{padding:10px 16px;border:0.5px solid var(--bd);color:var(--text);line-height:1.6}
+tr:nth-child(even) td{background:var(--bg2)}
+code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:13px;color:#f5f5f7;font-family:var(--mono)}
+pre{background:var(--bg2);padding:18px;border-radius:12px;overflow-x:auto;margin:18px 0;border:0.5px solid var(--bd)}
+pre code{background:none;padding:0;font-size:13px;color:#e0e0e0}
+blockquote{border-left:3px solid var(--acc);padding:12px 22px;margin:18px 0;color:var(--sub);background:var(--bg2);border-radius:0 12px 12px 0}
+hr{border:none;border-top:0.5px solid var(--bd);margin:36px 0}
+a{color:#64b5f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.mermaid{background:var(--bg2);padding:20px;border-radius:12px;margin:18px 0;text-align:center;border:0.5px solid var(--bd)}
+[data-theme="light"] .mermaid{background:transparent;border-color:rgba(0,0,0,0.08)}
+.doc-footer{max-width:880px;margin:0 auto;padding:0 24px 60px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.doc-footer a{font-size:13px;color:var(--sub);text-decoration:none;padding:10px 20px;border-radius:12px;border:0.5px solid var(--bd);transition:all .15s;flex:1;text-align:center;min-width:160px}
+.doc-footer a:hover{color:var(--text);border-color:rgba(255,255,255,0.15);background:var(--bg2)}
+.doc-footer a.df-disabled{opacity:0.3;pointer-events:none}
+@media(max-width:768px){
+  .doc-nav{flex-wrap:wrap;height:auto;padding:8px 12px}
+  .doc-nav .dn-mid{order:3;width:100%;margin-top:4px}
+  .doc-nav .dn-title{font-size:12px}
+  .doc-nav .dn-crumb{font-size:10px}
+  .doc-nav .dn-chap a{font-size:10px;padding:3px 8px}
+  .doc{padding:100px 16px 60px}
+  h1{font-size:24px}
+  h2{font-size:18px}
+  .doc-footer{flex-direction:column}
+  .doc-footer a{min-width:auto}
+}
+</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">方案可行性分析与迭代改进</div><div class="dn-crumb"></div></div><div class="dn-chap"></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="_1">方案可行性分析与迭代改进</h1>
+<blockquote>
+<p>基于技术约束（供应商实际能力）+ 场景需求 + 人力条件（16天开发窗口）
+审查日期：2026年7月15日</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、致命风险清单（可能导致无法按期开馆）</h2>
+<h3 id="1">风险1：研发人力严重不足</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>完整方案所需工时</td>
+<td>590人天（含适配模块）</td>
+</tr>
+<tr>
+<td>实际开发窗口</td>
+<td>7/20-8/5 = <strong>16天</strong></td>
+</tr>
+<tr>
+<td>即使5人全职</td>
+<td>5×16 = <strong>80人天</strong></td>
+</tr>
+<tr>
+<td><strong>缺口</strong></td>
+<td><strong>510人天（86%）</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>影响</strong>：完整6大场景DAG+全部适配模块不可能在16天完成。</p>
+<p><strong>改进</strong>：L2 MVP（最小可行版），砍掉非核心功能，仅保留200人天范围。</p>
+<hr />
+<h3 id="2c1">风险2：C1不支持拍照</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>场景2核心链路</td>
+<td>Walker拍照→StyleGAN→咖啡拉花</td>
+</tr>
+<tr>
+<td>C1实际能力</td>
+<td><strong>不支持拍照</strong>（8-9月版本评估中）</td>
+</tr>
+<tr>
+<td>PPT/文档</td>
+<td>仍写"Walker拍照"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>改进</strong>：iPad Pro独立拍照位替代（已纳入方案，但采购清单需更新）。</p>
+<hr />
+<h3 id="3">风险3：世界树数采时间窗口过紧</h3>
+<table>
+<thead>
+<tr>
+<th>时间点</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7/25</td>
+<td>世界树完工</td>
+</tr>
+<tr>
+<td>7/25-7/30</td>
+<td>3D打印缩微树+数采（5天）</td>
+</tr>
+<tr>
+<td>7/30-8/5</td>
+<td>算法训练+部署（6天）</td>
+</tr>
+<tr>
+<td>8/5-8/8</td>
+<td>联调（3天）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>影响</strong>：如果世界树延迟1天，整个采摘链路无法在8/8前完成。</p>
+<p><strong>改进</strong>：并行推进——3D打印缩微树不依赖实物世界树，可提前到7/15开始。</p>
+<hr />
+<h3 id="48">风险4：遨博海纳底盘8月才上云</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PPT</td>
+<td>"7台机器人"</td>
+</tr>
+<tr>
+<td>开馆实际</td>
+<td><strong>6台</strong>（海纳底盘不可用，仅静态展示）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>改进</strong>：开馆标注"6台动态+1台静态展示"，海纳Phase 2升级。</p>
+<hr />
+<h3 id="5dag-vs">风险5：DAG简化版 vs 完整版</h3>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>功能</th>
+<th style="text-align: center;">工时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>完整版</td>
+<td>6大场景+优先级抢占+动态调度+防碰撞</td>
+<td style="text-align: center;">120天</td>
+</tr>
+<tr>
+<td>简化版</td>
+<td>6个固定场景JSON编排（无抢占/无动态）</td>
+<td style="text-align: center;">60天</td>
+</tr>
+</tbody>
+</table>
+<p><strong>改进</strong>：L2用简化版（固定脚本），Phase 1.5升级优先级抢占。</p>
+<hr />
+<h2 id="_3">二、文档错漏清单（需立即修正）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>位置</th>
+<th>错误</th>
+<th>正确</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>PPT 14页</td>
+<td>"Walker S3"</td>
+<td><strong>优必选C1</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>PPT 14页</td>
+<td>"7台机器人"</td>
+<td><strong>6台动态+1台静态</strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td>PPT 成本页</td>
+<td>"充电桩×7"</td>
+<td><strong>充电桩×6</strong>（C1手动换电）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PPT 充电场景</td>
+<td>"7台错峰充电"</td>
+<td><strong>仅M20+送餐自动充电</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td>PPT 拍照场景</td>
+<td>"Walker拍照"</td>
+<td><strong>iPad Pro拍照位</strong></td>
+</tr>
+<tr>
+<td>6</td>
+<td>采购清单</td>
+<td>缺iPad拍照位</td>
+<td><strong>新增iPad Pro×1+支架</strong></td>
+</tr>
+<tr>
+<td>7</td>
+<td>研发成本</td>
+<td>20-30万(590天×350-500/天)</td>
+<td><strong>实际50-90万</strong>（200天+外包）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="l2-mvp">三、L2 MVP功能裁剪方案</h2>
+<h3 id="31-l2-mvp-88">3.1 开馆必须（L2 MVP 8/8）</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th style="text-align: center;">工时</th>
+<th style="text-align: center;">状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1导览（固定点位播报）</td>
+<td style="text-align: center;">15天</td>
+<td style="text-align: center;">✅优先</td>
+</tr>
+<tr>
+<td>M20基础巡逻（UDP适配）</td>
+<td style="text-align: center;">15天</td>
+<td style="text-align: center;">✅优先</td>
+</tr>
+<tr>
+<td>UP送物（REST transport）</td>
+<td style="text-align: center;">10天</td>
+<td style="text-align: center;">✅优先</td>
+</tr>
+<tr>
+<td>i5采摘（固定HSV+预录序列）</td>
+<td style="text-align: center;">50天</td>
+<td style="text-align: center;">✅优先</td>
+</tr>
+<tr>
+<td>咖啡拉花（HTCBot 4.5 API）</td>
+<td style="text-align: center;">15天</td>
+<td style="text-align: center;">✅优先</td>
+</tr>
+<tr>
+<td>LED播控（7屏基础播控）</td>
+<td style="text-align: center;">30天</td>
+<td style="text-align: center;">✅优先</td>
+</tr>
+<tr>
+<td>DAG简化版（6固定场景）</td>
+<td style="text-align: center;">60天</td>
+<td style="text-align: center;">✅优先</td>
+</tr>
+<tr>
+<td><strong>小计</strong></td>
+<td style="text-align: center;"><strong>195天</strong></td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-phase-15815-9">3.2 Phase 1.5（8/15-9月）</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th style="text-align: center;">工时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>洒漏自愈（M20热成像+UP清洁）</td>
+<td style="text-align: center;">35天</td>
+</tr>
+<tr>
+<td>充电调度（M20+送餐）</td>
+<td style="text-align: center;">20天</td>
+</tr>
+<tr>
+<td>多机坐标系融合</td>
+<td style="text-align: center;">20天</td>
+</tr>
+<tr>
+<td>C1语音打断（9月版本后）</td>
+<td style="text-align: center;">10天</td>
+</tr>
+<tr>
+<td><strong>小计</strong></td>
+<td style="text-align: center;"><strong>85天</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-phase-210-12-l3">3.3 Phase 2（10-12月 L3）</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th style="text-align: center;">工时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI Agent动态决策</td>
+<td style="text-align: center;">60天</td>
+</tr>
+<tr>
+<td>摄像头阵列激活</td>
+<td style="text-align: center;">30天</td>
+</tr>
+<tr>
+<td>世界树个性化光效</td>
+<td style="text-align: center;">20天</td>
+</tr>
+<tr>
+<td>海纳底盘移动协作</td>
+<td style="text-align: center;">15天</td>
+</tr>
+<tr>
+<td>OTA分发系统</td>
+<td style="text-align: center;">30天</td>
+</tr>
+<tr>
+<td><strong>小计</strong></td>
+<td style="text-align: center;"><strong>155天</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-phase-32027q1-q2-l4">3.4 Phase 3（2027Q1-Q2 L4）</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th style="text-align: center;">工时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VLA端侧推理</td>
+<td style="text-align: center;">80天</td>
+</tr>
+<tr>
+<td>持续学习闭环</td>
+<td style="text-align: center;">40天</td>
+</tr>
+<tr>
+<td>灯光AI自主生成</td>
+<td style="text-align: center;">30天</td>
+</tr>
+<tr>
+<td><strong>小计</strong></td>
+<td style="text-align: center;"><strong>150天</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>总工时</strong>：195+85+155+150 = <strong>585天</strong>（与原590天接近，但分期交付）</p>
+<hr />
+<h2 id="l2-mvp-200">四、L2 MVP 200人天人力分配</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th style="text-align: center;">人数</th>
+<th>工作内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>架构师</td>
+<td style="text-align: center;">1</td>
+<td>DAG编排+系统架构+联调</td>
+</tr>
+<tr>
+<td>C1开发</td>
+<td style="text-align: center;">1</td>
+<td>SDK适配+导览脚本</td>
+</tr>
+<tr>
+<td>M20开发</td>
+<td style="text-align: center;">1</td>
+<td>UDP适配+巡逻配置</td>
+</tr>
+<tr>
+<td>UP开发</td>
+<td style="text-align: center;">0.5</td>
+<td>REST API（云迹已完善）</td>
+</tr>
+<tr>
+<td>i5开发</td>
+<td style="text-align: center;">1.5</td>
+<td>SDK+采摘算法+3D打印数采</td>
+</tr>
+<tr>
+<td>咖啡API</td>
+<td style="text-align: center;">1</td>
+<td>HTCBot适配+StyleGAN</td>
+</tr>
+<tr>
+<td>LED前端</td>
+<td style="text-align: center;">1</td>
+<td>7屏播控+世界树DMX</td>
+</tr>
+<tr>
+<td>测试</td>
+<td style="text-align: center;">1</td>
+<td>6场景联调</td>
+</tr>
+</tbody>
+</table>
+<p><strong>8人团队×25天 = 200人天</strong> → 需要确认是否有8人团队。</p>
+<p>如果只有4人：200÷4 = 50天 → <strong>延后开馆到9/15</strong></p>
+<hr />
+<h2 id="_4">五、改进行动清单</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>改进项</th>
+<th>负责人</th>
+<th>截止</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>确认研发团队人数（4人还是8人？）</td>
+<td>PM</td>
+<td>7/16</td>
+</tr>
+<tr>
+<td>2</td>
+<td>如4人→与领导沟通开馆时间调整（8/8→9/1）</td>
+<td>PM</td>
+<td>7/16</td>
+</tr>
+<tr>
+<td>3</td>
+<td>修正PPT：Walker S3→C1，7台→6+1静态</td>
+<td>研发</td>
+<td>7/16</td>
+</tr>
+<tr>
+<td>4</td>
+<td>修正采购清单：充电桩7→6，新增iPad Pro</td>
+<td>采购</td>
+<td>7/16</td>
+</tr>
+<tr>
+<td>5</td>
+<td>启动3D打印缩微世界树（不等实物）</td>
+<td>研发+展装</td>
+<td>7/15</td>
+</tr>
+<tr>
+<td>6</td>
+<td>获取M20 UDP协议文档（明天看实物时确认）</td>
+<td>研发</td>
+<td>7/16</td>
+</tr>
+<tr>
+<td>7</td>
+<td>确认HTCBot 4.12上传图片格式要求</td>
+<td>研发</td>
+<td>7/16</td>
+</tr>
+<tr>
+<td>8</td>
+<td>DAG简化版技术方案评审（6固定场景JSON）</td>
+<td>架构师</td>
+<td>7/18</td>
+</tr>
+<tr>
+<td>9</td>
+<td>L2 MVP里程碑调整（如需延期）</td>
+<td>PM</td>
+<td>7/18</td>
+</tr>
+<tr>
+<td>10</td>
+<td>供应商正式合同签约（锁定到货时间）</td>
+<td>采购</td>
+<td>7/10</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">六、关键决策点（需领导确认）</h2>
+<table>
+<thead>
+<tr>
+<th>决策</th>
+<th>选项A</th>
+<th>选项B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>开馆时间</td>
+<td>8/8（需8人团队）</td>
+<td>延期至9/1（4人团队可完成）</td>
+</tr>
+<tr>
+<td>功能范围</td>
+<td>L2 MVP（6场景简化版）</td>
+<td>完整版（需加人/延期）</td>
+</tr>
+<tr>
+<td>海纳</td>
+<td>开馆静态展示</td>
+<td>等底盘上云后部署</td>
+</tr>
+<tr>
+<td>洒漏自愈</td>
+<td>Phase 1.5（8/15后）</td>
+<td>砍掉（不作为展厅场景）</td>
+</tr>
+<tr>
+<td>充电调度</td>
+<td>手动管理（运营人员SOP）</td>
+<td>自动调度（Phase 1.5）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>© 2026 黑芝麻智能 · 前海展厅项目组 · 可行性分析报告</em></p></div><div class="doc-footer"><a class="df-disabled">‹ 已是首篇</a><a href="index.html">返回首页</a><a class="df-disabled">已是末篇 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
