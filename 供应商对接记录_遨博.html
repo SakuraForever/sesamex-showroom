@@ -1,0 +1,545 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>供应商对接记录_遨博</title><style>
+:root{--bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--text:#f5f5f7;--sub:#98989d;--acc:#0a84ff;--green:#30d158;--orange:#ff9f0a;--purple:#bf5af2;--bd:rgba(255,255,255,0.08);--font:-apple-system,'SF Pro Display','Microsoft YaHei','PingFang SC',sans-serif;--mono:'SF Mono','Consolas',monospace}
+[data-theme="light"]{--bg:#fbfbfd;--bg2:#f5f5f7;--bg3:#e8e8ed;--text:#1d1d1f;--sub:#6e6e73;--acc:#0071e3;--green:#34c759;--orange:#ff9500;--purple:#af52de;--bd:rgba(0,0,0,0.1)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.8;-webkit-font-smoothing:antialiased}
+.doc-nav{position:fixed;top:0;left:0;right:0;height:48px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(28,28,30,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--bd)}
+.doc-nav .dn-back{font-size:14px;color:var(--acc);text-decoration:none;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.doc-nav .dn-back:hover{background:rgba(10,132,255,0.1)}
+.doc-nav .dn-mid{display:flex;align-items:center;gap:10px;overflow:hidden}
+.doc-nav .dn-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-nav .dn-crumb{font-size:11px;color:var(--sub);white-space:nowrap}
+.doc-nav .dn-chap{display:flex;gap:6px;flex-shrink:0}
+.doc-nav .dn-chap a{font-size:11px;color:var(--sub);text-decoration:none;padding:4px 10px;border-radius:8px;border:0.5px solid var(--bd);transition:all .15s;white-space:nowrap}
+.doc-nav .dn-chap a:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
+.smx-theme-toggle{background:var(--bg3);border:0.5px solid var(--bd);border-radius:20px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;margin-left:6px}
+.doc{max-width:880px;margin:0 auto;padding:72px 24px 80px}
+h1{font-size:30px;font-weight:700;margin:36px 0 20px;letter-spacing:-0.5px;border-bottom:1px solid var(--bd);padding-bottom:12px}
+h2{font-size:22px;font-weight:600;margin:36px 0 16px;padding-left:14px;border-left:3px solid var(--acc)}
+h3{font-size:18px;font-weight:600;margin:28px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--text)}
+p{font-size:15px;margin-bottom:14px;color:var(--text)}
+ul,ol{font-size:15px;margin-bottom:14px;padding-left:26px}
+li{margin-bottom:6px}
+strong{color:#fff;font-weight:600}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;border-radius:12px;overflow:hidden;border:0.5px solid var(--bd)}
+th{background:var(--bg3);color:var(--acc);padding:12px 16px;border:0.5px solid var(--bd);font-weight:600;text-align:left}
+td{padding:10px 16px;border:0.5px solid var(--bd);color:var(--text);line-height:1.6}
+tr:nth-child(even) td{background:var(--bg2)}
+code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:13px;color:#f5f5f7;font-family:var(--mono)}
+pre{background:var(--bg2);padding:18px;border-radius:12px;overflow-x:auto;margin:18px 0;border:0.5px solid var(--bd)}
+pre code{background:none;padding:0;font-size:13px;color:#e0e0e0}
+blockquote{border-left:3px solid var(--acc);padding:12px 22px;margin:18px 0;color:var(--sub);background:var(--bg2);border-radius:0 12px 12px 0}
+hr{border:none;border-top:0.5px solid var(--bd);margin:36px 0}
+a{color:#64b5f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.mermaid{background:var(--bg2);padding:20px;border-radius:12px;margin:18px 0;text-align:center;border:0.5px solid var(--bd)}
+[data-theme="light"] .mermaid{background:transparent;border-color:rgba(0,0,0,0.08)}
+.doc-footer{max-width:880px;margin:0 auto;padding:0 24px 60px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.doc-footer a{font-size:13px;color:var(--sub);text-decoration:none;padding:10px 20px;border-radius:12px;border:0.5px solid var(--bd);transition:all .15s;flex:1;text-align:center;min-width:160px}
+.doc-footer a:hover{color:var(--text);border-color:rgba(255,255,255,0.15);background:var(--bg2)}
+.doc-footer a.df-disabled{opacity:0.3;pointer-events:none}
+@media(max-width:768px){
+  .doc-nav{flex-wrap:wrap;height:auto;padding:8px 12px}
+  .doc-nav .dn-mid{order:3;width:100%;margin-top:4px}
+  .doc-nav .dn-title{font-size:12px}
+  .doc-nav .dn-crumb{font-size:10px}
+  .doc-nav .dn-chap a{font-size:10px;padding:3px 8px}
+  .doc{padding:100px 16px 60px}
+  h1{font-size:24px}
+  h2{font-size:18px}
+  .doc-footer{flex-direction:column}
+  .doc-footer a{min-width:auto}
+}
+</style></head><body><div class="doc-nav"><a href="index.html" class="dn-back">‹ 返回首页</a><div class="dn-mid"><div class="dn-title">供应商对接记录_遨博</div><div class="dn-crumb"></div></div><div class="dn-chap"></div><button class="smx-theme-toggle" onclick="smxToggleTheme(this)" title="切换明暗模式">🌙</button></div><div class="doc"><h1 id="aubo-i5">供应商对接记录 · 遨博智能（AUBO i5 + 海纳移动协作臂）</h1>
+<blockquote>
+<p>对接日期：2026年7月 · 对接方：遨博智能 · 机型：AUBO i5协作臂 + AMR300S移动协作（海纳系列）</p>
+</blockquote>
+<hr />
+<h2 id="qa">一、对接Q&amp;A整理</h2>
+<h3 id="q1">Q1：底盘实时位置和姿态是否可在云平台获取？</h3>
+<table>
+<thead>
+<tr>
+<th>遨博回复</th>
+<th style="text-align: center;">状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目前开发完的部分<strong>缺少底盘接口支撑</strong></td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>需要在MCP中加入底盘接口映射（需做开发）</td>
+<td style="text-align: center;">⏳</td>
+</tr>
+<tr>
+<td>底盘接口预计<strong>8月初完成</strong>开发</td>
+<td style="text-align: center;">⏳</td>
+</tr>
+</tbody>
+</table>
+<p><strong>影响</strong>：底盘导航定位8月初前不可用，与8月开馆时间紧张。</p>
+<h3 id="q2">Q2：臂和底盘是两套控制系统，臂的动作数据可否拿到？</h3>
+<table>
+<thead>
+<tr>
+<th>遨博回复</th>
+<th style="text-align: center;">状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>臂的数据<strong>可以拿到</strong>（已开发完）</td>
+<td style="text-align: center;">✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>影响</strong>：机械臂的关节状态/位置/姿态可立即通过SDK获取，采摘视觉系统可先行开发。</p>
+<h3 id="q3">Q3：云平台可直接下发执行序列到机械臂和底盘？</h3>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>遨博回复</th>
+<th style="text-align: center;">状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>机械臂</strong></td>
+<td>云平台可直接下发执行序列</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td><strong>底盘</strong></td>
+<td>暂时<strong>还未开发</strong></td>
+<td style="text-align: center;">❌</td>
+</tr>
+</tbody>
+</table>
+<p><strong>影响</strong>：
+- 臂动作可远程编排（采摘序列可直接云下发）
+- 底盘移动无法通过云控制 → 采摘场景需臂固定在世界树旁，底盘暂不参与</p>
+<h3 id="q4">Q4：碰撞检测、急停等突发状态是否可通过云平台获取？</h3>
+<table>
+<thead>
+<tr>
+<th>遨博回复</th>
+<th style="text-align: center;">状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>碰撞检测、机器人运行模式<strong>可以获取</strong></td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>AMR300S有臂的位置和状态 → 代表整体位置信息也能拿到</td>
+<td style="text-align: center;">✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>影响</strong>：安全监控系统可对接遨博碰撞检测状态，急停信息可上云。</p>
+<h3 id="q5">Q5：底盘云控制/路径规划云下发？</h3>
+<table>
+<thead>
+<tr>
+<th>遨博回复</th>
+<th style="text-align: center;">状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>底盘目前还没把接口接入云平台</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>路径规划信息无法从云下发</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>底盘上云计划：<strong>8月初完成开发</strong></td>
+<td style="text-align: center;">⏳</td>
+</tr>
+</tbody>
+</table>
+<h3 id="q6">Q6：世界树数据采集与算法验证</h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>遨博回复</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>仿真USD文件还是mini版做数采？</td>
+<td>需要一个同样的场景模型来训练算法</td>
+</tr>
+<tr>
+<td>可以遥操作做数采吗？</td>
+<td>可以，需要协调一台设备做遥操作采集</td>
+</tr>
+<tr>
+<td>树的结构</td>
+<td>树不会做两颗，非常巨大，苹果四散挂载</td>
+</tr>
+<tr>
+<td>模型方案</td>
+<td>可做3D打印缩微模型做仿真训练</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_1">二、能力矩阵</h2>
+<h3 id="aubo-i5_1">AUBO i5（协作臂）</h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th style="text-align: center;">当前状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>臂关节数据获取</td>
+<td style="text-align: center;">✅</td>
+<td>SDK已开发，可立即对接</td>
+</tr>
+<tr>
+<td>臂执行序列云下发</td>
+<td style="text-align: center;">✅</td>
+<td>云平台直接下发</td>
+</tr>
+<tr>
+<td>臂位置/姿态获取</td>
+<td style="text-align: center;">✅</td>
+<td>已可用</td>
+</tr>
+<tr>
+<td>碰撞检测状态</td>
+<td style="text-align: center;">✅</td>
+<td>可上云获取</td>
+</tr>
+<tr>
+<td>运行模式获取</td>
+<td style="text-align: center;">✅</td>
+<td>可上云获取</td>
+</tr>
+<tr>
+<td>采摘末端控制</td>
+<td style="text-align: center;">✅</td>
+<td>通过执行序列控制吸盘</td>
+</tr>
+<tr>
+<td>力控反馈</td>
+<td style="text-align: center;">✅</td>
+<td>&gt;15N自动停止</td>
+</tr>
+</tbody>
+</table>
+<h3 id="amr300s">AMR300S（海纳移动协作臂底盘）</h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th style="text-align: center;">当前状态</th>
+<th>时间节点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>底盘位置/姿态获取</td>
+<td style="text-align: center;">❌</td>
+<td><strong>8月初上云</strong></td>
+</tr>
+<tr>
+<td>底盘移动云控制</td>
+<td style="text-align: center;">❌</td>
+<td><strong>8月初上云</strong></td>
+</tr>
+<tr>
+<td>路径规划云下发</td>
+<td style="text-align: center;">❌</td>
+<td><strong>8月初上云</strong></td>
+</tr>
+<tr>
+<td>MCP接口映射</td>
+<td style="text-align: center;">❌</td>
+<td>待开发</td>
+</tr>
+<tr>
+<td>臂+底盘协同</td>
+<td style="text-align: center;">⏳</td>
+<td>底盘上云后</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">三、对场景的影响</h2>
+<h3 id="5">场景5 · 采摘互动 — 重大影响</h3>
+<table>
+<thead>
+<tr>
+<th>原设计</th>
+<th>遨博实际</th>
+<th>影响</th>
+<th>调整方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>遨博i5固定在世界树旁采摘</td>
+<td>臂数据✅+臂控制✅</td>
+<td>无影响</td>
+<td>正常推进</td>
+</tr>
+<tr>
+<td>世界树3D模型用于算法训练</td>
+<td>需要<strong>实物模型+遥操数采</strong></td>
+<td>前置条件</td>
+<td>3D打印缩微树做仿真训练</td>
+</tr>
+<tr>
+<td>海纳移动协作臂扩展</td>
+<td>底盘<strong>8月初才上云</strong></td>
+<td>时间紧张</td>
+<td>8月开馆用固定i5，海纳作为Phase 2升级</td>
+</tr>
+</tbody>
+</table>
+<p><strong>采摘算法训练流程（调整后）</strong>：</p>
+<pre><code>1. 3D打印缩微世界树模型（1:5或1:10比例）
+2. 协调一台遨博设备做遥操作数据采集
+3. 在Isaac Sim中用采集数据训练采摘算法
+4. 算法验证通过后部署到展厅实物i5
+</code></pre>
+<h3 id="3">场景3 · 洒漏自愈 — 无影响</h3>
+<p>此场景主角是M20 Pro，遨博不参与。</p>
+<h3 id="4">场景4 · 送物接力 — 无影响</h3>
+<p>此场景主角是云迹送餐机器人。</p>
+<h3 id="_3">充电调度 — 无影响</h3>
+<p>遨博i5市电供电，AMR300S充电方式待确认。</p>
+<hr />
+<h2 id="_4">四、对研发任务的影响</h2>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>任务</th>
+<th>说明</th>
+<th style="text-align: center;">工时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D06</td>
+<td>采摘视觉系统</td>
+<td>臂SDK已可用，可立即开发</td>
+<td style="text-align: center;">50人天（不变）</td>
+</tr>
+<tr>
+<td>D18（新增）</td>
+<td>遨博臂SDK适配</td>
+<td>关节数据获取+执行序列下发+碰撞状态</td>
+<td style="text-align: center;">15人天</td>
+</tr>
+<tr>
+<td>D19（新增）</td>
+<td>世界树3D打印模型</td>
+<td>缩微模型设计+打印+遥操数采环境搭建</td>
+<td style="text-align: center;">20人天</td>
+</tr>
+<tr>
+<td>D20（新增）</td>
+<td>AMR300S底盘接口对接（Phase 2）</td>
+<td>等8月初底盘上云后MCP开发</td>
+<td style="text-align: center;">10人天</td>
+</tr>
+</tbody>
+</table>
+<h3 id="d19-3d20">D19 世界树3D打印模型（20人天，关键路径）</h3>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>内容</th>
+<th>时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. CAD建模</td>
+<td>按实物世界树1:5或1:10缩微建模</td>
+<td>5天</td>
+</tr>
+<tr>
+<td>2. 3D打印</td>
+<td>打印树体+6个V型槽位+苹果挂载位</td>
+<td>5天</td>
+</tr>
+<tr>
+<td>3. 遥操环境搭建</td>
+<td>缩微树+遨博设备+数据采集脚本</td>
+<td>5天</td>
+</tr>
+<tr>
+<td>4. 数据采集</td>
+<td>遥操作采集100+组采摘数据</td>
+<td>3天</td>
+</tr>
+<tr>
+<td>5. 算法训练</td>
+<td>Isaac Sim中训练HSV识别+抓取策略</td>
+<td>2天</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">五、对采购清单的影响</h2>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>原采购</th>
+<th>修改</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R06</td>
+<td>遨博i5（4-6万）</td>
+<td>不变，可立即采购</td>
+</tr>
+<tr>
+<td>R07</td>
+<td>遨博海纳AMR300S（8-12万）</td>
+<td><strong>采购不变</strong>，但<strong>底盘功能8月后才可用</strong></td>
+</tr>
+<tr>
+<td>新增</td>
+<td>世界树3D打印缩微模型</td>
+<td><strong>新增1套</strong>（预估0.5-1万）</td>
+</tr>
+<tr>
+<td>新增</td>
+<td>遥操数采设备</td>
+<td><strong>新增1套</strong>（待遨博协调设备）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_6">六、待跟进问题清单</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>问题</th>
+<th style="text-align: center;">优先级</th>
+<th>负责人</th>
+<th>截止时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>i5正式报价+交付时间</td>
+<td style="text-align: center;">高</td>
+<td>采购</td>
+<td>7月10日</td>
+</tr>
+<tr>
+<td>2</td>
+<td>AMR300S正式报价+交付时间</td>
+<td style="text-align: center;">高</td>
+<td>采购</td>
+<td>7月10日</td>
+</tr>
+<tr>
+<td>3</td>
+<td>i5 SDK文档获取+技术对接会</td>
+<td style="text-align: center;">高</td>
+<td>研发</td>
+<td>7月5日</td>
+</tr>
+<tr>
+<td>4</td>
+<td>世界树实物落地时间确认</td>
+<td style="text-align: center;">高</td>
+<td>展装</td>
+<td>7月10日</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3D打印缩微世界树方案确认</td>
+<td style="text-align: center;">高</td>
+<td>研发+展装</td>
+<td>7月15日</td>
+</tr>
+<tr>
+<td>6</td>
+<td>遨博协调设备做遥操数采</td>
+<td style="text-align: center;">高</td>
+<td>研发+遨博</td>
+<td>7月20日</td>
+</tr>
+<tr>
+<td>7</td>
+<td>底盘8月初上云具体日期</td>
+<td style="text-align: center;">高</td>
+<td>遨博</td>
+<td>7月25日</td>
+</tr>
+<tr>
+<td>8</td>
+<td>底盘上云后MCP接口文档</td>
+<td style="text-align: center;">中</td>
+<td>遨博</td>
+<td>8月5日</td>
+</tr>
+<tr>
+<td>9</td>
+<td>AMR300S充电方式确认</td>
+<td style="text-align: center;">中</td>
+<td>遨博</td>
+<td>7月15日</td>
+</tr>
+<tr>
+<td>10</td>
+<td>臂+底盘协同控制方案</td>
+<td style="text-align: center;">中</td>
+<td>研发</td>
+<td>8月10日</td>
+</tr>
+<tr>
+<td>11</td>
+<td>缩微模型苹果挂载方式（四散vs槽位）</td>
+<td style="text-align: center;">中</td>
+<td>研发</td>
+<td>7月15日</td>
+</tr>
+<tr>
+<td>12</td>
+<td>遥操数采数据格式+标注规范</td>
+<td style="text-align: center;">中</td>
+<td>研发</td>
+<td>7月20日</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_7">七、关键时间线</h2>
+<pre><code>7/5  ──── i5 SDK对接会
+7/10 ──── 世界树实物落地时间确认 + i5/AMR300S报价
+7/15 ──── 3D打印缩微树方案确认
+7/20 ──── 遨博协调设备到位 + 开始遥操数采
+7/25 ──── 底盘上云日期确认
+8/初 ──── 底盘接口上云完成
+8/5  ──── 底盘MCP开发完成
+8/8  ──── 开馆（i5固定采摘可用，AMR300S底盘功能Phase 2升级）
+</code></pre>
+<hr />
+<p><em>© 2026 黑芝麻智能 · 前海展厅项目组 · 供应商对接记录</em></p></div><div class="doc-footer"><a class="df-disabled">‹ 已是首篇</a><a href="index.html">返回首页</a><a class="df-disabled">已是末篇 ›</a></div><script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script><script>var smxMermaidTheme=document.documentElement.getAttribute("data-theme")==="light"?"default":"dark";var smxMermaidVars=document.documentElement.getAttribute("data-theme")==="light"?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};mermaid.initialize({startOnLoad:true,theme:smxMermaidTheme,themeVariables:smxMermaidVars});</script><script>var saved=localStorage.getItem('smx-theme');if(saved==='light')document.documentElement.setAttribute('data-theme','light');function smxRerenderMermaid(){var t=document.documentElement.getAttribute('data-theme');if(typeof mermaid==='undefined')return;var th=t==='light'?'default':'dark';var tv=t==='light'?{primaryColor:"#f5f5f7",primaryTextColor:"#1d1d1f",primaryBorderColor:"#0071e3",lineColor:"#6e6e73",secondaryColor:"#e8e8ed",tertiaryColor:"#f5f5f7"}:{primaryColor:"#1c1c1e",primaryTextColor:"#f5f5f7",primaryBorderColor:"#0a84ff",lineColor:"#98989d",secondaryColor:"#2c2c2e",tertiaryColor:"#1c1c1e"};document.querySelectorAll('.mermaid').forEach(function(e){e.removeAttribute('data-processed');e.innerHTML=e.getAttribute('data-original')||e.innerHTML;if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)});mermaid.initialize({startOnLoad:false,theme:th,themeVariables:tv});mermaid.run({nodes:document.querySelectorAll('.mermaid')})}function smxToggleTheme(b){var c=document.documentElement.getAttribute('data-theme');if(c==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('smx-theme','dark');if(b)b.textContent='🌙'}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('smx-theme','light');if(b)b.textContent='☀️'}setTimeout(smxRerenderMermaid,50)}document.addEventListener('DOMContentLoaded',function(){var c=document.documentElement.getAttribute('data-theme');var b=document.querySelector('.smx-theme-toggle');if(b)b.textContent=c==='light'?'☀️':'🌙';document.querySelectorAll('.mermaid').forEach(function(e){if(!e.getAttribute('data-original'))e.setAttribute('data-original',e.innerHTML)})});</script><script src="auth.js"></script></body></html>
